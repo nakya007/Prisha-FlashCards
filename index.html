@@ -3,33 +3,263 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prisha's Flashcards</title>
+<title>Prisha's Flashcards ⭐</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, Arial, sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; }
-  h1 { font-size: 2em; color: #333; margin-bottom: 8px; text-align: center; }
-  p { color: #666; margin-bottom: 40px; text-align: center; }
-  .cards { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
-  a.card { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 220px; height: 180px; border-radius: 20px; text-decoration: none; color: white; font-size: 1.2em; font-weight: 700; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transition: transform 0.2s; padding: 20px; }
-  a.card:hover { transform: translateY(-4px); }
-  .english { background: linear-gradient(135deg, #7b2d8b, #c45fdc); }
-  .maths { background: linear-gradient(135deg, #1565c0, #42a5f5); }
-  .icon { font-size: 2.5em; margin-bottom: 10px; }
-  .sub { font-size: 0.75em; opacity: 0.85; font-weight: 400; margin-top: 4px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0d0d2b 0%, #1a0533 45%, #0d1b4a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Star field ── */
+.star-field { position: fixed; inset: 0; pointer-events: none; }
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.8); }
+}
+
+/* ── Floating emojis ── */
+.floaty {
+  position: fixed;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  animation: rise linear infinite;
+}
+@keyframes rise {
+  0%   { transform: translateY(105vh) rotate(0deg);   opacity: 0; }
+  8%   { opacity: 0.18; }
+  92%  { opacity: 0.18; }
+  100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── Content ── */
+.content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 620px;
+}
+
+/* Bouncing star */
+.hero-emoji {
+  font-size: 4.5em;
+  line-height: 1;
+  margin-bottom: 14px;
+  animation: bob 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(255,220,50,0.7));
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50%       { transform: translateY(-16px) rotate(5deg); }
+}
+
+/* Rainbow title */
+.title {
+  font-size: clamp(2.2em, 8vw, 3.4em);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, #f9d423 0%, #ff6b6b 30%, #c471f5 65%, #12c2e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 12px rgba(200,100,255,0.4));
+}
+
+/* Gold badge */
+.badge {
+  background: linear-gradient(135deg, #f9d423, #ff8c00);
+  color: #1a1a2e;
+  font-size: 0.88em;
+  font-weight: 900;
+  padding: 7px 22px;
+  border-radius: 40px;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 20px rgba(249,212,35,0.5);
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.38);
+  font-size: 0.78em;
+  font-weight: 800;
+  margin-bottom: 44px;
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── Subject cards ── */
+.cards { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; width: 100%; }
+
+a.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 230px;
+  height: 210px;
+  border-radius: 26px;
+  text-decoration: none;
+  color: white;
+  text-align: center;
+  padding: 26px;
+  border: 2px solid rgba(255,255,255,0.18);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 14px 50px rgba(0,0,0,0.5);
+  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+a.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+a.card:hover  { transform: translateY(-10px) scale(1.06); box-shadow: 0 24px 70px rgba(0,0,0,0.55); }
+a.card:active { transform: scale(0.97); }
+
+.english { background: linear-gradient(140deg, #7b2d8b 0%, #c45fdc 100%); }
+.maths   { background: linear-gradient(140deg, #1565c0 0%, #42a5f5 100%); }
+
+.card-icon { font-size: 3.4em; margin-bottom: 10px; line-height: 1; }
+.card-name { font-size: 1.45em; font-weight: 900; letter-spacing: 0.5px; }
+.card-sub  { font-size: 0.7em; font-weight: 700; opacity: 0.8; margin-top: 5px; }
+.card-go   {
+  margin-top: 12px;
+  background: rgba(255,255,255,0.22);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 0.78em;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+/* ── Footer ── */
+.footer {
+  margin-top: 44px;
+  color: rgba(255,255,255,0.28);
+  font-size: 0.78em;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.footer span {
+  display: inline-block;
+  animation: sparkle-pop 3s ease-in-out infinite;
+}
+@keyframes sparkle-pop {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.4) rotate(20deg); }
+}
 </style>
 </head>
 <body>
-  <h1>Prisha's Flashcards</h1>
-  <p>Grammar School Prep - Pillai Tutors, Sutton</p>
+
+<div class="star-field" id="starField"></div>
+
+<div class="content">
+  <div class="hero-emoji">🌟</div>
+  <div class="title">Prisha's<br>Flashcards</div>
+  <div class="badge">🏆 Grammar School Champion</div>
+  <div class="subtitle">Pillai Tutors · Sutton</div>
+
   <div class="cards">
     <a class="card english" href="English_Flashcards.html">
-      <div class="icon">&#128218;</div>
-      English<br><span class="sub">70 cards - 13 topics</span>
+      <div class="card-icon">📚</div>
+      <div class="card-name">English</div>
+      <div class="card-sub">70+ cards · 17 topics</div>
+      <div class="card-go">Let's go! →</div>
     </a>
     <a class="card maths" href="Maths_Flashcards.html">
-      <div class="icon">&#128290;</div>
-      Maths<br><span class="sub">65 cards - 16 topics</span>
+      <div class="card-icon">🔢</div>
+      <div class="card-name">Maths</div>
+      <div class="card-sub">75+ cards · 20 topics</div>
+      <div class="card-go">Let's go! →</div>
     </a>
   </div>
+
+  <div class="footer">You've got this, Prisha! <span>✨</span></div>
+</div>
+
+<script>
+// ── Twinkling stars ──────────────────────────────────────
+const sf = document.getElementById('starField');
+for (let i = 0; i < 100; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random() * 2.5 + 0.8;
+  s.style.cssText = `
+    width:${sz}px; height:${sz}px;
+    top:${Math.random()*100}%; left:${Math.random()*100}%;
+    animation-duration:${(Math.random()*3+1.5).toFixed(1)}s;
+    animation-delay:${(Math.random()*5).toFixed(1)}s;
+  `;
+  sf.appendChild(s);
+}
+
+// ── Shooting star ────────────────────────────────────────
+function shootingStar() {
+  const s = document.createElement('div');
+  s.style.cssText = `
+    position:fixed; pointer-events:none; z-index:5;
+    width:${60+Math.random()*80}px; height:2px;
+    top:${Math.random()*60}%; left:${Math.random()*60}%;
+    background:linear-gradient(90deg,rgba(255,255,255,0.9),transparent);
+    border-radius:2px;
+    animation:shoot 0.7s ease-out forwards;
+  `;
+  document.body.appendChild(s);
+  if (!document.getElementById('shootKF')) {
+    const kf = document.createElement('style');
+    kf.id = 'shootKF';
+    kf.textContent = `@keyframes shoot{0%{opacity:1;transform:translateX(0) rotate(-20deg)}100%{opacity:0;transform:translateX(180px) translateY(60px) rotate(-20deg)}}`;
+    document.head.appendChild(kf);
+  }
+  setTimeout(() => s.remove(), 800);
+  setTimeout(shootingStar, 3000 + Math.random() * 6000);
+}
+setTimeout(shootingStar, 2000);
+
+// ── Floating emojis ──────────────────────────────────────
+const pool = ['⭐','🦄','🌈','🎈','🚀','🦋','🌺','🎮','🐉','🏆','✨','🎯','🐸','🦁','🐬'];
+pool.forEach((em, i) => {
+  const el = document.createElement('div');
+  el.className = 'floaty';
+  el.textContent = em;
+  const dur = 14 + Math.random() * 10;
+  el.style.cssText = `
+    left:${(i / pool.length * 100) + Math.random() * 4}%;
+    font-size:${1.4 + Math.random() * 0.8}em;
+    animation-duration:${dur.toFixed(1)}s;
+    animation-delay:${(Math.random() * dur).toFixed(1)}s;
+  `;
+  document.body.appendChild(el);
+});
+</script>
 </body>
 </html>
