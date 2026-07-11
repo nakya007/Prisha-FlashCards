@@ -129,9 +129,30 @@
     .card-q-text { font-size: 0.97em; }
     .card-a-text { font-size: 0.85em; }
   }
+
+  /* ═══ SPACE EXPLORER THEME ═══ */
+  body { background: linear-gradient(160deg, #040418 0%, #080820 45%, #0a102a 100%) !important; color: white !important; }
+  .page-header { background: rgba(8,8,32,0.92) !important; border-bottom: 1px solid rgba(80,130,255,0.2) !important; box-shadow: 0 2px 24px rgba(0,0,30,0.7) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .back-btn { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(255,255,255,0.15) !important; }
+  .header-title { color: white !important; }
+  .header-sub { color: rgba(140,180,255,0.7) !important; }
+  .home-link { color: rgba(140,180,255,0.6) !important; }
+  .shuffle-header-btn { background: linear-gradient(135deg, #ffd700, #ff8c00) !important; }
+  .topic-intro h2 { color: white !important; }
+  .topic-intro p { color: rgba(140,180,255,0.7) !important; }
+  .card-progress { color: rgba(140,180,255,0.7) !important; }
+  .nav-btn { background: rgba(255,255,255,0.07) !important; color: white !important; border: 2px solid rgba(80,130,255,0.35) !important; box-shadow: 0 0 14px rgba(80,130,255,0.15) !important; }
+  .flip-btn { background: linear-gradient(135deg, #1565c0, #42a5f5) !important; box-shadow: 0 4px 18px rgba(66,165,245,0.4) !important; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.1) !important; }
+  .theme-bg { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+  .theme-star { position: absolute; background: white; border-radius: 50%; animation: t-tw ease-in-out infinite; }
+  @keyframes t-tw { 0%,100%{opacity:.12;transform:scale(1)} 50%{opacity:.9;transform:scale(1.8)} }
+  .theme-float { position: fixed; pointer-events: none; user-select: none; opacity: 0; animation: t-rise linear infinite; z-index: 0; }
+  @keyframes t-rise { 0%{transform:translateY(105vh) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{transform:translateY(-8vh) rotate(540deg);opacity:0} }
 </style>
 </head>
 <body>
+<div id="themeBg" class="theme-bg"></div>
 
 <!-- ═══ TOPIC VIEW ═══ -->
 <div id="topicView">
@@ -433,6 +454,48 @@ document.addEventListener("keydown", e => {
 });
 
 buildTopicGrid();
+</script>
+
+<script>
+// ── Space Explorer Theme ──────────────────────────────────────
+(function() {
+  const bg = document.getElementById('themeBg');
+
+  // Twinkling stars
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div');
+    s.className = 'theme-star';
+    const sz = (Math.random() * 2.4 + 0.5).toFixed(1);
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${(Math.random()*100).toFixed(1)}%;left:${(Math.random()*100).toFixed(1)}%;animation-duration:${(Math.random()*3+1.5).toFixed(1)}s;animation-delay:${(Math.random()*5).toFixed(1)}s;`;
+    bg.appendChild(s);
+  }
+
+  // Occasional shooting star
+  function shoot() {
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;pointer-events:none;z-index:0;width:${60+Math.random()*80}px;height:2px;top:${Math.random()*55}%;left:${Math.random()*55}%;background:linear-gradient(90deg,rgba(255,255,255,0.9),transparent);border-radius:2px;animation:t-shoot 0.7s ease-out forwards;`;
+    document.body.appendChild(el);
+    if (!document.getElementById('t-shoot-kf')) {
+      const kf = document.createElement('style'); kf.id = 't-shoot-kf';
+      kf.textContent = '@keyframes t-shoot{0%{opacity:1;transform:translate(0,0) rotate(-20deg)}100%{opacity:0;transform:translate(180px,65px) rotate(-20deg)}}';
+      document.head.appendChild(kf);
+    }
+    setTimeout(() => el.remove(), 800);
+    setTimeout(shoot, 3500 + Math.random() * 7000);
+  }
+  setTimeout(shoot, 2500);
+
+  // Floating space emojis
+  const pool = ['🚀','🪐','🔭','⭐','🛸','💫','🌌','✨','🤖','🌠','🛰️','🔬'];
+  pool.forEach((em, i) => {
+    const el = document.createElement('div');
+    el.className = 'theme-float';
+    const dur = (15 + Math.random() * 10).toFixed(1);
+    el.style.cssText = `left:${((i / pool.length) * 100 + Math.random() * 4).toFixed(1)}%;font-size:${(1.2 + Math.random() * 0.8).toFixed(1)}em;animation-duration:${dur}s;animation-delay:${(Math.random() * parseFloat(dur)).toFixed(1)}s;`;
+    el.textContent = em;
+    document.body.appendChild(el);
+  });
+})();
 </script>
 </body>
 </html>
