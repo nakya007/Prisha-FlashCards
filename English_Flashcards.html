@@ -180,6 +180,7 @@
       <div class="header-title">📚 English Flashcards</div>
       <div class="header-sub">Grammar School Prep · Pillai Tutors</div>
     </div>
+    <div class="streak-badge" id="streakBadge" style="display:none"></div>
     <a class="home-link" href="index.html">🏠 Home</a>
   </div>
   <div class="topic-intro">
@@ -207,11 +208,20 @@
       <div class="header-title" id="cvTitle"></div>
       <div class="header-sub" id="cvSub"></div>
     </div>
-    <button class="shuffle-header-btn" onclick="shuffleCards()">🔀 Shuffle</button>
+  </div>
+  <div class="cv-toolbar">
+    <button class="font-btn" id="fontSm" onclick="setFont('sm')">A-</button>
+    <button class="font-btn fb-active" id="fontMd" onclick="setFont('md')">A</button>
+    <button class="font-btn" id="fontLg" onclick="setFont('lg')">A+</button>
+    <div class="toolbar-spacer"></div>
+    <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz</button>
+    <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+    <button class="shuffle-header-btn" onclick="shuffleCards()">🔀</button>
   </div>
   <div class="card-view-inner">
     <div class="card-progress" id="cardProgress"></div>
-    <div class="card-wrapper" onclick="flipCard()">
+    <div class="card-wrapper" id="cardWrapper" onclick="flipCard()">
+      <div class="card-rated-badge" id="cardRatedBadge"></div>
       <div class="card-inner" id="cardInner">
         <div class="card-face" id="cardFront">
           <div class="card-tag" id="frontTag"></div>
@@ -231,11 +241,19 @@
     </div>
     <div class="nav-buttons">
       <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
-      <button class="action-btn flip-btn" onclick="flipCard()">Flip Card</button>
+      <button class="action-btn flip-btn" id="flipBtn" onclick="flipCard()">Flip Card</button>
       <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
     </div>
     <div class="progress-bar-wrap">
       <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="rating-wrap" id="ratingWrap">
+      <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
+      <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
+    </div>
+    <div class="quiz-area" id="quizArea">
+      <div class="quiz-q-box" id="quizQuestion"></div>
+      <div class="quiz-opts" id="quizOpts"></div>
     </div>
   </div>
 </div>
@@ -364,29 +382,55 @@ let isFlipped = false;
 let activeMeta = null;
 
 function buildTopicGrid() {
-  const topics = [...new Set(ALL_CARDS.map(c => c.topic))];
-  const grid = document.getElementById("topicGrid");
+  var topics = [...new Set(ALL_CARDS.map(function(c) { return c.topic; }))];
+  var grid = document.getElementById("topicGrid");
   grid.innerHTML = "";
 
-  const allTile = document.createElement("div");
+  // Tricky Cards tile (only if any hard-rated cards exist) - goes FIRST
+  var trickyCards = (typeof getTrickyCards === 'function') ? getTrickyCards() : [];
+  if (trickyCards.length > 0) {
+    var trickTile = document.createElement("div");
+    trickTile.className = "topic-tile tricky-tile";
+    trickTile.innerHTML = '<div class="tile-emoji">😅</div><div class="tile-name">Tricky Cards</div><div class="tile-count">' + trickyCards.length + ' card' + (trickyCards.length > 1 ? 's' : '') + '</div>';
+    trickTile.onclick = function() {
+      var hardCards = getTrickyCards();
+      if (hardCards.length === 0) { alert('No tricky cards yet! Rate some cards first.'); return; }
+      filtered = hardCards;
+      current = 0; isFlipped = false;
+      document.getElementById('cardInner').classList.remove('flipped');
+      document.getElementById('cvTitle').textContent = '😅 Tricky Cards';
+      document.getElementById('cvSub').textContent = hardCards.length + ' cards to practice';
+      activeMeta = {emoji:'😅', g1:'#7f1d1d', g2:'#dc2626', d1:'#450a0a', d2:'#7f1d1d'};
+      document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #7f1d1d, #dc2626)';
+      document.getElementById('topicView').style.display = 'none';
+      document.getElementById('cardView').style.display = 'block';
+      renderCard();
+    };
+    grid.appendChild(trickTile);
+  }
+
+  var allTile = document.createElement("div");
   allTile.className = "topic-tile all-tile";
-  allTile.innerHTML = `<div class="tile-emoji">⭐</div><div class="tile-name">Practice All Topics</div><div class="tile-count">${ALL_CARDS.length} cards</div>`;
-  allTile.onclick = () => enterTopic("__all__");
+  allTile.innerHTML = '<div class="tile-emoji">⭐</div><div class="tile-name">Practice All Topics</div><div class="tile-count">' + ALL_CARDS.length + ' cards</div>';
+  allTile.onclick = function() { enterTopic("__all__"); };
   grid.appendChild(allTile);
 
-  topics.forEach(t => {
-    const meta = TOPIC_META[t] || { emoji:"📚", g1:"#37474f", g2:"#546e7a" };
-    const count = ALL_CARDS.filter(c => c.topic === t).length;
-    const tile = document.createElement("div");
+  topics.forEach(function(t) {
+    var meta = TOPIC_META[t] || { emoji:"📚", g1:"#37474f", g2:"#546e7a" };
+    var count = ALL_CARDS.filter(function(c) { return c.topic === t; }).length;
+    var tile = document.createElement("div");
     tile.className = "topic-tile";
-    tile.style.background = `linear-gradient(145deg, ${meta.g1}, ${meta.g2})`;
-    tile.innerHTML = `<div class="tile-emoji">${meta.emoji}</div><div class="tile-name">${t}</div><div class="tile-count">${count} cards</div>`;
-    tile.onclick = () => enterTopic(t);
+    tile.style.background = "linear-gradient(145deg, " + meta.g1 + ", " + meta.g2 + ")";
+    tile.innerHTML = '<div class="tile-emoji">' + meta.emoji + '</div><div class="tile-name">' + t + '</div><div class="tile-count">' + count + ' cards</div>';
+    tile.onclick = (function(topic) { return function() { enterTopic(topic); }; })(t);
     grid.appendChild(tile);
   });
+
+  if (typeof refreshTileProgress === 'function') refreshTileProgress();
 }
 
 function enterTopic(topic) {
+  updateStreak();
   if (topic === "__all__") {
     filtered = [...ALL_CARDS];
     activeMeta = { emoji:"⭐", g1:"#1a1a3a", g2:"#2d2d60", d1:"#0d0d1e", d2:"#1a1a3a" };
@@ -411,6 +455,16 @@ function backToTopics() {
   document.getElementById("topicView").style.display = "block";
   isFlipped = false;
   document.getElementById("cardInner").classList.remove("flipped");
+  if (typeof refreshTileProgress === 'function') refreshTileProgress();
+  isQuizMode = false;
+  var quizArea = document.getElementById('quizArea');
+  if (quizArea) quizArea.classList.remove('qa-show');
+  var wrapper = document.getElementById('cardWrapper');
+  if (wrapper) wrapper.style.display = '';
+  var flipBtn = document.getElementById('flipBtn');
+  if (flipBtn) flipBtn.style.display = '';
+  var qToggle = document.getElementById('quizToggle');
+  if (qToggle) qToggle.classList.remove('qt-active');
 }
 
 function renderCard() {
@@ -440,19 +494,32 @@ function renderCard() {
   document.getElementById("nextBtn").disabled = current === filtered.length - 1;
   const pct = filtered.length > 1 ? (current / (filtered.length - 1)) * 100 : 100;
   document.getElementById("progressBar").style.width = pct + "%";
+  if (typeof updateRatedBadge === 'function') updateRatedBadge();
+  if (typeof hideRatingBtns === 'function') hideRatingBtns();
+  if (typeof trackCardSeen === 'function') trackCardSeen(filtered[current].topic, filtered[current].q);
 }
 
 function flipCard() {
+  if (typeof isSwiping !== 'undefined' && isSwiping) return;
   isFlipped = !isFlipped;
+  if (typeof playFlip === 'function') playFlip();
+  if (isFlipped && !isQuizMode) { if (typeof showRatingBtns === 'function') showRatingBtns(); }
+  else { if (typeof hideRatingBtns === 'function') hideRatingBtns(); }
   document.getElementById("cardInner").classList.toggle("flipped", isFlipped);
 }
 
 function navigate(dir) {
+  if (typeof hideRatingBtns === 'function') hideRatingBtns();
+  if (dir > 0 && current >= filtered.length - 1) {
+    if (typeof triggerCelebration === 'function') triggerCelebration();
+    return;
+  }
   const newIdx = current + dir;
   if (newIdx >= 0 && newIdx < filtered.length) {
     current = newIdx; isFlipped = false;
     document.getElementById("cardInner").classList.remove("flipped");
-    renderCard();
+    if (typeof trackCardSeen === 'function') trackCardSeen(filtered[current] ? filtered[current].topic : '', filtered[current] ? filtered[current].q : '');
+    if (isQuizMode) { if (typeof renderQuiz === 'function') renderQuiz(); } else renderCard();
   }
 }
 
@@ -507,6 +574,412 @@ function handleSearch(val) {
 }
 
 buildTopicGrid();
+</script>
+
+<div id="celebrateOverlay">
+  <canvas id="confettiCanvas"></canvas>
+  <div class="celebrate-msg" id="celebrateMsg">🎉<br>Well done Prisha!<br>🌟 Topic Complete!</div>
+  <button class="celebrate-btn" onclick="closeCelebration()">Keep going! ✨</button>
+</div>
+
+<style>
+/* ── NEW FEATURES CSS ── */
+.cv-toolbar { display:flex; gap:8px; align-items:center; padding:6px 14px 8px; background:rgba(0,0,0,0.2); flex-wrap:wrap; }
+.font-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:8px; padding:4px 11px; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.82em; -webkit-tap-highlight-color:transparent; }
+.font-btn.fb-active { background:rgba(255,255,255,0.3); border-color:rgba(255,255,255,0.6); }
+.quiz-toggle-btn, .mute-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:10px; padding:5px 12px; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8em; -webkit-tap-highlight-color:transparent; }
+.quiz-toggle-btn.qt-active { background:rgba(100,200,100,0.3); border-color:rgba(100,255,100,0.5); }
+.toolbar-spacer { flex:1; }
+.font-sm .card-q-text { font-size:0.85em!important; }
+.font-sm .card-a-text { font-size:0.78em!important; }
+.font-lg .card-q-text { font-size:1.22em!important; }
+.font-lg .card-a-text { font-size:1.06em!important; }
+.rating-wrap { display:none; gap:10px; justify-content:center; padding:10px 0 0; }
+.rating-wrap.rw-show { display:flex; }
+.btn-got  { flex:1; max-width:170px; background:linear-gradient(135deg,#166534,#22c55e); color:white; border:none; border-radius:16px; padding:13px 10px; font-size:0.9em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 14px rgba(34,197,94,0.35); -webkit-tap-highlight-color:transparent; }
+.btn-hard { flex:1; max-width:170px; background:linear-gradient(135deg,#991b1b,#ef4444); color:white; border:none; border-radius:16px; padding:13px 10px; font-size:0.9em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 14px rgba(239,68,68,0.35); -webkit-tap-highlight-color:transparent; }
+.card-rated-badge { position:absolute; top:10px; right:12px; font-size:1.3em; z-index:5; pointer-events:none; }
+.streak-badge { background:linear-gradient(135deg,#f97316,#fbbf24); color:#1c0a00; font-weight:900; border-radius:20px; padding:5px 14px; font-size:0.75em; letter-spacing:0.5px; white-space:nowrap; }
+.tricky-tile { background:linear-gradient(145deg,#7f1d1d,#dc2626)!important; }
+.tile-progress { font-size:0.58em; color:rgba(255,255,255,0.55); margin-top:3px; font-weight:700; }
+.quiz-area { display:none; flex-direction:column; gap:0; padding:0; }
+.quiz-area.qa-show { display:flex; }
+.quiz-q-box { background:rgba(255,255,255,0.08); border-radius:16px; padding:18px 20px; margin:10px 14px 0; color:white; font-weight:800; font-size:0.92em; line-height:1.5; }
+.quiz-opts { display:flex; flex-direction:column; gap:9px; padding:12px 14px; }
+.quiz-opt { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15); border-radius:14px; padding:13px 16px; color:white; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer; text-align:left; font-size:0.84em; line-height:1.4; -webkit-tap-highlight-color:transparent; transition:background 0.12s; }
+.quiz-opt:active { background:rgba(255,255,255,0.16); }
+.quiz-opt.qo-correct { background:rgba(34,197,94,0.35)!important; border-color:#22c55e!important; }
+.quiz-opt.qo-wrong   { background:rgba(239,68,68,0.35)!important; border-color:#ef4444!important; }
+.quiz-opt:disabled   { cursor:default; }
+#celebrateOverlay { position:fixed; inset:0; z-index:999; background:rgba(0,0,10,0.88); display:none; flex-direction:column; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+#celebrateOverlay.co-show { display:flex; }
+#confettiCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.celebrate-msg { position:relative; z-index:1; text-align:center; color:white; font-family:'Nunito',sans-serif; font-size:clamp(1.6em,5vw,2.6em); font-weight:900; line-height:1.4; text-shadow:0 2px 24px rgba(255,200,0,0.6); -webkit-animation:cel-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; animation:cel-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+@-webkit-keyframes cel-pop { 0%{-webkit-transform:scale(0.3);opacity:0} 100%{-webkit-transform:scale(1);opacity:1} }
+@keyframes cel-pop { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
+.celebrate-btn { position:relative; z-index:1; margin-top:28px; background:white; color:#1a1a2e; border:none; border-radius:24px; padding:14px 34px; font-size:1em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
+</style>
+
+<script>
+// ══════════════════════════════════════════════════
+//  FEATURE PACK — All 9 UX Enhancements
+// ══════════════════════════════════════════════════
+
+// ── Shared state ──────────────────────────────────
+var isQuizMode = false;
+var soundMuted = false;
+var currentFont = 'md';
+var sessionSeen = {};
+var isSwiping = false;
+
+// ── localStorage helpers ──────────────────────────
+function lsGet(k, def) {
+  try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e) { return def; }
+}
+function lsSet(k, v) {
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+}
+
+// ── 7. Sound effects ──────────────────────────────
+var _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) _audioCtx = new AC();
+  }
+  return _audioCtx;
+}
+function _playTone(freq, type, startT, dur, gainVal) {
+  var ctx = getAudioCtx();
+  if (!ctx) return;
+  var osc = ctx.createOscillator();
+  var g   = ctx.createGain();
+  osc.connect(g); g.connect(ctx.destination);
+  osc.frequency.value = freq;
+  osc.type = type || 'sine';
+  g.gain.setValueAtTime(gainVal || 0.09, startT);
+  g.gain.exponentialRampToValueAtTime(0.0001, startT + dur);
+  osc.start(startT);
+  osc.stop(startT + dur + 0.01);
+}
+function playFlip() {
+  if (soundMuted) return;
+  var ctx = getAudioCtx(); if (!ctx) return;
+  var osc = ctx.createOscillator();
+  var g   = ctx.createGain();
+  osc.connect(g); g.connect(ctx.destination);
+  osc.frequency.setValueAtTime(380, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.12);
+  g.gain.setValueAtTime(0.07, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+  osc.start(); osc.stop(ctx.currentTime + 0.13);
+}
+function playGot() {
+  if (soundMuted) return;
+  var ctx = getAudioCtx(); if (!ctx) return;
+  var t = ctx.currentTime;
+  [523, 659, 784].forEach(function(f, i) { _playTone(f, 'sine', t + i*0.13, 0.2, 0.1); });
+}
+function playHard() {
+  if (soundMuted) return;
+  var ctx = getAudioCtx(); if (!ctx) return;
+  var t = ctx.currentTime;
+  _playTone(220, 'sawtooth', t, 0.22, 0.07);
+}
+function playCelebrate() {
+  if (soundMuted) return;
+  var ctx = getAudioCtx(); if (!ctx) return;
+  var t = ctx.currentTime;
+  [523, 784, 1047, 1047].forEach(function(f, i) { _playTone(f, 'sine', t + i*0.1, 0.18, 0.12); });
+}
+
+// ── 8. Font size toggle ───────────────────────────
+function initFont() {
+  currentFont = lsGet('prisha_font', 'md');
+  applyFont(currentFont);
+}
+function setFont(size) {
+  currentFont = size;
+  lsSet('prisha_font', size);
+  applyFont(size);
+}
+function applyFont(size) {
+  document.body.classList.remove('font-sm','font-md','font-lg');
+  document.body.classList.add('font-' + size);
+  ['fontSm','fontMd','fontLg'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('fb-active');
+  });
+  var map = {sm:'fontSm', md:'fontMd', lg:'fontLg'};
+  var btn = document.getElementById(map[size]);
+  if (btn) btn.classList.add('fb-active');
+}
+
+// ── Mute toggle ───────────────────────────────────
+function initMute() {
+  soundMuted = lsGet('prisha_mute', false);
+  updateMuteBtn();
+}
+function toggleMute() {
+  soundMuted = !soundMuted;
+  lsSet('prisha_mute', soundMuted);
+  updateMuteBtn();
+}
+function updateMuteBtn() {
+  var btn = document.getElementById('muteBtn');
+  if (btn) btn.textContent = soundMuted ? '🔇' : '🔊';
+}
+
+// ── 5. Daily streak ───────────────────────────────
+function getToday() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function updateStreak() {
+  var today = getToday();
+  var yesterday = (function(){
+    var d2 = new Date(); d2.setDate(d2.getDate()-1);
+    return d2.getFullYear() + '-' + String(d2.getMonth()+1).padStart(2,'0') + '-' + String(d2.getDate()).padStart(2,'0');
+  })();
+  var s = lsGet('prisha_streak', {date:'', count:0});
+  if (s.date === today) { showStreakBadge(s.count); return; }
+  var newCount = (s.date === yesterday) ? s.count + 1 : 1;
+  lsSet('prisha_streak', {date: today, count: newCount});
+  showStreakBadge(newCount);
+}
+function showStreakBadge(count) {
+  var badge = document.getElementById('streakBadge');
+  if (!badge) return;
+  if (count >= 1) {
+    badge.textContent = '🔥 ' + count + ' day streak';
+    badge.style.display = 'inline-block';
+  }
+}
+
+// ── 1. Self-rating buttons ────────────────────────
+function getRatings() { return lsGet('prisha_ratings', {}); }
+function saveRating(topic, question, val) {
+  var r = getRatings();
+  r[topic + '|' + question] = val;
+  lsSet('prisha_ratings', r);
+}
+function getCardRating(topic, question) {
+  return getRatings()[topic + '|' + question] || null;
+}
+function showRatingBtns() {
+  var wrap = document.getElementById('ratingWrap');
+  if (wrap) wrap.classList.add('rw-show');
+}
+function hideRatingBtns() {
+  var wrap = document.getElementById('ratingWrap');
+  if (wrap) wrap.classList.remove('rw-show');
+}
+function rateCard(val) {
+  if (!filtered || !filtered[current]) return;
+  var card = filtered[current];
+  saveRating(card.topic, card.q, val);
+  if (val === 'got') playGot(); else playHard();
+  updateRatedBadge();
+  var isLast = (current >= filtered.length - 1);
+  hideRatingBtns();
+  if (isLast) {
+    triggerCelebration();
+  } else {
+    setTimeout(function() { navigate(1); }, 400);
+  }
+}
+function updateRatedBadge() {
+  var badge = document.getElementById('cardRatedBadge');
+  if (!badge || !filtered || !filtered[current]) return;
+  var card = filtered[current];
+  var r = getCardRating(card.topic, card.q);
+  badge.textContent = r === 'got' ? '✅' : (r === 'hard' ? '😅' : '');
+}
+
+// ── 2. Tricky cards ───────────────────────────────
+function getTrickyCards() {
+  var ratings = getRatings();
+  return ALL_CARDS.filter(function(c) { return ratings[c.topic + '|' + c.q] === 'hard'; });
+}
+
+// ── 3. Celebration ────────────────────────────────
+var confettiAnim = null;
+var celebratedTopics = {};
+function triggerCelebration() {
+  var topic = (filtered && filtered[0]) ? filtered[0].topic : 'done';
+  if (celebratedTopics[topic]) return;
+  celebratedTopics[topic] = true;
+  playCelebrate();
+  var overlay = document.getElementById('celebrateOverlay');
+  var msg = document.getElementById('celebrateMsg');
+  if (!overlay) return;
+  if (msg) msg.innerHTML = '🎉<br>Well done Prisha!<br>🌟 Topic Complete!';
+  overlay.classList.add('co-show');
+  startConfetti();
+}
+function closeCelebration() {
+  var overlay = document.getElementById('celebrateOverlay');
+  if (overlay) overlay.classList.remove('co-show');
+  stopConfetti();
+}
+function startConfetti() {
+  var canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  var ctx2 = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var particles = [];
+  var colors = ['#f9d423','#ff6b6b','#c471f5','#12c2e9','#22c55e','#fb923c','#818cf8'];
+  for (var i = 0; i < 120; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: 8 + Math.random() * 8,
+      h: 4 + Math.random() * 5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: 2 + Math.random() * 3,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.15,
+      drift: (Math.random() - 0.5) * 1.2
+    });
+  }
+  function frame() {
+    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(function(p) {
+      p.y += p.speed;
+      p.x += p.drift;
+      p.angle += p.spin;
+      if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
+      ctx2.save();
+      ctx2.translate(p.x, p.y);
+      ctx2.rotate(p.angle);
+      ctx2.fillStyle = p.color;
+      ctx2.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx2.restore();
+    });
+    confettiAnim = requestAnimationFrame(frame);
+  }
+  frame();
+}
+function stopConfetti() {
+  if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
+  var canvas = document.getElementById('confettiCanvas');
+  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ── 6. Topic progress ─────────────────────────────
+function trackCardSeen(topic, question) {
+  if (!topic) return;
+  if (!sessionSeen[topic]) sessionSeen[topic] = [];
+  if (sessionSeen[topic].indexOf(question) < 0) sessionSeen[topic].push(question);
+}
+function refreshTileProgress() {
+  var tiles = document.querySelectorAll('.topic-tile:not(.all-tile):not(.tricky-tile)');
+  tiles.forEach(function(tile) {
+    var nameEl = tile.querySelector('.tile-name');
+    if (!nameEl) return;
+    var topic = nameEl.textContent.trim();
+    var seen = sessionSeen[topic] ? sessionSeen[topic].length : 0;
+    var total = ALL_CARDS.filter(function(c) { return c.topic === topic; }).length;
+    var prog = tile.querySelector('.tile-progress');
+    if (!prog) {
+      prog = document.createElement('div');
+      prog.className = 'tile-progress';
+      tile.appendChild(prog);
+    }
+    prog.textContent = seen > 0 ? (seen + '/' + total + ' seen') : '';
+  });
+}
+
+// ── 9. Quiz mode ─────────────────────────────────
+function toggleQuizMode() {
+  isQuizMode = !isQuizMode;
+  var btn = document.getElementById('quizToggle');
+  if (btn) btn.classList.toggle('qt-active', isQuizMode);
+  var wrapper = document.getElementById('cardWrapper');
+  var quizArea = document.getElementById('quizArea');
+  var flipBtn = document.getElementById('flipBtn');
+  if (wrapper) wrapper.style.display = isQuizMode ? 'none' : '';
+  if (quizArea) quizArea.classList.toggle('qa-show', isQuizMode);
+  if (flipBtn) flipBtn.style.display = isQuizMode ? 'none' : '';
+  hideRatingBtns();
+  if (isQuizMode) renderQuiz(); else renderCard();
+}
+function renderQuiz() {
+  if (!filtered || !filtered[current]) return;
+  var card = filtered[current];
+  var qEl = document.getElementById('quizQuestion');
+  var optsEl = document.getElementById('quizOpts');
+  if (!qEl || !optsEl) return;
+  qEl.textContent = card.q;
+  var others = ALL_CARDS.filter(function(c) { return c.topic !== card.topic || c.q !== card.q; });
+  for (var i = others.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i+1));
+    var tmp = others[i]; others[i] = others[j]; others[j] = tmp;
+  }
+  var distractors = others.slice(0, 3).map(function(c) { return c.a.replace(/\n/g,' ').substring(0, 100); });
+  var correctAns = card.a.replace(/\n/g,' ').substring(0, 100);
+  var options = [correctAns].concat(distractors);
+  for (var ii = options.length - 1; ii > 0; ii--) {
+    var jj = Math.floor(Math.random() * (ii+1));
+    var tt = options[ii]; options[ii] = options[jj]; options[jj] = tt;
+  }
+  optsEl.innerHTML = '';
+  options.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = (function(o) { return function() { answerQuiz(this, o, correctAns); }; })(opt);
+    optsEl.appendChild(btn);
+  });
+}
+function answerQuiz(el, chosen, correct) {
+  var all = document.querySelectorAll('.quiz-opt');
+  all.forEach(function(b) { b.onclick = null; });
+  if (chosen === correct) {
+    el.classList.add('qo-correct');
+    playGot();
+    if (filtered && filtered[current]) saveRating(filtered[current].topic, filtered[current].q, 'got');
+    setTimeout(function() { navigate(1); }, 1200);
+  } else {
+    el.classList.add('qo-wrong');
+    playHard();
+    all.forEach(function(b) { if (b.textContent === correct) b.classList.add('qo-correct'); });
+    setTimeout(function() { navigate(1); }, 1600);
+  }
+}
+
+// ── 4. Swipe gestures ─────────────────────────────
+(function() {
+  var sx = 0, sy = 0;
+  document.addEventListener('touchstart', function(e) {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    isSwiping = false;
+  }, {passive: true});
+  document.addEventListener('touchend', function(e) {
+    var cv = document.getElementById('cardView');
+    if (!cv || cv.style.display === 'none') return;
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = e.changedTouches[0].clientY - sy;
+    var adx = Math.abs(dx), ady = Math.abs(dy);
+    if (adx > ady && adx > 48) {
+      isSwiping = true;
+      navigate(dx < 0 ? 1 : -1);
+    } else if (ady > adx && dy < -55) {
+      isSwiping = true;
+      if (!isQuizMode) flipCard();
+    }
+    setTimeout(function() { isSwiping = false; }, 300);
+  }, {passive: true});
+})();
+
+// ── Init on load ──────────────────────────────────
+(function() {
+  initFont();
+  initMute();
+  updateStreak();
+})();
 </script>
 
 <script>
