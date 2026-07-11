@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Maths Flashcards – Grammar School Prep</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, 'Segoe UI', Arial, sans-serif; background: #f0f6ff; color: #2d2d2d; min-height: 100vh; }
+
+  header { background: linear-gradient(135deg, #1565c0, #42a5f5); color: white; padding: 16px 20px; text-align: center; }
+  header h1 { font-size: 1.8em; letter-spacing: 1px; }
+  header p { font-size: 0.9em; opacity: 0.9; margin-top: 4px; }
+
+  .controls { padding: 14px 16px 0; }
+  .topic-label { font-weight: 700; color: #1565c0; font-size: 0.8em; text-transform: uppercase; margin-bottom: 8px; }
+  .topic-buttons { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+  .topic-btn {
+    padding: 7px 14px; border-radius: 20px; border: 2px solid #42a5f5;
+    background: white; color: #1565c0; cursor: pointer; font-size: 0.8em; font-weight: 600;
+    touch-action: manipulation;
+  }
+  .topic-btn.active { background: #1565c0; color: white; border-color: #1565c0; }
+
+  .search-bar { margin-bottom: 12px; }
+  .search-bar input {
+    width: 100%; padding: 9px 16px; border-radius: 20px; border: 2px solid #42a5f5;
+    font-size: 1em; outline: none; color: #2d2d2d; background: white;
+    -webkit-appearance: none;
+  }
+
+  .card-area { display: flex; flex-direction: column; align-items: center; padding: 12px 16px 30px; }
+  .card-counter { font-size: 0.88em; color: #666; margin-bottom: 10px; font-weight: 600; }
+
+  /* ── CARD (fade-based, works on all devices) ── */
+  .card-wrapper {
+    width: 100%; max-width: 660px; margin-bottom: 18px;
+    cursor: pointer; position: relative; touch-action: manipulation;
+  }
+  .card-inner { position: relative; width: 100%; }
+
+  .card-face {
+    border-radius: 16px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 52px 24px 24px; text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+    min-height: 260px;
+    transition: opacity 0.25s ease;
+  }
+  .card-front {
+    background: linear-gradient(145deg, #ffffff, #e3f0ff);
+    border: 3px solid #42a5f5;
+  }
+  .card-back {
+    position: absolute; top: 0; left: 0; width: 100%; min-height: 260px;
+    background: linear-gradient(145deg, #1565c0, #1e88e5);
+    color: white; border-radius: 16px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 52px 24px 24px; text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .card-inner.flipped .card-front { opacity: 0; pointer-events: none; }
+  .card-inner.flipped .card-back { opacity: 1; pointer-events: auto; }
+
+  .card-topic-tag {
+    position: absolute; top: 12px; left: 14px;
+    background: #ddeeff; color: #1565c0; font-size: 0.68em; font-weight: 700;
+    padding: 3px 10px; border-radius: 10px; text-transform: uppercase;
+  }
+  .card-back .card-topic-tag { background: rgba(255,255,255,0.25); color: white; }
+
+  .card-session-tag {
+    position: absolute; top: 12px; right: 14px;
+    background: #e3f0ff; color: #1e88e5; font-size: 0.64em; font-weight: 600;
+    padding: 3px 9px; border-radius: 10px; max-width: 45%; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-back .card-session-tag { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9); }
+
+  .card-hint { font-size: 0.72em; opacity: 0.5; margin-top: 10px; }
+  .card-question { font-size: 1.12em; font-weight: 700; line-height: 1.45; color: #0d3b7d; white-space: pre-wrap; }
+  .card-back .answer-label { font-size: 0.7em; font-weight: 700; opacity: 0.7; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .card-back .card-question { color: white; font-size: 0.98em; font-weight: 400; line-height: 1.6; }
+
+  .nav-buttons { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .nav-btn {
+    background: #1565c0; color: white; border: none; border-radius: 50%;
+    width: 50px; height: 50px; font-size: 1.4em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation;
+  }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .action-btn {
+    padding: 12px 22px; border-radius: 22px; border: none; cursor: pointer;
+    font-size: 0.9em; font-weight: 700; touch-action: manipulation;
+  }
+  .flip-btn { background: #42a5f5; color: white; }
+  .shuffle-btn { background: #f0c060; color: #5a3a00; }
+
+  .progress-bar-wrap { width: 100%; max-width: 660px; background: #c8dff8; border-radius: 8px; height: 7px; margin-top: 14px; }
+  .progress-bar { height: 7px; background: linear-gradient(90deg, #1565c0, #42a5f5); border-radius: 8px; transition: width 0.3s; }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.45em; }
+    .card-face { min-height: 300px; padding: 52px 18px 22px; }
+    .card-back { min-height: 300px; padding: 52px 18px 22px; }
+    .card-question { font-size: 1em; }
+    .card-back .card-question { font-size: 0.9em; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔢 Maths Flashcards</h1>
+  <p>Grammar School Prep · Pillai Tutors · Tap a card to flip</p>
+</header>
+
+<div class="controls">
+  <div class="topic-label">Filter by Topic</div>
+  <div class="topic-buttons" id="topicButtons"></div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Search flashcards..." oninput="filterCards()">
+  </div>
+</div>
+
+<div class="card-area">
+  <div class="card-counter" id="cardCounter"></div>
+
+  <div class="card-wrapper" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-front">
+        <div class="card-topic-tag" id="frontTopic"></div>
+        <div class="card-session-tag" id="frontSession"></div>
+        <div class="card-question" id="cardQuestion"></div>
+        <div class="card-hint">👆 Tap to reveal answer</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="card-topic-tag" id="backTopic"></div>
+        <div class="card-session-tag" id="backSession"></div>
+        <div class="answer-label">Answer</div>
+        <div class="card-question" id="cardAnswer"></div>
+        <div class="card-hint">👆 Tap to see question</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
+    <button class="action-btn flip-btn" onclick="flipCard()">Flip Card</button>
+    <button class="action-btn shuffle-btn" onclick="shuffleCards()">🔀 Shuffle</button>
+    <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ── PLACE VALUE ────────────────────────────────────────────────────────────
+  { topic:"Place Value", session:"Lessons 1F–3F · Rev 1", q:"What does each digit in 347,592 represent?", a:"3 = Hundred Thousands (300,000)\n4 = Ten Thousands (40,000)\n7 = Thousands (7,000)\n5 = Hundreds (500)\n9 = Tens (90)\n2 = Ones (2)" },
+  { topic:"Place Value", session:"Lesson 2F · Rev 1", q:"How do you multiply and divide by 10, 100, and 1,000?", a:"× 10: move digits ONE place LEFT → 45 × 10 = 450\n× 100: move TWO places LEFT → 3.6 × 100 = 360\n\n÷ 10: move digits ONE place RIGHT → 720 ÷ 10 = 72\n÷ 1,000: move THREE places RIGHT → 5,000 ÷ 1,000 = 5" },
+  { topic:"Place Value", session:"Revision 1", q:"Decimal place values. Which is greater: 0.7 or 0.69?", a:"Tenths: 0.1\nHundredths: 0.01\nThousandths: 0.001\n\n0.7 = 0.70 (7 tenths)\n0.69 = 6 tenths, 9 hundredths\n\n0.7 > 0.69 ✓\n\nCompare digit by digit from the left!" },
+  // ── ROUNDING ───────────────────────────────────────────────────────────────
+  { topic:"Rounding", session:"Lesson 3F", q:"Rules for rounding. Round 4,763 to nearest 10, 100, and 1,000.", a:"Look at the digit to the RIGHT:\n• 5 or more → round UP\n• less than 5 → round DOWN\n\nNearest 10: units digit = 3 → round DOWN → 4,760\nNearest 100: tens digit = 6 → round UP → 4,800\nNearest 1,000: hundreds digit = 7 → round UP → 5,000" },
+  { topic:"Rounding", session:"Lesson 3F", q:"How do you round decimals? Round 4.673 to 1 d.p. and 2 d.p.", a:"To 1 d.p.: look at 2nd decimal (7 ≥ 5) → round UP → 4.7\n\nTo 2 d.p.: look at 3rd decimal (3 < 5) → round DOWN → 4.67\n\nd.p. = decimal places — count from the decimal point." },
+  // ── ADDITION & SUBTRACTION ─────────────────────────────────────────────────
+  { topic:"Addition & Subtraction", session:"Lessons 1F, 5 · Rev 1", q:"Column ADDITION — show 4,573 + 2,846", a:"  4573\n+ 2846\n──────\nFrom the right:\n3+6=9 · 7+4=11 (write 1, carry 1)\n5+8+1=14 (write 4, carry 1) · 4+2+1=7\n\nAnswer: 7,419\n\nLine up by place value · carry when total ≥ 10" },
+  { topic:"Addition & Subtraction", session:"Rev 2 · Lesson 7 22", q:"How do you add and subtract DECIMALS?\nShow 12.4 + 7.56 and 10 − 3.7", a:"Line up the DECIMAL POINTS:\n  12.40\n+  7.56\n──────\n  19.96\n\n  10.0\n−  3.7\n──────\n   6.3\n\nAdd zeros to match decimal places!" },
+  // ── MULTIPLICATION ─────────────────────────────────────────────────────────
+  { topic:"Multiplication", session:"Lesson 1F · 14F · Rev 1", q:"LONG MULTIPLICATION (2-digit × 2-digit) — show 34 × 27", a:"Step 1: 34 × 7 = 238\nStep 2: 34 × 20 = 680\nStep 3: 238 + 680 = 918\n\nGrid method:\n      30    4\n  7:  210 + 28 = 238\n 20:  600 + 80 = 680\n            918 ✓\n\nEstimate: 34 × 30 ≈ 1,020" },
+  { topic:"Multiplication", session:"Lesson 7 22", q:"What are the first 12 SQUARE NUMBERS?", a:"1² = 1\n2² = 4\n3² = 9\n4² = 16\n5² = 25\n6² = 36\n7² = 49\n8² = 64\n9² = 81\n10² = 100\n11² = 121\n12² = 144" },
+  { topic:"Multiplication", session:"Lesson 7 22", q:"What is a SQUARE ROOT? Find √49, √144, √225.", a:"A square root is the number that × itself gives the answer.\n\n√49 = 7 (7 × 7 = 49)\n√144 = 12 (12 × 12 = 144)\n√225 = 15 (15 × 15 = 225)\n√100 = 10\n√64 = 8\n\nSymbol: √" },
+  // ── FACTORS & MULTIPLES ────────────────────────────────────────────────────
+  { topic:"Factors & Multiples", session:"Lesson 2F · 4F", q:"What is a FACTOR? Find all factors of 36.", a:"A factor divides EXACTLY into another number.\n\nFactors of 36:\n1, 2, 3, 4, 6, 9, 12, 18, 36\n\nFactor PAIRS:\n1×36 · 2×18 · 3×12 · 4×9 · 6×6\n\nAlways start at 1 and work upwards!" },
+  { topic:"Factors & Multiples", session:"Lesson 2F", q:"What is a MULTIPLE? List the first 8 multiples of 7.", a:"A multiple is a number IN a times table.\n\nMultiples of 7:\n7, 14, 21, 28, 35, 42, 49, 56...\n\nIs 84 a multiple of 7?\n84 ÷ 7 = 12 ✓ Yes!" },
+  { topic:"Factors & Multiples", session:"Lesson 4F · 11F", q:"What is a PRIME NUMBER? List all primes up to 30.", a:"A prime has EXACTLY 2 factors: 1 and itself.\n\nPrimes up to 30:\n2, 3, 5, 7, 11, 13, 17, 19, 23, 29\n\n1 is NOT a prime\n2 is the ONLY even prime" },
+  { topic:"Factors & Multiples", session:"Lesson 4F · 11F", q:"What are the DIVISIBILITY RULES?", a:"÷ 2: ends in 0, 2, 4, 6, or 8\n÷ 3: digit sum divisible by 3\n÷ 4: last two digits divisible by 4\n÷ 5: ends in 0 or 5\n÷ 6: divisible by BOTH 2 and 3\n÷ 9: digit sum divisible by 9\n÷ 10: ends in 0\n\nTest: 4,356 ÷ 9? → 4+3+5+6=18 ✓" },
+  { topic:"Factors & Multiples", session:"Revision 38", q:"What is the LCM? Find LCM of 4 and 6.", a:"LCM = SMALLEST number that is a multiple of all given numbers.\n\nMultiples of 4: 4, 8, 12, 16...\nMultiples of 6: 6, 12, 18...\n\nLCM of 4 and 6 = 12 ✓\n\nNeeded when adding fractions with different denominators!" },
+  // ── FRACTIONS ──────────────────────────────────────────────────────────────
+  { topic:"Fractions", session:"Lesson 4F · 6 · Rev 3, 33", q:"What are the types of fractions?", a:"PROPER: numerator < denominator → 3/4 · 2/7\nIMPROPER: numerator ≥ denominator → 7/4 · 11/5\nMIXED NUMBER: whole + fraction → 1¾ · 2½\n\nNumerator = top\nDenominator = bottom" },
+  { topic:"Fractions", session:"Lesson 4F · Rev 3", q:"Convert IMPROPER ↔ MIXED NUMBER", a:"Improper → Mixed: divide top by bottom\n  7/4: 7÷4 = 1 remainder 3 → 1¾\n  11/3: 11÷3 = 3 remainder 2 → 3⅔\n\nMixed → Improper: (whole × denominator) + numerator\n  2¾: (2×4)+3 = 11 → 11/4\n  3⅔: (3×3)+2 = 11 → 11/3" },
+  { topic:"Fractions", session:"Lesson 6 · Rev 3, 33", q:"What are EQUIVALENT FRACTIONS? Give 3 equivalent to ¾.", a:"Equivalent fractions have the SAME VALUE.\n\n¾ = 6/8 = 9/12 = 12/16\n\nTo find: multiply or divide BOTH top and bottom by the SAME number.\n\nTo simplify: divide both by their HCF." },
+  { topic:"Fractions", session:"Lesson 6", q:"How do you SIMPLIFY a fraction? Simplify 18/24.", a:"Find the HCF of top and bottom.\n\nFactors of 18: 1, 2, 3, 6, 9, 18\nFactors of 24: 1, 2, 3, 4, 6, 8, 12, 24\nHCF = 6\n\n18÷6 = 3 · 24÷6 = 4\n\nSimplified: 3/4 ✓" },
+  { topic:"Fractions", session:"Rev 3, 33 · Lesson 7 22", q:"ADD fractions with DIFFERENT denominators — 1/3 + 1/4", a:"Find LCM of denominators:\nLCM of 3 and 4 = 12\n\n1/3 = 4/12\n1/4 = 3/12\n\n4/12 + 3/12 = 7/12 ✓\n\nSubtraction: 5/6 − 1/4\nLCM=12 → 10/12 − 3/12 = 7/12 ✓" },
+  { topic:"Fractions", session:"Lesson 6", q:"How do you MULTIPLY fractions? Calculate 2/3 × 3/5.", a:"Multiply top × top, bottom × bottom.\n\n2/3 × 3/5 = (2×3)/(3×5) = 6/15 = 2/5\n\nTip: Cancel BEFORE multiplying if possible:\n²/₃ × ³/₅ → cancel the 3s → 2/5 ✓" },
+  { topic:"Fractions", session:"Lesson 6 · Rev 34", q:"Find a FRACTION OF AN AMOUNT — 3/4 of £60", a:"Step 1: Divide by the denominator\n  £60 ÷ 4 = £15\n\nStep 2: Multiply by the numerator\n  £15 × 3 = £45\n\nAnswer: 3/4 of £60 = £45 ✓\n\nMemory trick: DIVIDE then MULTIPLY" },
+  // ── DECIMALS ───────────────────────────────────────────────────────────────
+  { topic:"Decimals", session:"Rev 2 · Lesson 7 22", q:"Decimal place values — explain 0.473", a:"0.473:\n4 = TENTHS (4/10 = 0.4)\n7 = HUNDREDTHS (7/100 = 0.07)\n3 = THOUSANDTHS (3/1000 = 0.003)\n\n0.473 = 0.4 + 0.07 + 0.003" },
+  { topic:"Decimals", session:"Revision 2", q:"Multiply a decimal by a whole number — 3.4 × 6", a:"Ignore the decimal, multiply, then replace it.\n\n34 × 6 = 204\n→ 3.4 × 6 = 20.4\n\nCheck: 3.4 ≈ 3, so 3×6=18 — answer ~20.4 ✓\n\n1.25 × 4: 125×4=500 → 5.00 = 5" },
+  // ── PERCENTAGES ────────────────────────────────────────────────────────────
+  { topic:"Percentages", session:"Lessons 9F, 10F · Rev 35, 36", q:"Key percentage facts", a:"100% = the whole\n50% = half (÷2)\n25% = one quarter (÷4)\n10% = one tenth (÷10)\n1% = one hundredth (÷100)\n5% = half of 10%\n75% = three quarters (÷4 ×3)\n20% = one fifth (÷5)" },
+  { topic:"Percentages", session:"Lessons 9F, 10F · Rev 35", q:"Find a PERCENTAGE OF A NUMBER — 35% of 120", a:"Build-up method:\n10% of 120 = 12\n30% = 12 × 3 = 36\n5% = 12 ÷ 2 = 6\n35% = 36 + 6 = 42 ✓\n\nDecimal method:\n0.35 × 120 = 42 ✓" },
+  { topic:"Percentages", session:"Lesson 14F · Rev 35, 36", q:"Calculate a SALE PRICE — 20% off £85", a:"Method 1: find discount, subtract.\n10% of £85 = £8.50\n20% = £8.50 × 2 = £17\nSale price = £85 − £17 = £68 ✓\n\nMethod 2 (faster): pay 80%.\n0.8 × £85 = £68 ✓" },
+  { topic:"Percentages", session:"Revision 36", q:"What PERCENTAGE is 18 of 72?", a:"Divide the part by the whole, then × 100:\n\n18 ÷ 72 × 100\n= 0.25 × 100\n= 25%\n\nSo 18 is 25% of 72 ✓" },
+  // ── FDP CONVERSIONS ────────────────────────────────────────────────────────
+  { topic:"FDP Conversions", session:"Rev 37 · Lesson 10F", q:"How do you convert FRACTION ↔ DECIMAL ↔ PERCENTAGE?", a:"Fraction → Decimal: divide top by bottom\n  3/4 = 3÷4 = 0.75\n\nDecimal → Percentage: × 100\n  0.75 × 100 = 75%\n\nPercentage → Decimal: ÷ 100\n  75% ÷ 100 = 0.75\n\nPercentage → Fraction: write over 100, simplify\n  75% = 75/100 = 3/4" },
+  { topic:"FDP Conversions", session:"Rev 37 · Lesson 10F", q:"KEY FDP equivalents — learn these by heart!", a:"1/2 = 0.5 = 50%\n1/4 = 0.25 = 25%\n3/4 = 0.75 = 75%\n1/5 = 0.2 = 20%\n2/5 = 0.4 = 40%\n1/10 = 0.1 = 10%\n3/10 = 0.3 = 30%\n1/3 ≈ 0.333 ≈ 33.3%\n1/8 = 0.125 = 12.5%\n1/20 = 0.05 = 5%" },
+  // ── RATIO ─────────────────────────────────────────────────────────────────
+  { topic:"Ratio", session:"Lessons 11F, 15F · Rev 38", q:"What is a RATIO? How do you simplify one?", a:"A ratio compares quantities using ':'\n\n2 red, 3 blue balls → ratio = 2:3\n\nTo simplify: divide both sides by HCF:\n4:6 → HCF=2 → 2:3 ✓\n12:18 → HCF=6 → 2:3 ✓" },
+  { topic:"Ratio", session:"Lesson 15F · Rev 38", q:"SHARE AN AMOUNT in a ratio — £56 in ratio 3:5", a:"Step 1: Total parts = 3 + 5 = 8\nStep 2: One part = £56 ÷ 8 = £7\nStep 3:\n  First share: 3 × £7 = £21\n  Second share: 5 × £7 = £35\n\nCheck: £21 + £35 = £56 ✓" },
+  { topic:"Ratio", session:"Lesson 11F · Rev 38", q:"Ratio of boys to girls is 3:4. There are 21 boys. How many girls?", a:"3 parts = 21 boys\n1 part = 21 ÷ 3 = 7\n4 parts (girls) = 4 × 7 = 28 girls\n\nTotal = 21 + 28 = 49 children\n\nFind the VALUE of ONE part first!" },
+  // ── AREA AND PERIMETER ─────────────────────────────────────────────────────
+  { topic:"Area & Perimeter", session:"Lessons 16F, 17F, 20F", q:"PERIMETER — find the perimeter of a rectangle 8cm × 5cm", a:"Perimeter = total distance AROUND the outside.\n\nRectangle: P = 2 × (length + width)\nP = 2 × (8 + 5) = 2 × 13 = 26cm\n\nOther shapes: ADD ALL SIDES\nUnits: cm, m, km (NOT squared!)" },
+  { topic:"Area & Perimeter", session:"Lessons 16F, 17F, 20F", q:"AREA formulas — Rectangle · Triangle · Parallelogram · Trapezium", a:"RECTANGLE: A = length × width\n\nTRIANGLE: A = ½ × base × height\n\nPARALLELOGRAM: A = base × perpendicular height\n(NOT the slant side!)\n\nTRAPEZIUM: A = ½ × (a + b) × h\n(a and b are the parallel sides)\n\nUnits: ALWAYS squared! cm², m²" },
+  { topic:"Area & Perimeter", session:"Revision 41", q:"Area of a trapezium — parallel sides 7cm and 11cm, height 6cm", a:"A = ½ × (a + b) × h\nA = ½ × (7 + 11) × 6\nA = ½ × 18 × 6\nA = ½ × 108\nA = 54cm² ✓\n\nCheck: between 7×6=42 and 11×6=66 ✓" },
+  // ── 2D SHAPES ──────────────────────────────────────────────────────────────
+  { topic:"2D Shapes & Angles", session:"Lessons 16F, 19F, 20F", q:"Angles in a TRIANGLE — types and rule", a:"Angles in a triangle ALWAYS add up to 180°.\n\nEQUILATERAL: all 3 angles = 60° (all sides equal)\nISOSCELES: 2 angles equal (2 sides equal)\nSCALENE: no equal angles, no equal sides\nRIGHT-ANGLED: one angle = 90°" },
+  { topic:"2D Shapes & Angles", session:"Lesson 19F", q:"SUM OF INTERIOR ANGLES formula for polygons", a:"Sum = (n − 2) × 180°\n\nTriangle (3 sides): 180°\nQuadrilateral (4): 360°\nPentagon (5): 540°\nHexagon (6): 720°\nOctagon (8): 1,080°\n\nQuadrilateral angles always add up to 360°!" },
+  // ── 3D SHAPES & VOLUME ─────────────────────────────────────────────────────
+  { topic:"3D Shapes & Volume", session:"Lessons 19F, 20F", q:"VOLUME — formula for a cuboid. Find volume of 5cm × 4cm × 3cm.", a:"Volume = amount of 3D SPACE inside a shape.\nMeasured in CUBIC UNITS: cm³, m³\n\nCUBOID: V = length × width × height\n5 × 4 × 3 = 60cm³\n\nCUBE: V = side³\n4cm cube → 4³ = 64cm³" },
+  { topic:"3D Shapes & Volume", session:"Lesson 19F", q:"Properties of: cube · cuboid · cylinder · cone · sphere", a:"CUBE: 6 square faces · 12 edges · 8 vertices\nCUBOID: 6 rect. faces · 12 edges · 8 vertices\nCYLINDER: 2 circular faces · 1 curved surface · 2 edges\nCONE: 1 circular face · 1 curved surface · 1 apex\nSPHERE: 0 flat faces · 0 edges · 0 vertices" },
+  // ── MEASUREMENT & CONVERSIONS ──────────────────────────────────────────────
+  { topic:"Measurement & Conversions", session:"Lessons 21F, 22F", q:"KEY METRIC conversions", a:"LENGTH:\n10mm = 1cm · 100cm = 1m · 1,000m = 1km\n\nMASS:\n1,000g = 1kg · 1,000kg = 1 tonne\n\nCAPACITY:\n1,000ml = 1 litre\n\nBig → small: MULTIPLY\nSmall → big: DIVIDE" },
+  { topic:"Measurement & Conversions", session:"Lesson 22F", q:"IMPERIAL to METRIC conversions (approximate)", a:"LENGTH:\n1 inch ≈ 2.54cm · 1 foot ≈ 30cm\n1 mile ≈ 1.6km (5 miles ≈ 8km)\n\nMASS:\n1 ounce ≈ 28g · 1 pound ≈ 450g\n\nCAPACITY:\n1 pint ≈ 568ml · 1 gallon ≈ 4.5 litres" },
+  // ── ROMAN NUMERALS ─────────────────────────────────────────────────────────
+  { topic:"Roman Numerals", session:"Lesson 23F", q:"ROMAN NUMERAL symbols and the subtraction rule", a:"I=1 · V=5 · X=10 · L=50\nC=100 · D=500 · M=1,000\n\nSubtraction rule: smaller BEFORE larger = subtract:\nIV=4 · IX=9 · XL=40 · XC=90\nCD=400 · CM=900\n\nNever use the same symbol more than 3 times in a row." },
+  { topic:"Roman Numerals", session:"Lesson 23F", q:"Read: XLVII · MCMXCIX · MMXXVI", a:"XLVII:\nXL=40 · V=5 · II=2 → 47\n\nMCMXCIX:\nM=1000 · CM=900 · XC=90 · IX=9 → 1,999\n\nMMXXVI:\nMM=2000 · XX=20 · VI=6 → 2,026" },
+  // ── NEGATIVE NUMBERS ───────────────────────────────────────────────────────
+  { topic:"Negative Numbers", session:"Lesson 24F", q:"How do you ORDER negative numbers? Which is smaller: -8 or -2?", a:"Negative numbers are BELOW zero.\n\nOrder: -10 < -7 < -3 < -1 < 0 < 2 < 5\n\n-8 is LESS than -2\n(further left on the number line = smaller)\n\nUse a number line to help!" },
+  { topic:"Negative Numbers", session:"Lesson 24F", q:"Calculate: -3 + 8 · 4 - 9 · -5 - 3 · -2 + (-4)", a:"-3 + 8 = 5\n(start at -3, go 8 right)\n\n4 - 9 = -5\n(start at 4, go 9 left)\n\n-5 - 3 = -8\n(go 3 more left)\n\n-2 + (-4) = -2 - 4 = -6\n(adding a negative = subtracting)" },
+  // ── COORDINATES ────────────────────────────────────────────────────────────
+  { topic:"Coordinates", session:"Lesson 25F", q:"How do you read and plot COORDINATES?", a:"Always go ALONG first, then UP/DOWN.\nMemory: 'along the corridor, then up the stairs'\n\nFormat: (x, y) — x horizontal, y vertical\nOrigin = (0, 0)\n\n(3, 5) → 3 right, then 5 up\n(-2, 4) → 2 left, then 4 up" },
+  { topic:"Coordinates", session:"Lesson 25F", q:"What are the FOUR QUADRANTS?", a:"Q1 (top right): x+, y+ → (3, 4)\nQ2 (top left): x−, y+ → (-3, 4)\nQ3 (bottom left): x−, y− → (-3, -4)\nQ4 (bottom right): x+, y− → (3, -4)\n\nPoints ON axes:\n(0, 5) → on the y-axis\n(5, 0) → on the x-axis" },
+  // ── STATISTICS ─────────────────────────────────────────────────────────────
+  { topic:"Statistics", session:"Lesson 26F", q:"Define MEAN, MODE, MEDIAN, and RANGE.", a:"MEAN: add all values ÷ how many values\n\nMODE: most frequent value\n\nMEDIAN: middle value when in ORDER\n(even number → mean of the two middle ones)\n\nRANGE: largest − smallest\n(measures spread, not average)" },
+  { topic:"Statistics", session:"Lesson 26F", q:"Calculate mean, mode, median, range for: 3, 7, 7, 2, 9, 7, 4", a:"In order: 2, 3, 4, 7, 7, 7, 9\n\nMEAN: (2+3+4+7+7+7+9) ÷ 7 = 39 ÷ 7 ≈ 5.57\n\nMODE: 7 (appears 3 times)\n\nMEDIAN: 7 (4th value in list of 7)\n\nRANGE: 9 − 2 = 7" },
+  { topic:"Statistics", session:"Lesson 29F", q:"How do you read a PIE CHART?", a:"Pie chart = data as parts of a whole circle (360°).\n\nFull circle = 360° = 100%\n90° sector = 1/4 = 25%\n180° sector = 1/2 = 50%\n\nTo find value from sector:\n(angle ÷ 360) × total frequency\n\nExample: 60°, total=120\n60/360 × 120 = 20 items" },
+  // ── TRANSFORMATIONS ────────────────────────────────────────────────────────
+  { topic:"Transformations", session:"Lesson 30F", q:"THREE types of transformation — define each", a:"TRANSLATION: sliding a shape — no rotation or reflection.\nDescribe: units right/left and up/down.\n\nREFLECTION: flipping over a MIRROR LINE.\nEach point = equal distance from the mirror line.\n\nROTATION: turning around a FIXED POINT.\nDescribe: centre, direction (CW/ACW), angle." },
+  { topic:"Transformations", session:"Lesson 30F", q:"How do you REFLECT in the y-axis and x-axis?", a:"Reflect in the Y-AXIS:\n• x changes sign · y stays same\n(3, 4) → (-3, 4)\n\nReflect in the X-AXIS:\n• x stays same · y changes sign\n(3, 4) → (3, -4)" },
+  { topic:"Transformations", session:"Lesson 30F", q:"ROTATION rules — rotate (3, 1) 90° clockwise about the origin", a:"90° clockwise: (x, y) → (y, −x)\n90° anticlockwise: (x, y) → (−y, x)\n180°: (x, y) → (−x, −y)\n\n(3, 1) rotated 90° clockwise:\n(x, y) → (y, −x)\n(3, 1) → (1, −3) ✓" },
+  // ── PROBLEM SOLVING ────────────────────────────────────────────────────────
+  { topic:"Problem Solving", session:"All Sessions", q:"What is the RUCSAC method?", a:"R – Read the question carefully\nU – Underline key information\nC – Choose the operation (+, −, ×, ÷)\nS – Solve the calculation\nA – Answer with correct units\nC – Check your answer makes sense\n\nAlways ESTIMATE first!" },
+  { topic:"Problem Solving", session:"All Sessions", q:"Tips for MULTI-STEP word problems", a:"1. Read carefully — find ALL the steps needed\n2. Extract the key numbers\n3. Decide the order of operations\n4. Work step by step, writing each stage\n5. Keep units throughout\n6. Check: does the answer make sense?\n\nTip: Draw a bar model if stuck!" },
+];
+
+let filtered = [...ALL_CARDS];
+let current = 0;
+let isFlipped = false;
+let activeTopics = new Set(["All"]);
+
+function buildTopicButtons() {
+  const topics = ["All", ...new Set(ALL_CARDS.map(c => c.topic))];
+  const container = document.getElementById("topicButtons");
+  container.innerHTML = "";
+  topics.forEach(t => {
+    const btn = document.createElement("button");
+    btn.className = "topic-btn" + (t === "All" ? " active" : "");
+    btn.textContent = t;
+    btn.onclick = () => toggleTopic(t, btn);
+    container.appendChild(btn);
+  });
+}
+
+function toggleTopic(t, btn) {
+  if (t === "All") {
+    activeTopics = new Set(["All"]);
+    document.querySelectorAll(".topic-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  } else {
+    activeTopics.delete("All");
+    document.querySelector(".topic-btn").classList.remove("active");
+    btn.classList.toggle("active");
+    if (btn.classList.contains("active")) activeTopics.add(t);
+    else activeTopics.delete(t);
+    if (activeTopics.size === 0) { activeTopics.add("All"); document.querySelector(".topic-btn").classList.add("active"); }
+  }
+  filterCards();
+}
+
+function filterCards() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  filtered = ALL_CARDS.filter(c => {
+    const topicOk = activeTopics.has("All") || activeTopics.has(c.topic);
+    const searchOk = !q || c.q.toLowerCase().includes(q) || c.a.toLowerCase().includes(q) || c.topic.toLowerCase().includes(q);
+    return topicOk && searchOk;
+  });
+  current = 0; isFlipped = false;
+  document.getElementById("cardInner").classList.remove("flipped");
+  renderCard();
+}
+
+function renderCard() {
+  if (filtered.length === 0) {
+    document.getElementById("cardCounter").textContent = "No cards found";
+    document.getElementById("cardQuestion").textContent = "Try a different search or topic.";
+    document.getElementById("cardAnswer").textContent = "";
+    ["frontTopic","backTopic","frontSession","backSession"].forEach(id => document.getElementById(id).textContent = "");
+    return;
+  }
+  const card = filtered[current];
+  document.getElementById("cardCounter").textContent = "Card " + (current + 1) + " of " + filtered.length;
+  document.getElementById("cardQuestion").textContent = card.q;
+  document.getElementById("cardAnswer").textContent = card.a;
+  document.getElementById("frontTopic").textContent = card.topic;
+  document.getElementById("backTopic").textContent = card.topic;
+  document.getElementById("frontSession").textContent = card.session;
+  document.getElementById("backSession").textContent = card.session;
+  document.getElementById("prevBtn").disabled = current === 0;
+  document.getElementById("nextBtn").disabled = current === filtered.length - 1;
+  const pct = filtered.length > 1 ? (current / (filtered.length - 1)) * 100 : 100;
+  document.getElementById("progressBar").style.width = pct + "%";
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById("cardInner").classList.toggle("flipped", isFlipped);
+}
+
+function navigate(dir) {
+  const newIdx = current + dir;
+  if (newIdx >= 0 && newIdx < filtered.length) {
+    current = newIdx; isFlipped = false;
+    document.getElementById("cardInner").classList.remove("flipped");
+    renderCard();
+  }
+}
+
+function shuffleCards() {
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  current = 0; isFlipped = false;
+  document.getElementById("cardInner").classList.remove("flipped");
+  renderCard();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") navigate(1);
+  else if (e.key === "ArrowLeft") navigate(-1);
+  else if (e.key === " " || e.key === "Enter") { e.preventDefault(); flipCard(); }
+});
+
+buildTopicButtons();
+renderCard();
+</script>
+</body>
+</html>

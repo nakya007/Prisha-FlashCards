@@ -1,0 +1,5 @@
+=== Prisha Flashcards - GitHub Pages Setup ===
+
+Step 1: Creating repository...
+  ERROR: {"message":"Not Found","documentation_url":"https://docs.github.com/rest/repos/repos#create-a-repository-for-the-authenticated-user","status":"404"}
+
