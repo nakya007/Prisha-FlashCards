@@ -192,24 +192,26 @@
 
 <script>
 const TOPIC_META = {
-  "Nouns":                 { emoji:"🏷️", g1:"#4a7fb5", g2:"#6ba3d6", d1:"#3a6a9a", d2:"#4a7fb5" },
-  "Pronouns":              { emoji:"👤", g1:"#4a8f96", g2:"#6aabb2", d1:"#38787e", d2:"#4a8f96" },
-  "Adjectives":            { emoji:"🎨", g1:"#b85850", g2:"#d07870", d1:"#9a4040", d2:"#b85850" },
-  "Verbs & Tenses":        { emoji:"⚡", g1:"#c07040", g2:"#d48a5a", d1:"#a85c30", d2:"#c07040" },
-  "Figurative Language":   { emoji:"🌟", g1:"#8a5cb8", g2:"#a87cd0", d1:"#7044a0", d2:"#8a5cb8" },
-  "Prefixes & Suffixes":   { emoji:"🔤", g1:"#5a9e6f", g2:"#78b88a", d1:"#458055", d2:"#5a9e6f" },
-  "Plurals & Spelling":    { emoji:"✏️", g1:"#7060b8", g2:"#9080d0", d1:"#5848a0", d2:"#7060b8" },
-  "Clauses":               { emoji:"🔗", g1:"#4a8a78", g2:"#68a898", d1:"#387060", d2:"#4a8a78" },
-  "Adverbials":            { emoji:"📍", g1:"#b88840", g2:"#d0a860", d1:"#9a7030", d2:"#b88840" },
-  "Punctuation":           { emoji:"❗", g1:"#c06080", g2:"#d880a0", d1:"#a04868", d2:"#c06080" },
-  "Prepositions":          { emoji:"📌", g1:"#8a6858", g2:"#a88878", d1:"#705040", d2:"#8a6858" },
-  "Homophones":            { emoji:"👯", g1:"#6a9e50", g2:"#88b870", d1:"#528040", d2:"#6a9e50" },
-  "Determiners":           { emoji:"📋", g1:"#4a68b0", g2:"#6888cc", d1:"#385098", d2:"#4a68b0" },
-  "Text Types":            { emoji:"📝", g1:"#c07850", g2:"#d49270", d1:"#a06038", d2:"#c07850" },
-  "Reading Comprehension": { emoji:"🔎", g1:"#607080", g2:"#7a8a98", d1:"#4a5e6e", d2:"#607080" },
-  "Paragraphs & Cohesion": { emoji:"🧩", g1:"#7a5aaa", g2:"#9a7ac8", d1:"#624490", d2:"#7a5aaa" },
-  "Grammar Rules":         { emoji:"📚", g1:"#4a7a70", g2:"#6898a0", d1:"#386860", d2:"#4a7a70" },
+  "Nouns":                 { emoji:"🏷️", g1:"#1565c0", g2:"#1e88e5", d1:"#0d47a1", d2:"#1565c0" },
+  "Pronouns":              { emoji:"👤", g1:"#00838f", g2:"#00acc1", d1:"#006064", d2:"#00838f" },
+  "Adjectives":            { emoji:"🎨", g1:"#c62828", g2:"#e53935", d1:"#b71c1c", d2:"#c62828" },
+  "Verbs & Tenses":        { emoji:"⚡", g1:"#e65100", g2:"#f57c00", d1:"#bf360c", d2:"#e65100" },
+  "Figurative Language":   { emoji:"🌟", g1:"#7b2d8b", g2:"#9c27b0", d1:"#4a148c", d2:"#7b2d8b" },
+  "Prefixes & Suffixes":   { emoji:"🔤", g1:"#2e7d32", g2:"#388e3c", d1:"#1b5e20", d2:"#2e7d32" },
+  "Plurals & Spelling":    { emoji:"✏️", g1:"#4527a0", g2:"#5e35b1", d1:"#311b92", d2:"#4527a0" },
+  "Clauses":               { emoji:"🔗", g1:"#00695c", g2:"#00897b", d1:"#004d40", d2:"#00695c" },
+  "Adverbials":            { emoji:"📍", g1:"#f57f17", g2:"#f9a825", d1:"#e65100", d2:"#f57f17" },
+  "Punctuation":           { emoji:"❗", g1:"#ad1457", g2:"#d81b60", d1:"#880e4f", d2:"#ad1457" },
+  "Prepositions":          { emoji:"📌", g1:"#5d4037", g2:"#6d4c41", d1:"#3e2723", d2:"#5d4037" },
+  "Homophones":            { emoji:"👯", g1:"#558b2f", g2:"#7cb342", d1:"#33691e", d2:"#558b2f" },
+  "Determiners":           { emoji:"📋", g1:"#283593", g2:"#3949ab", d1:"#1a237e", d2:"#283593" },
+  "Text Types":            { emoji:"📝", g1:"#bf360c", g2:"#e64a19", d1:"#8d1f00", d2:"#bf360c" },
+  "Reading Comprehension": { emoji:"🔎", g1:"#37474f", g2:"#546e7a", d1:"#263238", d2:"#37474f" },
+  "Paragraphs & Cohesion": { emoji:"🧩", g1:"#6a1b9a", g2:"#8e24aa", d1:"#4a148c", d2:"#6a1b9a" },
+  "Grammar Rules":         { emoji:"📚", g1:"#004d40", g2:"#00695c", d1:"#002b27", d2:"#004d40" },
 };
+
+const FUN_EMOJIS = ["🦄","🐉","🦊","🐸","🦁","🐧","🦋","🐬","🦖","🐙","🌈","⭐","🚀","🌺","🎈","🍦","🎮","🦜","🐣","🌻","🎸","🏆","🎭","🦩","🐳"];
 
 const ALL_CARDS = [
   // ── NOUNS ──────────────────────────────────────────────────────────────────
@@ -375,7 +377,8 @@ function renderCard() {
   document.getElementById("backTag").textContent = tagText;
   document.getElementById("frontSession").textContent = card.session;
   document.getElementById("backSession").textContent = card.session;
-  document.getElementById("cardEmoji").textContent = cardMeta.emoji;
+  const funEmoji = FUN_EMOJIS[current % FUN_EMOJIS.length];
+  document.getElementById("cardEmoji").textContent = cardMeta.emoji + " " + funEmoji;
   document.getElementById("cardQuestion").textContent = card.q;
   document.getElementById("cardAnswer").textContent = card.a;
 
