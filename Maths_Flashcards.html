@@ -132,7 +132,7 @@
 
   /* ═══ SPACE EXPLORER THEME ═══ */
   body { background: linear-gradient(160deg, #040418 0%, #080820 45%, #0a102a 100%) !important; color: white !important; }
-  .page-header { background: rgba(8,8,32,0.92) !important; border-bottom: 1px solid rgba(80,130,255,0.2) !important; box-shadow: 0 2px 24px rgba(0,0,30,0.7) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .page-header { background: rgba(8,8,32,0.92) !important; border-bottom: 1px solid rgba(80,130,255,0.2) !important; box-shadow: 0 2px 24px rgba(0,0,30,0.7) !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
   .back-btn { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(255,255,255,0.15) !important; }
   .header-title { color: white !important; }
   .header-sub { color: rgba(140,180,255,0.7) !important; }
@@ -144,11 +144,13 @@
   .nav-btn { background: rgba(255,255,255,0.07) !important; color: white !important; border: 2px solid rgba(80,130,255,0.35) !important; box-shadow: 0 0 14px rgba(80,130,255,0.15) !important; }
   .flip-btn { background: linear-gradient(135deg, #1565c0, #42a5f5) !important; box-shadow: 0 4px 18px rgba(66,165,245,0.4) !important; }
   .progress-bar-wrap { background: rgba(255,255,255,0.1) !important; }
-  .theme-bg { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
-  .theme-star { position: absolute; background: white; border-radius: 50%; animation: t-tw ease-in-out infinite; }
+  .theme-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+  .theme-star { position: absolute; background: white; border-radius: 50%; will-change: transform, opacity; -webkit-animation: t-tw ease-in-out infinite; animation: t-tw ease-in-out infinite; }
+  @-webkit-keyframes t-tw { 0%,100%{opacity:.12;-webkit-transform:scale(1);transform:scale(1)} 50%{opacity:.9;-webkit-transform:scale(1.8);transform:scale(1.8)} }
   @keyframes t-tw { 0%,100%{opacity:.12;transform:scale(1)} 50%{opacity:.9;transform:scale(1.8)} }
-  .theme-float { position: fixed; pointer-events: none; user-select: none; opacity: 0; animation: t-rise linear infinite; z-index: 0; }
-  @keyframes t-rise { 0%{transform:translateY(105vh) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{transform:translateY(-8vh) rotate(540deg);opacity:0} }
+  .theme-float { position: absolute; pointer-events: none; user-select: none; opacity: 0; will-change: transform, opacity; -webkit-animation: t-rise linear infinite; animation: t-rise linear infinite; }
+  @-webkit-keyframes t-rise { 0%{-webkit-transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{-webkit-transform:translate3d(0,-10vh,0) rotate(540deg);opacity:0} }
+  @keyframes t-rise { 0%{transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{transform:translate3d(0,-10vh,0) rotate(540deg);opacity:0} }
 </style>
 </head>
 <body>
@@ -473,19 +475,19 @@ buildTopicGrid();
   // Occasional shooting star
   function shoot() {
     const el = document.createElement('div');
-    el.style.cssText = `position:fixed;pointer-events:none;z-index:0;width:${60+Math.random()*80}px;height:2px;top:${Math.random()*55}%;left:${Math.random()*55}%;background:linear-gradient(90deg,rgba(255,255,255,0.9),transparent);border-radius:2px;animation:t-shoot 0.7s ease-out forwards;`;
-    document.body.appendChild(el);
+    el.style.cssText = `position:absolute;pointer-events:none;width:${60+Math.random()*80}px;height:2px;top:${Math.random()*55}%;left:${Math.random()*55}%;background:linear-gradient(90deg,rgba(255,255,255,0.9),transparent);border-radius:2px;-webkit-animation:t-shoot 0.7s ease-out forwards;animation:t-shoot 0.7s ease-out forwards;`;
+    bg.appendChild(el);
     if (!document.getElementById('t-shoot-kf')) {
       const kf = document.createElement('style'); kf.id = 't-shoot-kf';
-      kf.textContent = '@keyframes t-shoot{0%{opacity:1;transform:translate(0,0) rotate(-20deg)}100%{opacity:0;transform:translate(180px,65px) rotate(-20deg)}}';
+      kf.textContent = '@-webkit-keyframes t-shoot{0%{opacity:1;-webkit-transform:translate3d(0,0,0) rotate(-20deg)}100%{opacity:0;-webkit-transform:translate3d(200px,70px,0) rotate(-20deg)}} @keyframes t-shoot{0%{opacity:1;transform:translate3d(0,0,0) rotate(-20deg)}100%{opacity:0;transform:translate3d(200px,70px,0) rotate(-20deg)}}';
       document.head.appendChild(kf);
     }
-    setTimeout(() => el.remove(), 800);
+    setTimeout(() => el.remove(), 850);
     setTimeout(shoot, 3500 + Math.random() * 7000);
   }
   setTimeout(shoot, 2500);
 
-  // Floating space emojis
+  // Floating space emojis — appended to fixed bg container
   const pool = ['🚀','🪐','🔭','⭐','🛸','💫','🌌','✨','🤖','🌠','🛰️','🔬'];
   pool.forEach((em, i) => {
     const el = document.createElement('div');
@@ -493,7 +495,7 @@ buildTopicGrid();
     const dur = (15 + Math.random() * 10).toFixed(1);
     el.style.cssText = `left:${((i / pool.length) * 100 + Math.random() * 4).toFixed(1)}%;font-size:${(1.2 + Math.random() * 0.8).toFixed(1)}em;animation-duration:${dur}s;animation-delay:${(Math.random() * parseFloat(dur)).toFixed(1)}s;`;
     el.textContent = em;
-    document.body.appendChild(el);
+    bg.appendChild(el);
   });
 })();
 </script>
