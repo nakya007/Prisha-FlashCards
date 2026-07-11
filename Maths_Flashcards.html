@@ -488,13 +488,27 @@ function handleSearch(val) {
   var allTile = document.querySelector('.all-tile');
   var tiles = document.querySelectorAll('.topic-tile:not(.all-tile)');
   var visible = 0;
+
+  // Build a set of topics that have at least one matching card
+  var topicsWithMatch = new Set();
+  if (q) {
+    ALL_CARDS.forEach(function(card) {
+      if (card.topic.toLowerCase().includes(q) ||
+          card.q.toLowerCase().includes(q) ||
+          card.a.toLowerCase().includes(q)) {
+        topicsWithMatch.add(card.topic);
+      }
+    });
+  }
+
   tiles.forEach(function(tile) {
     var nameEl = tile.querySelector('.tile-name');
     var name = nameEl ? nameEl.textContent.toLowerCase() : '';
-    var show = !q || name.includes(q);
+    var show = !q || name.includes(q) || topicsWithMatch.has(nameEl ? nameEl.textContent.trim() : '');
     tile.style.display = show ? '' : 'none';
     if (show) visible++;
   });
+
   if (allTile) allTile.style.display = q ? 'none' : '';
   var nr = document.getElementById('noResults');
   if (nr) nr.style.display = (q && visible === 0) ? 'block' : 'none';
