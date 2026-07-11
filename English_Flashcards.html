@@ -129,9 +129,30 @@
     .card-q-text { font-size: 0.97em; }
     .card-a-text { font-size: 0.85em; }
   }
+
+  /* ═══ SHAKESPEARE THEATRE THEME ═══ */
+  body { background: linear-gradient(160deg, #0e0508 0%, #1a0816 45%, #0a050e 100%) !important; color: white !important; }
+  .page-header { background: rgba(18,5,15,0.92) !important; border-bottom: 1px solid rgba(180,130,50,0.3) !important; box-shadow: 0 2px 24px rgba(0,0,0,0.7) !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .back-btn { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(180,130,50,0.3) !important; }
+  .header-title { color: white !important; }
+  .header-sub { color: rgba(210,165,100,0.75) !important; }
+  .home-link { color: rgba(210,165,100,0.65) !important; }
+  .shuffle-header-btn { background: linear-gradient(135deg, #c9a227, #e8c547) !important; color: #1a0810 !important; }
+  .topic-intro h2 { color: white !important; }
+  .topic-intro p { color: rgba(210,165,100,0.75) !important; }
+  .card-progress { color: rgba(210,165,100,0.75) !important; }
+  .nav-btn { background: rgba(255,255,255,0.07) !important; color: white !important; border: 2px solid rgba(180,130,50,0.35) !important; box-shadow: 0 0 14px rgba(180,100,30,0.15) !important; }
+  .flip-btn { background: linear-gradient(135deg, #7b2d8b, #c45fdc) !important; box-shadow: 0 4px 18px rgba(150,50,200,0.4) !important; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.1) !important; }
+  .theme-bg { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+  .theme-star { position: absolute; background: #ffe4a0; border-radius: 50%; animation: t-tw ease-in-out infinite; }
+  @keyframes t-tw { 0%,100%{opacity:.1;transform:scale(1)} 50%{opacity:.85;transform:scale(1.9)} }
+  .theme-float { position: fixed; pointer-events: none; user-select: none; opacity: 0; animation: t-rise linear infinite; z-index: 0; }
+  @keyframes t-rise { 0%{transform:translateY(105vh) rotate(0deg);opacity:0} 8%{opacity:.2} 92%{opacity:.2} 100%{transform:translateY(-8vh) rotate(360deg);opacity:0} }
 </style>
 </head>
 <body>
+<div id="themeBg" class="theme-bg"></div>
 
 <!-- ═══ TOPIC VIEW ═══ -->
 <div id="topicView">
@@ -422,6 +443,40 @@ document.addEventListener("keydown", e => {
 });
 
 buildTopicGrid();
+</script>
+
+<script>
+// ── Shakespeare Theatre Theme ─────────────────────────────────
+(function() {
+  const bg = document.getElementById('themeBg');
+
+  // Warm golden candlelight stars
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'theme-star';
+    const sz = (Math.random() * 2 + 0.5).toFixed(1);
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${(Math.random()*100).toFixed(1)}%;left:${(Math.random()*100).toFixed(1)}%;animation-duration:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*6).toFixed(1)}s;`;
+    bg.appendChild(s);
+  }
+
+  // Curtain shimmer — two dark side panels for theatre feel
+  ['0%','82%'].forEach(left => {
+    const c = document.createElement('div');
+    c.style.cssText = `position:fixed;top:0;left:${left};width:9%;height:100%;background:linear-gradient(180deg,rgba(80,5,20,0.55) 0%,rgba(50,3,12,0.45) 100%);pointer-events:none;z-index:0;`;
+    document.body.appendChild(c);
+  });
+
+  // Floating Shakespeare emojis
+  const pool = ['🎭','✒️','📜','🌹','👑','📖','⚔️','🪶','🎪','🌙','🕯️','🦁','🌟'];
+  pool.forEach((em, i) => {
+    const el = document.createElement('div');
+    el.className = 'theme-float';
+    const dur = (16 + Math.random() * 10).toFixed(1);
+    el.style.cssText = `left:${((i / pool.length) * 100 + Math.random() * 4).toFixed(1)}%;font-size:${(1.2 + Math.random() * 0.8).toFixed(1)}em;animation-duration:${dur}s;animation-delay:${(Math.random() * parseFloat(dur)).toFixed(1)}s;`;
+    el.textContent = em;
+    document.body.appendChild(el);
+  });
+})();
 </script>
 </body>
 </html>
