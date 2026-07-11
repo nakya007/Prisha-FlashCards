@@ -151,6 +151,23 @@
   .theme-float { position: absolute; pointer-events: none; user-select: none; opacity: 0; will-change: transform, opacity; -webkit-animation: t-rise linear infinite; animation: t-rise linear infinite; }
   @-webkit-keyframes t-rise { 0%{-webkit-transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{-webkit-transform:translate3d(0,-10vh,0) rotate(360deg);opacity:0} }
   @keyframes t-rise { 0%{transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{transform:translate3d(0,-10vh,0) rotate(360deg);opacity:0} }
+
+  /* ── TOPIC SEARCH BAR ── */
+  .search-wrap { padding: 4px 14px 14px; max-width: 720px; margin: 0 auto; }
+  .search-box { position: relative; }
+  .search-icon { position: absolute; left: 14px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); font-size: 1em; pointer-events: none; line-height: 1; }
+  .search-input {
+    width: 100%; padding: 12px 18px 12px 44px;
+    border-radius: 30px; border: 2px solid rgba(80,200,120,0.3);
+    background: rgba(255,255,255,0.08); color: white;
+    font-size: 0.9em; font-weight: 700; font-family: 'Nunito', sans-serif;
+    outline: none; -webkit-appearance: none; appearance: none;
+    -webkit-transition: border-color 0.2s, box-shadow 0.2s; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input::placeholder { color: rgba(255,255,255,0.35); font-weight: 600; }
+  .search-input:focus { border-color: rgba(80,200,120,0.65); box-shadow: 0 0 18px rgba(80,200,120,0.22); }
+  .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+  .no-results { display: none; text-align: center; padding: 28px 14px; color: rgba(255,255,255,0.38); font-weight: 700; font-size: 0.85em; }
 </style>
 </head>
 <body>
@@ -169,6 +186,16 @@
     <h2>Choose a Topic</h2>
     <p>Tap a topic tile to start practising</p>
   </div>
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="search"
+             placeholder="Search topics e.g. verbs, figurative…" autocomplete="off" autocorrect="off"
+             oninput="handleSearch(this.value)"
+             onkeydown="if(event.key==='Escape'){this.value='';handleSearch('')}">
+    </div>
+  </div>
+  <div class="no-results" id="noResults">🤔 No topics match — try a different word</div>
   <div class="topic-grid" id="topicGrid"></div>
 </div>
 
@@ -443,6 +470,24 @@ document.addEventListener("keydown", e => {
   else if (e.key === " " || e.key === "Enter") { e.preventDefault(); flipCard(); }
   else if (e.key === "Escape") backToTopics();
 });
+
+// ── TOPIC SEARCH ─────────────────────────────────────────────────────────────
+function handleSearch(val) {
+  var q = val.trim().toLowerCase();
+  var allTile = document.querySelector('.all-tile');
+  var tiles = document.querySelectorAll('.topic-tile:not(.all-tile)');
+  var visible = 0;
+  tiles.forEach(function(tile) {
+    var nameEl = tile.querySelector('.tile-name');
+    var name = nameEl ? nameEl.textContent.toLowerCase() : '';
+    var show = !q || name.includes(q);
+    tile.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  if (allTile) allTile.style.display = q ? 'none' : '';
+  var nr = document.getElementById('noResults');
+  if (nr) nr.style.display = (q && visible === 0) ? 'block' : 'none';
+}
 
 buildTopicGrid();
 </script>
