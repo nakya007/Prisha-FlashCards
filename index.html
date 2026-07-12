@@ -173,7 +173,7 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
   <div class="screen-sub">Ask your tutor for your code</div>
   <div class="input-wrap">
     <label class="input-label">Invite Code</label>
-    <input class="input-field" id="inviteInput" type="text" placeholder="e.g. PREP2025"
+    <input class="input-field" id="inviteInput" type="text" placeholder="Enter your code"
       autocapitalize="characters" autocomplete="off"
       oninput="this.value=this.value.toUpperCase()"
       onkeydown="if(event.key==='Enter')validateInvite()">
@@ -193,8 +193,10 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
     <input class="input-field" id="nameInput" type="text" placeholder="e.g. Prisha" maxlength="20"
       onkeydown="if(event.key==='Enter')createProfile()">
   </div>
-  <div class="theme-section-label">Choose your theme</div>
-  <div class="theme-grid" id="themeGridCreate"></div>
+  <div class="theme-section-label">🚀 Maths theme</div>
+  <div class="theme-grid" id="themeGridMaths"></div>
+  <div class="theme-section-label">📚 English theme</div>
+  <div class="theme-grid" id="themeGridEnglish"></div>
   <div class="err" id="profileErr"></div>
   <button class="btn btn-primary" id="createBtn" onclick="createProfile()">Let's Go! 🚀</button>
   <button class="back-link" onclick="showScreen('screenInvite')">← Back</button>
@@ -221,10 +223,17 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
     <div class="sb-icon">📚</div>
     <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
   </button>
-  <div class="theme-chip" onclick="openThemeChanger()">
-    <span id="chipEmoji">🚀</span>
-    <span id="chipName">Space Explorer</span>
-    <span class="theme-chip-muted">· Change theme</span>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+    <div class="theme-chip" onclick="openThemeChanger('maths')">
+      <span id="chipMathsEmoji">🚀</span>
+      <span id="chipMathsName">Space Explorer</span>
+      <span class="theme-chip-muted">· Maths</span>
+    </div>
+    <div class="theme-chip" onclick="openThemeChanger('english')">
+      <span id="chipEnglishEmoji">📚</span>
+      <span id="chipEnglishName">Enchanted Library</span>
+      <span class="theme-chip-muted">· English</span>
+    </div>
   </div>
   <button class="admin-link" onclick="window.location.href='admin.html'">Admin access</button>
 </div>
@@ -232,8 +241,8 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
 <!-- THEME CHANGER OVERLAY -->
 <div class="overlay" id="themeOverlay" onclick="overlayClick(event)">
   <div class="overlay-sheet">
-    <div class="overlay-title">Change Theme</div>
-    <div class="overlay-sub">Pick a new look — changes instantly!</div>
+    <div class="overlay-title" id="overlayTitle">Change Maths Theme</div>
+    <div class="overlay-sub">Pick a new look for this subject</div>
     <div class="theme-grid" id="themeGridChange"></div>
     <button class="btn btn-primary" onclick="saveThemeChange()">Save Theme</button>
     <button class="btn btn-ghost" style="margin-bottom:0" onclick="closeThemeChanger()">Cancel</button>
@@ -254,7 +263,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // ── Config ──────────────────────────────────────────────────────
-const VALID_CODES = ['PREP2025'];
+const FALLBACK_CODES = ['PREP2025']; // used only if Firestore is unreachable
 
 const THEMES = {
   space:     {name:'Space Explorer',    emoji:'🚀', bg:'#06061a', grad:'linear-gradient(145deg,#1a237e,#283593)', text:'#e8eaf6'},
@@ -266,9 +275,11 @@ const THEMES = {
 };
 
 // ── State ───────────────────────────────────────────────────────
-let currentProfile = null;
-let selectedTheme  = 'space';
-let pendingTheme   = 'space';
+let currentProfile  = null;
+let selectedMaths   = 'space';
+let selectedEnglish = 'library';
+let pendingSubject  = 'maths';
+let pendingTheme    = 'space';
 
 // ── Screens ─────────────────────────────────────────────────────
 function showScreen(id) {
@@ -302,7 +313,7 @@ function buildThemeGrid(containerId, activeKey, onPick) {
 
 // ── Admin preview mode ────────────────────────────────────────────
 function enterAdminPreview() {
-  currentProfile = { id: 'admin_preview', name: 'Admin', theme: 'space', xp: 0, streak: 0, badges: [], ratings: {} };
+  currentProfile = { id: 'admin_preview', name: 'Admin', themeMaths: 'space', themeEnglish: 'library', xp: 0, streak: 0, badges: [], ratings: {} };
   applyTheme('space');
   renderHome();
   document.getElementById('adminPreviewBar').style.display = 'flex';
@@ -316,7 +327,8 @@ function exitAdminPreview() {
 
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
-  buildThemeGrid('themeGridCreate', selectedTheme, k => { selectedTheme = k; applyTheme(k); });
+  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths = k; applyTheme(k); });
+  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish = k; });
 
   // Admin preview bypass
   const urlParams = new URLSearchParams(window.location.search);
@@ -332,7 +344,7 @@ async function init() {
       const snap = await db.collection('users').doc(userId).get();
       if (snap.exists) {
         currentProfile = { id: userId, ...snap.data() };
-        applyTheme(currentProfile.theme || 'space');
+        applyTheme(currentProfile.themeMaths || 'space');
         renderHome();
         showScreen('screenHome');
         db.collection('users').doc(userId).update({
@@ -346,16 +358,28 @@ async function init() {
 }
 
 // ── Invite validation ────────────────────────────────────────────
-function validateInvite() {
+async function validateInvite() {
   const code = (document.getElementById('inviteInput').value || '').trim().toUpperCase();
   const err  = document.getElementById('inviteErr');
   if (!code) { err.textContent = 'Please enter your invite code.'; return; }
-  if (!VALID_CODES.includes(code)) {
-    err.textContent = '❌ Invalid code — ask your tutor!';
-    return;
+
+  err.textContent = 'Checking...';
+  try {
+    const snap = await db.collection('inviteCodes').doc(code).get();
+    if (!snap.exists || snap.data().active === false) {
+      err.textContent = '❌ Invalid code — ask your tutor!';
+      return;
+    }
+  } catch(e) {
+    // Firestore unreachable — fall back to hardcoded list
+    if (!FALLBACK_CODES.includes(code)) {
+      err.textContent = '❌ Invalid code — ask your tutor!';
+      return;
+    }
   }
   err.textContent = '';
-  buildThemeGrid('themeGridCreate', selectedTheme, k => { selectedTheme = k; applyTheme(k); });
+  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths = k; applyTheme(k); });
+  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish = k; });
   showScreen('screenProfile');
   setTimeout(() => document.getElementById('nameInput').focus(), 300);
 }
@@ -374,7 +398,8 @@ async function createProfile() {
   const userId = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
   const profile = {
     name: name,
-    theme: selectedTheme,
+    themeMaths:   selectedMaths,
+    themeEnglish: selectedEnglish,
     inviteCode: (document.getElementById('inviteInput').value || '').trim().toUpperCase(),
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     lastActive: firebase.firestore.FieldValue.serverTimestamp(),
@@ -389,7 +414,7 @@ async function createProfile() {
     localStorage.setItem('gsc_userId', userId);
     localStorage.setItem('gsc_name', name);
     currentProfile = { id: userId, ...profile };
-    applyTheme(selectedTheme);
+    applyTheme(selectedMaths);
     renderHome();
     showScreen('screenHome');
   } catch(e) {
@@ -401,37 +426,49 @@ async function createProfile() {
 
 // ── Home ─────────────────────────────────────────────────────────
 function renderHome() {
-  const p = currentProfile;
-  const t = THEMES[p.theme] || THEMES.space;
-  document.getElementById('homeGreeting').textContent = `Hi, ${p.name}! ${t.emoji}`;
+  const p  = currentProfile;
+  const tm = THEMES[p.themeMaths]   || THEMES.space;
+  const te = THEMES[p.themeEnglish] || THEMES.library;
+  document.getElementById('homeGreeting').textContent = `Hi, ${p.name}! 👋`;
 
-  // Stats from localStorage (Firestore sync comes in next step)
+  // Stats from localStorage
   const xp       = parseInt(localStorage.getItem('prisha_xp') || '0') || p.xp || 0;
   const streak   = parseInt(localStorage.getItem('prisha_streak') || '0') || p.streak || 0;
   const ratings  = JSON.parse(localStorage.getItem('prisha_ratings') || '{}');
   const mastered = Object.values(ratings).filter(v => v === 'got').length;
 
-  document.getElementById('statXP').textContent      = xp;
-  document.getElementById('statStreak').textContent  = streak > 0 ? streak + ' 🔥' : '—';
+  document.getElementById('statXP').textContent       = xp;
+  document.getElementById('statStreak').textContent   = streak > 0 ? streak + ' 🔥' : '—';
   document.getElementById('statMastered').textContent = mastered;
 
-  document.getElementById('chipEmoji').textContent = t.emoji;
-  document.getElementById('chipName').textContent  = t.name;
+  document.getElementById('chipMathsEmoji').textContent   = tm.emoji;
+  document.getElementById('chipMathsName').textContent    = tm.name;
+  document.getElementById('chipEnglishEmoji').textContent = te.emoji;
+  document.getElementById('chipEnglishName').textContent  = te.name;
 }
 
 function goToSubject(subject) {
   if (currentProfile) {
     localStorage.setItem('gsc_profile', JSON.stringify({
-      id: currentProfile.id, name: currentProfile.name, theme: currentProfile.theme
+      id: currentProfile.id,
+      name: currentProfile.name,
+      themeMaths:   currentProfile.themeMaths   || 'space',
+      themeEnglish: currentProfile.themeEnglish || 'library'
     }));
   }
   window.location.href = subject === 'maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
 }
 
 // ── Theme changer ─────────────────────────────────────────────────
-function openThemeChanger() {
-  pendingTheme = currentProfile.theme;
-  buildThemeGrid('themeGridChange', pendingTheme, k => { pendingTheme = k; });
+function openThemeChanger(subject) {
+  pendingSubject = subject || 'maths';
+  const currentKey = pendingSubject === 'maths'
+    ? (currentProfile.themeMaths   || 'space')
+    : (currentProfile.themeEnglish || 'library');
+  pendingTheme = currentKey;
+  const label = pendingSubject === 'maths' ? '🚀 Change Maths Theme' : '📚 Change English Theme';
+  document.getElementById('overlayTitle').textContent = label;
+  buildThemeGrid('themeGridChange', currentKey, k => { pendingTheme = k; });
   document.getElementById('themeOverlay').classList.add('open');
 }
 function closeThemeChanger() {
@@ -441,15 +478,23 @@ function overlayClick(e) {
   if (e.target === document.getElementById('themeOverlay')) closeThemeChanger();
 }
 async function saveThemeChange() {
-  currentProfile.theme = pendingTheme;
   const t = THEMES[pendingTheme] || THEMES.space;
-  applyTheme(pendingTheme);
-  document.getElementById('chipEmoji').textContent = t.emoji;
-  document.getElementById('chipName').textContent  = t.name;
-  document.getElementById('homeGreeting').textContent = `Hi, ${currentProfile.name}! ${t.emoji}`;
+  if (pendingSubject === 'maths') {
+    currentProfile.themeMaths = pendingTheme;
+    document.getElementById('chipMathsEmoji').textContent = t.emoji;
+    document.getElementById('chipMathsName').textContent  = t.name;
+    applyTheme(pendingTheme);
+  } else {
+    currentProfile.themeEnglish = pendingTheme;
+    document.getElementById('chipEnglishEmoji').textContent = t.emoji;
+    document.getElementById('chipEnglishName').textContent  = t.name;
+  }
   closeThemeChanger();
   try {
-    await db.collection('users').doc(currentProfile.id).update({ theme: pendingTheme });
+    const update = pendingSubject === 'maths'
+      ? { themeMaths: pendingTheme }
+      : { themeEnglish: pendingTheme };
+    await db.collection('users').doc(currentProfile.id).update(update);
   } catch(e) { console.warn('Theme save failed', e); }
 }
 
