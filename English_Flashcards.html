@@ -493,6 +493,11 @@ function enterTopic(topic){
     document.getElementById("cvTitle").textContent=activeMeta.emoji+" "+topic;
     document.getElementById("cvSub").textContent=filtered.length+" card"+(filtered.length!==1?"s":"");
   }
+  filtered.sort(function(a,b){
+    var aC=/what is|what are|how do|rules|when do|types of|definition/i.test(a.q)?0:1;
+    var bC=/what is|what are|how do|rules|when do|types of|definition/i.test(b.q)?0:1;
+    return aC-bC;
+  });
   current=0;isFlipped=false;_enterCardView();
 }
 
