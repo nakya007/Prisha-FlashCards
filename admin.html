@@ -380,8 +380,8 @@ function buildStudentCard(s) {
     ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge-chip">🏅 ${escHtml(b)}</span>`).join('')}</div>` : ''}
     <div class="last-active">Last active: ${lastAct}</div>
     <div style="display:flex;gap:8px;margin-top:2px;">
-      <button class="report-btn" style="flex:1;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Generate Report</button>
-      <button class="report-btn" style="flex:0 0 auto;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️ Delete</button>
+      <button class="report-btn" style="flex:2;white-space:nowrap;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Generate Report</button>
+      <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️ Delete</button>
     </div>
   `;
   return card;
