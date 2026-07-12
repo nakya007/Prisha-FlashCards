@@ -39,15 +39,17 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .back-link:hover{color:rgba(255,255,255,0.55);}
 
 /* Theme selector */
-.theme-section-label{font-size:12px;font-weight:700;opacity:0.55;text-transform:uppercase;letter-spacing:0.5px;width:100%;margin-bottom:10px;}
+.theme-section-label{font-size:11px;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;width:100%;margin-bottom:10px;}
 .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-bottom:18px;}
-.theme-card{border-radius:14px;padding:14px 6px 12px;text-align:center;cursor:pointer;border:2px solid transparent;transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s;position:relative;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
-.theme-card:hover{transform:scale(1.04);}
-.theme-card.selected{border-color:rgba(255,255,255,0.8);box-shadow:0 0 0 3px rgba(255,255,255,0.15);}
-.theme-card .t-emoji{font-size:24px;line-height:1;}
-.theme-card .t-name{font-size:10px;font-weight:800;opacity:0.9;line-height:1.2;}
-.t-check{position:absolute;top:5px;right:6px;font-size:12px;display:none;}
-.theme-card.selected .t-check{display:block;}
+.theme-card{border-radius:14px;padding:12px 6px 14px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,0.08);transition:transform 0.15s,border-color 0.2s,box-shadow 0.2s;position:relative;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;overflow:hidden;}
+.theme-card:hover{transform:translateY(-2px);}
+.theme-card.selected{border-color:rgba(255,255,255,0.3);}
+.theme-card .t-emoji{font-size:24px;line-height:1;position:relative;z-index:1;}
+.theme-card .t-name{font-size:9px;font-weight:800;color:#fff;opacity:0.9;line-height:1.3;position:relative;z-index:1;}
+.t-glow{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);width:75%;height:32px;border-radius:50%;filter:blur(12px);opacity:0;transition:opacity 0.25s;}
+.theme-card.selected .t-glow{opacity:0.65;}
+.t-check{position:absolute;top:5px;right:6px;font-size:11px;color:#fff;opacity:0;transition:opacity 0.15s;}
+.theme-card.selected .t-check{opacity:1;}
 
 /* Home */
 .greeting{font-size:30px;font-weight:900;text-align:center;margin-bottom:2px;}
@@ -266,15 +268,15 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // ── Config ──────────────────────────────────────────────────────
-const FALLBACK_CODES = ['PREP2025']; // used only if Firestore is unreachable
+const FALLBACK_CODES = ['PREP2027']; // used only if Firestore is unreachable
 
 const THEMES = {
-  space:     {name:'Space Explorer',    emoji:'🚀', bg:'#060618', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', grad:'linear-gradient(145deg,#1a237e,#283593)', pattern:'', accent:'#7986cb', text:'#e8eaf6'},
-  library:   {name:'Enchanted Library', emoji:'📚', bg:'#1a0f08', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             grad:'linear-gradient(145deg,#451a03,#78350f)', pattern:'', accent:'#fbbf24', text:'#fde68a'},
-  ocean:     {name:'Ocean Deep',        emoji:'🌊', bg:'#041c2c', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             grad:'linear-gradient(145deg,#003954,#006080)', pattern:'', accent:'#4dd0e1', text:'#e0f7fa'},
-  candy:     {name:'Candy Kingdom',     emoji:'🍭', bg:'#1a0828', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             grad:'linear-gradient(145deg,#6a1b9a,#8e24aa)', pattern:'radial-gradient(circle,rgba(244,114,182,0.18) 2px,transparent 2px) 0 0/18px 18px', accent:'#ce93d8', text:'#fce4ec'},
-  jungle:    {name:'Jungle Quest',      emoji:'🌿', bg:'#052e16', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             grad:'linear-gradient(145deg,#14532d,#166534)', pattern:'', accent:'#4ade80', text:'#dcfce7'},
-  superhero: {name:'Superhero HQ',      emoji:'⚡', bg:'#0a0a0a', bodyBg:'#0a0a0a',                                                                  grad:'linear-gradient(145deg,#7f1d1d,#991b1b)', pattern:'repeating-linear-gradient(0deg,transparent,transparent 13px,rgba(239,68,68,0.1) 13px,rgba(239,68,68,0.1) 14px),repeating-linear-gradient(90deg,transparent,transparent 13px,rgba(239,68,68,0.07) 13px,rgba(239,68,68,0.07) 14px)', accent:'#ef9a9a', text:'#fff8e1'}
+  space:     {name:'Space Explorer',    emoji:'🚀', bg:'#060618', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   accent:'#7986cb', text:'#e8eaf6'},
+  library:   {name:'Enchanted Library', emoji:'📚', bg:'#1a0f08', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  accent:'#fbbf24', text:'#fde68a'},
+  ocean:     {name:'Ocean Deep',        emoji:'🌊', bg:'#041c2c', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', accent:'#4dd0e1', text:'#e0f7fa'},
+  candy:     {name:'Candy Kingdom',     emoji:'🍭', bg:'#1a0828', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',accent:'#ce93d8', text:'#fce4ec'},
+  jungle:    {name:'Jungle Quest',      emoji:'🌿', bg:'#052e16', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', accent:'#4ade80', text:'#dcfce7'},
+  superhero: {name:'Superhero HQ',      emoji:'⚡', bg:'#0a0a0a', bodyBg:'#0a0a0a',                                                                  tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',accent:'#ef9a9a', text:'#fff8e1'}
 };
 
 // ── State ───────────────────────────────────────────────────────
@@ -336,17 +338,21 @@ function buildThemeGrid(containerId, activeKey, onPick) {
   Object.entries(THEMES).forEach(([key, t]) => {
     const c = document.createElement('div');
     c.className = 'theme-card' + (key === activeKey ? ' selected' : '');
-    c.style.background = t.grad;
-    if (t.pattern) c.style.backgroundImage = t.grad + ',' + t.pattern;
-    // Extra decoration per theme
-    let deco = '';
-    if (key === 'superhero') deco = `<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#dc2626,#b91c1c);border-radius:12px 12px 0 0;"></div>`;
-    if (key === 'library')   deco = `<div style="position:absolute;bottom:0;left:0;right:0;height:14px;background:linear-gradient(180deg,#5c3317,#3d2010);border-top:1.5px solid #8b5e3c;border-radius:0 0 12px 12px;"></div>`;
-    if (key === 'ocean')     deco = `<div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:9px;opacity:0.5;white-space:nowrap;">∿∿∿∿∿</div>`;
-    c.innerHTML = `${deco}<div class="t-emoji">${t.emoji}</div><div class="t-name">${t.name}</div><div class="t-check">✓</div>`;
+    c.style.background = t.tint;
+    c.style.borderColor = key === activeKey ? t.border : 'rgba(255,255,255,0.08)';
+    c.dataset.key = key;
+    c.innerHTML = `
+      <div class="t-glow" style="background:${t.glow};"></div>
+      <div class="t-check">✓</div>
+      <div class="t-emoji">${t.emoji}</div>
+      <div class="t-name">${t.name}</div>`;
     c.onclick = () => {
-      grid.querySelectorAll('.theme-card').forEach(x => x.classList.remove('selected'));
+      grid.querySelectorAll('.theme-card').forEach(x => {
+        x.classList.remove('selected');
+        x.style.borderColor = 'rgba(255,255,255,0.08)';
+      });
       c.classList.add('selected');
+      c.style.borderColor = t.border;
       onPick(key);
     };
     grid.appendChild(c);
