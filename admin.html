@@ -211,7 +211,10 @@ function signOut() {
   });
 }
 
-function goToSite() { window.open('index.html', '_blank'); }
+function goToSite() {
+  localStorage.setItem('gsc_admin_preview', '1');
+  window.open('index.html?preview=1', '_blank');
+}
 
 // ── Dashboard ─────────────────────────────────────────────────────
 function showDashboard() {
