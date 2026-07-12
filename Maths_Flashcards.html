@@ -635,6 +635,24 @@ const ALL_CARDS=[
 let filtered=[],current=0,isFlipped=false,activeMeta=null;
 if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('admin-preview');
 
+// ── Apply Maths theme from profile ───────────────────────────────
+(function applyMathsTheme(){
+  const THEMES={
+    space:    {bg:'#06061a'},
+    library:  {bg:'#071a0a'},
+    ocean:    {bg:'#01111d'},
+    candy:    {bg:'#180a1e'},
+    jungle:   {bg:'#0d1a08'},
+    superhero:{bg:'#0d0d0d'}
+  };
+  try{
+    const p=JSON.parse(localStorage.getItem('gsc_profile')||'{}');
+    const key=p.themeMaths||'space';
+    const t=THEMES[key]||THEMES.space;
+    document.body.style.background=t.bg;
+  }catch(e){}
+})();
+
 function buildTopicGrid(){
   const topics=[...new Set(ALL_CARDS.map(c=>c.topic))];
   const grid=document.getElementById("topicGrid");grid.innerHTML="";
