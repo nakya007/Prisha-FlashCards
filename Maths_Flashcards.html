@@ -7,8 +7,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height:100vh;overflow-x:hidden;}
-canvas#starCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+body{font-family:'Nunito',sans-serif;background:#060618;color:#e8eaf6;min-height:100vh;overflow-x:hidden;}
+canvas#starCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;transition:opacity 0.5s;}
+body:not(.theme-space) canvas{opacity:0!important;}
+/* ══ Theme system ══ */
+#themeDecor{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+body.theme-space   {background:radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%);color:#e8eaf6;}
+body.theme-library {background:linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%);color:#fde68a;}
+body.theme-ocean   {background:linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%);color:#e0f2fe;}
+body.theme-candy   {background:linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%);color:#fce7f3;}
+body.theme-jungle  {background:linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%);color:#dcfce7;}
+body.theme-superhero{background:#0a0a0a;color:#fff8e1;}
+body.theme-candy   #themeDecor{background-image:radial-gradient(circle,rgba(244,114,182,0.13) 2px,transparent 2px);background-size:28px 28px;}
+body.theme-superhero #themeDecor{background:repeating-linear-gradient(0deg,transparent,transparent 29px,rgba(239,68,68,0.07) 29px,rgba(239,68,68,0.07) 30px),repeating-linear-gradient(90deg,transparent,transparent 29px,rgba(239,68,68,0.04) 29px,rgba(239,68,68,0.04) 30px);}
+body.theme-superhero #themeDecor::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#dc2626,#b91c1c,#dc2626);}
+body.theme-library .xp-fill{background:linear-gradient(90deg,#d97706,#fbbf24);}
+body.theme-ocean   .xp-fill{background:linear-gradient(90deg,#0891b2,#22d3ee);}
+body.theme-candy   .xp-fill{background:linear-gradient(90deg,#9d174d,#ec4899);}
+body.theme-jungle  .xp-fill{background:linear-gradient(90deg,#166534,#4ade80);}
+body.theme-superhero .xp-fill{background:linear-gradient(90deg,#991b1b,#ef4444);}
+@keyframes twinkleStar{0%,100%{opacity:0.7;transform:scale(1);}50%{opacity:0.1;transform:scale(0.4);}}
+@keyframes flicker{0%{opacity:1;}100%{opacity:0.55;transform:scale(0.95);}}
+@keyframes bubbleRise{0%{transform:translateY(0);opacity:0;}15%{opacity:0.55;}85%{opacity:0.2;}100%{transform:translateY(-110vh);opacity:0;}}
+@keyframes leafSway{0%{transform:rotate(-12deg);}100%{transform:rotate(12deg);}}
 .page{position:relative;z-index:1;}
 
 /* ── Topic view ── */
@@ -219,6 +240,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 </head>
 <body>
 <canvas id="starCanvas"></canvas>
+<div id="themeDecor" aria-hidden="true"></div>
 <div class="levelup-toast" id="levelupToast"></div>
 <div class="badge-toast" id="badgeToast"></div>
 <button class="badges-fab" id="badgesFab" onclick="showBadges()">🏅</button>
@@ -637,20 +659,63 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
 
 // ── Apply Maths theme from profile ───────────────────────────────
 (function applyMathsTheme(){
-  const THEMES={
-    space:    {bg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)'},
-    library:  {bg:'radial-gradient(ellipse at 50% 0%,#1b5e20 0%,#071a0a 55%,#030d04 100%)'},
-    ocean:    {bg:'radial-gradient(ellipse at 50% 0%,#006064 0%,#01111d 55%,#000a12 100%)'},
-    candy:    {bg:'radial-gradient(ellipse at 50% 0%,#6a1b9a 0%,#1a0828 55%,#0d0415 100%)'},
-    jungle:   {bg:'radial-gradient(ellipse at 50% 0%,#33691e 0%,#0a1a04 55%,#040d02 100%)'},
-    superhero:{bg:'radial-gradient(ellipse at 50% 0%,#b71c1c 0%,#1a0404 55%,#0d0202 100%)'}
-  };
+  function buildDecoration(key,d){
+    d.innerHTML='';
+    if(key==='space'){
+      // supplement canvas with extra dot stars
+      for(let i=0;i<60;i++){
+        const s=document.createElement('div');
+        const sz=Math.random()<0.75?1:2;
+        const col=Math.random()<0.25?'#a78bfa':'#fff';
+        s.style.cssText=`position:absolute;left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;width:${sz}px;height:${sz}px;border-radius:50%;background:${col};opacity:${(0.2+Math.random()*0.55).toFixed(2)};animation:twinkleStar ${(1.5+Math.random()*2.5).toFixed(1)}s ${(Math.random()*3).toFixed(1)}s ease-in-out infinite;`;
+        d.appendChild(s);
+      }
+    } else if(key==='library'){
+      const cols=['#dc2626','#d97706','#7c3aed','#0369a1','#15803d','#b45309','#be123c','#1d4ed8','#dc2626','#d97706','#7c3aed','#166534','#9a3412'];
+      const books=Array.from({length:16},()=>{
+        const w=8+Math.floor(Math.random()*7),h=20+Math.floor(Math.random()*26),c=cols[Math.floor(Math.random()*cols.length)];
+        return `<div style="width:${w}px;height:${h}px;background:${c};border-radius:2px 2px 0 0;opacity:0.72;flex-shrink:0;"></div>`;
+      }).join('');
+      d.innerHTML=`<div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(180deg,#5c3317,#3d2010);border-top:3px solid #8b5e3c;"></div>
+      <div style="position:absolute;bottom:60px;left:0;right:0;display:flex;align-items:flex-end;padding:0 12px;gap:2px;">${books}</div>
+      <div style="position:absolute;top:14px;right:22px;font-size:22px;animation:flicker 1.8s ease-in-out infinite alternate;">🕯️</div>
+      <div style="position:absolute;top:14px;right:56px;font-size:18px;animation:flicker 2.3s 0.6s ease-in-out infinite alternate;">🕯️</div>`;
+    } else if(key==='ocean'){
+      for(let i=0;i<18;i++){
+        const b=document.createElement('div');
+        const sz=4+Math.random()*14;
+        b.style.cssText=`position:absolute;left:${(Math.random()*92).toFixed(1)}%;bottom:-20px;width:${sz.toFixed(0)}px;height:${sz.toFixed(0)}px;border-radius:50%;border:1px solid rgba(125,211,252,${(0.2+Math.random()*0.4).toFixed(2)});animation:bubbleRise ${(3+Math.random()*5).toFixed(1)}s ${(Math.random()*6).toFixed(1)}s ease-in infinite;`;
+        d.appendChild(b);
+      }
+      const floor=document.createElement('div');
+      floor.style.cssText='position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,rgba(8,47,73,0.7));border-top:1px solid rgba(56,189,248,0.15);';
+      d.appendChild(floor);
+    } else if(key==='jungle'){
+      [
+        {top:'4%', left:'-22px',  emoji:'🌿', sz:46, delay:0},
+        {top:'18%',right:'-14px', emoji:'🍃', sz:38, delay:0.6},
+        {top:'38%',left:'-18px',  emoji:'🌿', sz:42, delay:1.2},
+        {top:'56%',right:'-16px', emoji:'🍃', sz:36, delay:0.3},
+        {top:'72%',left:'-20px',  emoji:'🌿', sz:44, delay:0.9},
+        {top:'86%',right:'-12px', emoji:'🍃', sz:34, delay:1.5},
+      ].forEach(l=>{
+        const el=document.createElement('div');
+        el.style.cssText=`position:absolute;top:${l.top};${l.right?'right:'+l.right:'left:'+l.left};font-size:${l.sz}px;opacity:0.28;animation:leafSway ${2.8+l.delay*0.5}s ${l.delay}s ease-in-out infinite alternate;`;
+        el.textContent=l.emoji; d.appendChild(el);
+      });
+      const mist=document.createElement('div');
+      mist.style.cssText='position:absolute;bottom:0;left:0;right:0;height:70px;background:linear-gradient(transparent,rgba(20,83,45,0.12));';
+      d.appendChild(mist);
+    }
+    // candy + superhero: handled purely by CSS
+  }
   try{
     const p=JSON.parse(localStorage.getItem('gsc_profile')||'{}');
     const key=p.themeMaths||'space';
-    const t=THEMES[key]||THEMES.space;
-    document.body.style.background=t.bg;
-  }catch(e){}
+    document.body.classList.add('theme-'+key);
+    const d=document.getElementById('themeDecor');
+    if(d) buildDecoration(key,d);
+  }catch(e){ document.body.classList.add('theme-space'); }
 })();
 
 function buildTopicGrid(){
