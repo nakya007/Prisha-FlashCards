@@ -638,12 +638,12 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
 // ── Apply Maths theme from profile ───────────────────────────────
 (function applyMathsTheme(){
   const THEMES={
-    space:    {bg:'#06061a'},
-    library:  {bg:'#071a0a'},
-    ocean:    {bg:'#01111d'},
-    candy:    {bg:'#180a1e'},
-    jungle:   {bg:'#0d1a08'},
-    superhero:{bg:'#0d0d0d'}
+    space:    {bg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)'},
+    library:  {bg:'radial-gradient(ellipse at 50% 0%,#1b5e20 0%,#071a0a 55%,#030d04 100%)'},
+    ocean:    {bg:'radial-gradient(ellipse at 50% 0%,#006064 0%,#01111d 55%,#000a12 100%)'},
+    candy:    {bg:'radial-gradient(ellipse at 50% 0%,#6a1b9a 0%,#1a0828 55%,#0d0415 100%)'},
+    jungle:   {bg:'radial-gradient(ellipse at 50% 0%,#33691e 0%,#0a1a04 55%,#040d02 100%)'},
+    superhero:{bg:'radial-gradient(ellipse at 50% 0%,#b71c1c 0%,#1a0404 55%,#0d0202 100%)'}
   };
   try{
     const p=JSON.parse(localStorage.getItem('gsc_profile')||'{}');
