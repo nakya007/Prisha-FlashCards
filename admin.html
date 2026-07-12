@@ -189,8 +189,11 @@ const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 // ── Auth ─────────────────────────────────────────────────────────
 function adminSignIn() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
-  auth.signInWithPopup(provider)
+  // Always show account picker, never auto-sign in silently
+  provider.setCustomParameters({ prompt: 'select_account' });
+  // Session-only persistence — auth clears when tab closes
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+    .then(() => auth.signInWithPopup(provider))
     .then(result => {
       if (result.user.email !== ADMIN_EMAIL) {
         auth.signOut();
