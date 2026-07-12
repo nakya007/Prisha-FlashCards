@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Grammar School Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height:100vh;overflow-x:hidden;}
+
+/* ── Sign-in screen ── */
+.signin-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.signin-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:36px 28px;width:100%;max-width:380px;text-align:center;}
+.signin-logo{font-size:48px;margin-bottom:12px;}
+.signin-title{font-size:22px;font-weight:900;margin-bottom:4px;}
+.signin-sub{font-size:13px;opacity:0.45;margin-bottom:28px;}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border-radius:14px;border:none;background:#fff;color:#222;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:box-shadow 0.15s,transform 0.12s;box-shadow:0 2px 16px rgba(0,0,0,0.35);}
+.btn-google:hover{transform:translateY(-2px);box-shadow:0 4px 22px rgba(0,0,0,0.45);}
+.btn-google svg{width:20px;height:20px;flex-shrink:0;}
+.signin-err{color:#ef9a9a;font-size:13px;margin-top:14px;min-height:18px;}
+.back-home{margin-top:18px;color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;}
+.back-home:hover{color:rgba(255,255,255,0.55);}
+
+/* ── Dashboard ── */
+#dashboard{display:none;padding:24px;max-width:900px;margin:0 auto;}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.dash-title{font-size:22px;font-weight:900;}
+.dash-sub{font-size:13px;opacity:0.45;margin-top:2px;}
+.btn-sm{padding:9px 16px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.15s,transform 0.1s;}
+.btn-sm:hover{transform:translateY(-1px);}
+.btn-signout{background:rgba(255,255,255,0.07);color:#e8eaf6;border:1px solid rgba(255,255,255,0.12);}
+
+/* Summary stats bar */
+.summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;}
+.sum-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:14px;text-align:center;}
+.sum-val{font-size:26px;font-weight:900;}
+.sum-lbl{font-size:11px;opacity:0.45;margin-top:3px;}
+
+/* Student cards */
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.student-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:20px;position:relative;}
+.student-card:hover{border-color:rgba(255,255,255,0.18);}
+.stu-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.stu-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stu-name{font-size:17px;font-weight:900;}
+.stu-since{font-size:11px;opacity:0.4;margin-top:1px;}
+.stu-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+.stu-stat{background:rgba(255,255,255,0.05);border-radius:10px;padding:8px 6px;text-align:center;}
+.stu-stat-val{font-size:16px;font-weight:900;}
+.stu-stat-lbl{font-size:9px;opacity:0.45;margin-top:2px;text-transform:uppercase;}
+.progress-bar-wrap{margin-bottom:12px;}
+.progress-bar-label{display:flex;justify-content:space-between;font-size:11px;opacity:0.55;margin-bottom:4px;}
+.progress-bar-track{background:rgba(255,255,255,0.08);border-radius:99px;height:6px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#42a5f5,#1565c0);transition:width 0.6s ease;}
+.badge-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;min-height:24px;}
+.badge-chip{background:rgba(249,212,35,0.12);border:1px solid rgba(249,212,35,0.25);color:#ffd54f;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.last-active{font-size:11px;opacity:0.35;margin-bottom:12px;}
+.report-btn{width:100%;padding:10px;border-radius:12px;border:none;background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:opacity 0.15s,transform 0.12s;}
+.report-btn:hover{opacity:0.9;transform:translateY(-1px);}
+
+/* Strengths/Weaknesses */
+.sw-section{margin-bottom:10px;}
+.sw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;opacity:0.5;margin-bottom:4px;}
+.sw-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.tag-good{background:rgba(129,199,132,0.12);border:1px solid rgba(129,199,132,0.25);color:#a5d6a7;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.tag-weak{background:rgba(239,154,154,0.12);border:1px solid rgba(239,154,154,0.25);color:#ef9a9a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.tag-none{font-size:10px;opacity:0.3;font-style:italic;}
+
+/* Empty/loading states */
+.empty-state{text-align:center;padding:48px 20px;opacity:0.35;}
+.empty-icon{font-size:40px;margin-bottom:10px;}
+.loading-spinner{display:inline-block;width:28px;height:28px;border:3px solid rgba(255,255,255,0.1);border-top-color:#42a5f5;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Report modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;justify-content:center;align-items:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#12122a;border-radius:24px;padding:32px 28px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;}
+.modal-title{font-size:20px;font-weight:900;margin-bottom:4px;}
+.modal-sub{font-size:12px;opacity:0.4;margin-bottom:20px;}
+.report-section{margin-bottom:18px;}
+.report-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;opacity:0.5;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:6px;}
+.report-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.report-val{font-weight:700;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions .btn-sm{flex:1;padding:12px;}
+.btn-print{background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;}
+.btn-close{background:rgba(255,255,255,0.07);color:#e8eaf6;border:1px solid rgba(255,255,255,0.12);}
+
+@media(max-width:600px){
+  .summary-bar{grid-template-columns:repeat(2,1fr);}
+  .students-grid{grid-template-columns:1fr;}
+  .dash-header{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIGN-IN ══ -->
+<div class="signin-wrap" id="signinWrap">
+  <div class="signin-box">
+    <div class="signin-logo">🔐</div>
+    <div class="signin-title">Admin Login</div>
+    <div class="signin-sub">Grammar School Prep</div>
+    <button class="btn-google" onclick="adminSignIn()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div class="signin-err" id="signinErr"></div>
+    <button class="back-home" onclick="window.location.href='index.html'">← Back to site</button>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">📊 Student Dashboard</div>
+      <div class="dash-sub" id="dashSub">Loading students...</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn-sm btn-signout" onclick="refreshStudents()">🔄 Refresh</button>
+      <button class="btn-sm btn-signout" onclick="goToSite()">👁 View Site</button>
+      <button class="btn-sm btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="summary-bar" id="summaryBar">
+    <div class="sum-card"><div class="sum-val" id="sumStudents">—</div><div class="sum-lbl">Students</div></div>
+    <div class="sum-card"><div class="sum-val" id="sumActive">—</div><div class="sum-lbl">Active Today</div></div>
+    <div class="sum-card"><div class="sum-val" id="sumCards">—</div><div class="sum-lbl">Cards Mastered</div></div>
+    <div class="sum-card"><div class="sum-val" id="sumXP">—</div><div class="sum-lbl">Total XP Earned</div></div>
+  </div>
+
+  <div class="students-grid" id="studentsGrid">
+    <div class="empty-state"><div class="loading-spinner"></div></div>
+  </div>
+</div>
+
+<!-- ══ REPORT MODAL ══ -->
+<div class="modal-overlay" id="reportModal" onclick="closeReportModal(event)">
+  <div class="modal-box" id="reportBox">
+    <div class="modal-title" id="reportTitle">Progress Report</div>
+    <div class="modal-sub" id="reportSub"></div>
+    <div id="reportContent"></div>
+    <div class="modal-actions">
+      <button class="btn-sm btn-print" onclick="printReport()">🖨 Print / Save PDF</button>
+      <button class="btn-sm btn-close" onclick="document.getElementById('reportModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Firebase ────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCEyADr23BV0nASX_RlTfQR-Ewt0XMFYJ8",
+  authDomain: "grammar-school-flash-cards.firebaseapp.com",
+  projectId: "grammar-school-flash-cards",
+  storageBucket: "grammar-school-flash-cards.firebasestorage.app",
+  messagingSenderId: "699212561669",
+  appId: "1:699212561669:web:1fa5b71c77b178fb084b6c"
+};
+firebase.initializeApp(firebaseConfig);
+const db   = firebase.firestore();
+const auth = firebase.auth();
+
+// ── Config ──────────────────────────────────────────────────────
+const ADMIN_EMAIL = 'grammarschooladmin@gmail.com';
+
+const THEME_EMOJIS = {
+  space:'🚀', library:'📚', ocean:'🌊', candy:'🍭', jungle:'🌿', superhero:'⚡'
+};
+const THEME_COLORS = {
+  space:'#1a237e', library:'#1b5e20', ocean:'#003954',
+  candy:'#6a1b9a', jungle:'#33691e', superhero:'#b71c1c'
+};
+
+const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
+
+// ── Auth ─────────────────────────────────────────────────────────
+function adminSignIn() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
+  auth.signInWithPopup(provider)
+    .then(result => {
+      if (result.user.email !== ADMIN_EMAIL) {
+        auth.signOut();
+        document.getElementById('signinErr').textContent = '⛔ This Google account is not authorised as admin.';
+        return;
+      }
+      showDashboard();
+    })
+    .catch(err => {
+      document.getElementById('signinErr').textContent = '❌ Sign-in failed: ' + err.message;
+    });
+}
+
+function signOut() {
+  auth.signOut().then(() => {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('signinWrap').style.display = 'flex';
+  });
+}
+
+function goToSite() { window.open('index.html', '_blank'); }
+
+// ── Dashboard ─────────────────────────────────────────────────────
+function showDashboard() {
+  document.getElementById('signinWrap').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadStudents();
+}
+
+async function loadStudents() {
+  const grid = document.getElementById('studentsGrid');
+  grid.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div></div>';
+
+  try {
+    const snap = await db.collection('users').orderBy('lastActive', 'desc').get();
+    const students = [];
+    snap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
+
+    updateSummaryBar(students);
+
+    if (!students.length) {
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">👤</div><div>No students yet.</div></div>';
+      document.getElementById('dashSub').textContent = 'No students have joined yet.';
+      return;
+    }
+
+    document.getElementById('dashSub').textContent = students.length + ' student' + (students.length !== 1 ? 's' : '') + ' registered';
+    grid.innerHTML = '';
+    students.forEach(s => grid.appendChild(buildStudentCard(s)));
+
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load. Check your connection.</div></div>';
+    console.error(e);
+  }
+}
+
+function refreshStudents() { loadStudents(); }
+
+function updateSummaryBar(students) {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const activeToday = students.filter(s => {
+    const la = s.lastActive && s.lastActive.toDate ? s.lastActive.toDate().getTime() : 0;
+    return la >= todayStart;
+  }).length;
+  const totalMastered = students.reduce((sum, s) => {
+    const r = s.ratings || {};
+    return sum + Object.values(r).filter(v => v === 'got').length;
+  }, 0);
+  const totalXP = students.reduce((sum, s) => sum + (s.xp || 0), 0);
+
+  document.getElementById('sumStudents').textContent = students.length;
+  document.getElementById('sumActive').textContent   = activeToday;
+  document.getElementById('sumCards').textContent    = totalMastered;
+  document.getElementById('sumXP').textContent       = totalXP;
+}
+
+function buildStudentCard(s) {
+  const card = document.createElement('div');
+  card.className = 'student-card';
+
+  const theme    = s.theme || 'space';
+  const emoji    = THEME_EMOJIS[theme] || '📖';
+  const color    = THEME_COLORS[theme] || '#1a237e';
+  const ratings  = s.ratings || {};
+  const total    = Object.keys(ratings).length;
+  const mastered = Object.values(ratings).filter(v => v === 'got').length;
+  const hard     = Object.values(ratings).filter(v => v === 'hard').length;
+  const mastPct  = total > 0 ? Math.round((mastered / total) * 100) : 0;
+  const lastAct  = s.lastActive && s.lastActive.toDate ? formatDate(s.lastActive.toDate()) : 'Never';
+  const joined   = s.createdAt && s.createdAt.toDate ? formatDate(s.createdAt.toDate()) : '—';
+
+  // Strengths/weaknesses from ratings
+  const topicStats = {};
+  Object.entries(ratings).forEach(([key, val]) => {
+    const parts = key.split('__');
+    const topic = parts[0] || 'Unknown';
+    if (!topicStats[topic]) topicStats[topic] = {got:0, hard:0, total:0};
+    topicStats[topic].total++;
+    if (val === 'got')  topicStats[topic].got++;
+    if (val === 'hard') topicStats[topic].hard++;
+  });
+  const strengths = Object.entries(topicStats)
+    .filter(([, v]) => v.total >= 2 && (v.got / v.total) >= 0.75)
+    .map(([k]) => k).slice(0, 3);
+  const weaknesses = Object.entries(topicStats)
+    .filter(([, v]) => v.total >= 2 && (v.hard / v.total) >= 0.4)
+    .map(([k]) => k).slice(0, 3);
+
+  const badges = (s.badges || []).slice(0, 4);
+
+  card.innerHTML = `
+    <div class="stu-header">
+      <div class="stu-avatar" style="background:${color}22;border:2px solid ${color}55;">${emoji}</div>
+      <div>
+        <div class="stu-name">${escHtml(s.name || 'Unknown')}</div>
+        <div class="stu-since">Joined ${joined}</div>
+      </div>
+    </div>
+    <div class="stu-stats">
+      <div class="stu-stat"><div class="stu-stat-val">${s.xp || 0}</div><div class="stu-stat-lbl">XP</div></div>
+      <div class="stu-stat"><div class="stu-stat-val">${mastered}</div><div class="stu-stat-lbl">Mastered</div></div>
+      <div class="stu-stat"><div class="stu-stat-val">${s.streak || 0}${(s.streak||0) > 0 ? '🔥' : ''}</div><div class="stu-stat-lbl">Streak</div></div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-label"><span>Overall Mastery</span><span>${mastPct}%</span></div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${mastPct}%"></div></div>
+    </div>
+    <div class="sw-section">
+      <div class="sw-label">Strengths</div>
+      <div class="sw-tags">${strengths.length ? strengths.map(t => `<span class="tag-good">${escHtml(t)}</span>`).join('') : '<span class="tag-none">Not enough data yet</span>'}</div>
+    </div>
+    <div class="sw-section" style="margin-bottom:12px;">
+      <div class="sw-label">Needs Practice</div>
+      <div class="sw-tags">${weaknesses.length ? weaknesses.map(t => `<span class="tag-weak">${escHtml(t)}</span>`).join('') : '<span class="tag-none">Looking good!</span>'}</div>
+    </div>
+    ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge-chip">🏅 ${escHtml(b)}</span>`).join('')}</div>` : ''}
+    <div class="last-active">Last active: ${lastAct}</div>
+    <button class="report-btn" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Generate Report</button>
+  `;
+  return card;
+}
+
+// ── Report ────────────────────────────────────────────────────────
+let currentReportStudent = null;
+
+function openReport(sJson) {
+  const s = JSON.parse(sJson);
+  currentReportStudent = s;
+  const ratings  = s.ratings || {};
+  const total    = Object.keys(ratings).length;
+  const mastered = Object.values(ratings).filter(v => v === 'got').length;
+  const hard     = Object.values(ratings).filter(v => v === 'hard').length;
+  const mastPct  = total > 0 ? Math.round((mastered / total) * 100) : 0;
+  const joined   = s.createdAt && s.createdAt.toDate ? formatDate(new Date(s.createdAt.seconds * 1000)) : '—';
+  const lastAct  = s.lastActive && s.lastActive.seconds ? formatDate(new Date(s.lastActive.seconds * 1000)) : 'Never';
+
+  // Topic breakdown
+  const topicStats = {};
+  Object.entries(ratings).forEach(([key, val]) => {
+    const topic = key.split('__')[0] || 'Unknown';
+    if (!topicStats[topic]) topicStats[topic] = {got:0, hard:0, total:0};
+    topicStats[topic].total++;
+    if (val === 'got')  topicStats[topic].got++;
+    if (val === 'hard') topicStats[topic].hard++;
+  });
+  const topicRows = Object.entries(topicStats)
+    .sort((a, b) => (b[1].got/Math.max(b[1].total,1)) - (a[1].got/Math.max(a[1].total,1)))
+    .map(([topic, v]) => {
+      const pct = Math.round((v.got / v.total) * 100);
+      const status = pct >= 75 ? '✅ Strong' : pct >= 40 ? '🟡 Developing' : '❗ Needs Focus';
+      return `<div class="report-row"><span>${escHtml(topic)}</span><span class="report-val">${status} (${pct}%)</span></div>`;
+    }).join('');
+
+  const badges = (s.badges || []);
+
+  document.getElementById('reportTitle').textContent = `Progress Report — ${s.name || 'Student'}`;
+  document.getElementById('reportSub').textContent = `Generated ${formatDate(new Date())}`;
+  document.getElementById('reportContent').innerHTML = `
+    <div class="report-section">
+      <div class="report-section-title">Overview</div>
+      <div class="report-row"><span>Student Name</span><span class="report-val">${escHtml(s.name||'—')}</span></div>
+      <div class="report-row"><span>Theme</span><span class="report-val">${THEME_EMOJIS[s.theme]||''} ${s.theme||'—'}</span></div>
+      <div class="report-row"><span>Joined</span><span class="report-val">${joined}</span></div>
+      <div class="report-row"><span>Last Active</span><span class="report-val">${lastAct}</span></div>
+      <div class="report-row"><span>Current Streak</span><span class="report-val">${(s.streak||0) > 0 ? s.streak + ' days 🔥' : 'None'}</span></div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">Progress Summary</div>
+      <div class="report-row"><span>Total XP Earned</span><span class="report-val">${s.xp || 0}</span></div>
+      <div class="report-row"><span>Cards Seen</span><span class="report-val">${total}</span></div>
+      <div class="report-row"><span>Cards Mastered</span><span class="report-val">${mastered} (${mastPct}%)</span></div>
+      <div class="report-row"><span>Cards Needing Practice</span><span class="report-val">${hard}</span></div>
+      <div class="report-row"><span>Badges Earned</span><span class="report-val">${badges.length}</span></div>
+    </div>
+    ${topicRows ? `<div class="report-section"><div class="report-section-title">Topic Breakdown</div>${topicRows}</div>` : ''}
+    ${badges.length ? `<div class="report-section"><div class="report-section-title">Badges</div><div class="badge-row" style="margin-top:6px">${badges.map(b=>`<span class="badge-chip">🏅 ${escHtml(b)}</span>`).join('')}</div></div>` : ''}
+  `;
+  document.getElementById('reportModal').classList.add('open');
+}
+
+function closeReportModal(e) {
+  if (e.target === document.getElementById('reportModal'))
+    document.getElementById('reportModal').classList.remove('open');
+}
+
+function printReport() {
+  window.print();
+}
+
+// ── Utils ─────────────────────────────────────────────────────────
+function formatDate(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Auto-check if already signed in ──────────────────────────────
+auth.onAuthStateChanged(user => {
+  if (user && user.email === ADMIN_EMAIL) {
+    showDashboard();
+  }
+});
+</script>
+</body>
+</html>
