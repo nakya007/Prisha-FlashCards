@@ -6,317 +6,182 @@
 <title>Prisha's Flashcards ⭐</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:"Nunito",sans-serif;min-height:100%;background:linear-gradient(160deg,#0d0d2b 0%,#1a0533 45%,#0d1b4a 100%);background-attachment:fixed;display:flex;flex-direction:column;align-items:center;padding:32px 16px 48px;position:relative;overflow-x:hidden;}
+#bgLayer{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;background:white;border-radius:50%;animation:twinkle ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:0.15;transform:scale(1);}50%{opacity:1;transform:scale(1.8);}}
+.floaty{position:absolute;pointer-events:none;user-select:none;opacity:0;animation:rise linear infinite;will-change:transform,opacity;}
+@keyframes rise{0%{transform:translate3d(0,110vh,0) rotate(0deg);opacity:0;}8%{opacity:0.18;}92%{opacity:0.18;}100%{transform:translate3d(0,-10vh,0) rotate(720deg);opacity:0;}}
+.shoot{position:absolute;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0.95),transparent);animation:shoot 0.7s ease-out forwards;}
+@keyframes shoot{0%{opacity:1;transform:translate3d(0,0,0) rotate(-20deg);}100%{opacity:0;transform:translate3d(200px,70px,0) rotate(-20deg);}}
+.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:660px;}
+.hero-emoji{font-size:4.2em;line-height:1;margin-bottom:12px;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,220,50,0.7));}
+@keyframes bob{0%,100%{transform:translate3d(0,0,0) rotate(-5deg);}50%{transform:translate3d(0,-16px,0) rotate(5deg);}}
+.title{font-size:clamp(2em,8vw,3.2em);font-weight:900;text-align:center;line-height:1.1;margin-bottom:12px;background:linear-gradient(135deg,#f9d423 0%,#ff6b6b 30%,#c471f5 65%,#12c2e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.badge{background:linear-gradient(135deg,#f9d423,#ff8c00);color:#1a1a2e;font-size:0.85em;font-weight:900;padding:7px 20px;border-radius:40px;margin-bottom:8px;letter-spacing:0.5px;box-shadow:0 4px 20px rgba(249,212,35,0.5);}
 
-html, body {
-  height: 100%;
-}
+/* ── Dashboard panel ── */
+.dashboard{width:100%;max-width:500px;margin-bottom:20px;}
+.home-streak{display:none;align-items:center;justify-content:center;gap:8px;background:rgba(255,165,0,0.12);border:1px solid rgba(255,165,0,0.35);border-radius:20px;padding:8px 18px;font-size:14px;font-weight:700;color:#ffd54f;margin:0 auto 10px;}
 
-body {
-  font-family: 'Nunito', sans-serif;
-  min-height: 100%;
-  background: linear-gradient(160deg, #0d0d2b 0%, #1a0533 45%, #0d1b4a 100%);
-  background-attachment: fixed;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 20px;
-  position: relative;
-  overflow: hidden;
-}
+/* ── XP dashboard bar ── */
+.home-xp-wrap{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px 18px;margin-bottom:10px;}
+.home-xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.home-level{font-size:15px;font-weight:800;color:#ffd54f;}
+.home-xp-label{font-size:12px;color:rgba(255,255,255,0.5);}
+.home-xp-track{height:10px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;}
+.home-xp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f9d423,#ff8c00);transition:width 0.7s ease;width:0;}
 
-/* ── Background layer (fixed, contains stars + floaties) ── */
-#bgLayer {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
+/* ── Stats row ── */
+.home-stats{display:flex;gap:8px;margin-bottom:10px;}
+.home-stat{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 8px;text-align:center;}
+.home-stat .hstat-val{font-size:22px;font-weight:900;display:block;color:#e8eaf6;}
+.home-stat .hstat-lbl{font-size:10px;opacity:0.55;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
 
-/* Stars */
-.star {
-  position: absolute;
-  background: white;
-  border-radius: 50%;
-  -webkit-animation: twinkle ease-in-out infinite;
-  animation: twinkle ease-in-out infinite;
-}
-@-webkit-keyframes twinkle {
-  0%, 100% { opacity: 0.15; -webkit-transform: scale(1); transform: scale(1); }
-  50%       { opacity: 1;    -webkit-transform: scale(1.8); transform: scale(1.8); }
-}
-@keyframes twinkle {
-  0%, 100% { opacity: 0.15; transform: scale(1); }
-  50%       { opacity: 1;    transform: scale(1.8); }
-}
+/* ── Focus areas ── */
+.home-focus{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:none;}
+.home-focus-title{font-size:12px;font-weight:800;color:#fca5a5;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.home-weak-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.home-weak-chip{background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fca5a5;}
 
-/* Floating emojis — absolute inside fixed bgLayer */
-.floaty {
-  position: absolute;
-  pointer-events: none;
-  user-select: none;
-  opacity: 0;
-  -webkit-animation: rise linear infinite;
-  animation: rise linear infinite;
-  will-change: transform, opacity;
-}
-@-webkit-keyframes rise {
-  0%   { -webkit-transform: translate3d(0, 110vh, 0) rotate(0deg);   opacity: 0; }
-  8%   { opacity: 0.18; }
-  92%  { opacity: 0.18; }
-  100% { -webkit-transform: translate3d(0, -10vh, 0) rotate(720deg); opacity: 0; }
-}
-@keyframes rise {
-  0%   { transform: translate3d(0, 110vh, 0) rotate(0deg);   opacity: 0; }
-  8%   { opacity: 0.18; }
-  92%  { opacity: 0.18; }
-  100% { transform: translate3d(0, -10vh, 0) rotate(720deg); opacity: 0; }
-}
-
-/* Shooting star */
-.shoot {
-  position: absolute;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.95), transparent);
-  -webkit-animation: shoot 0.7s ease-out forwards;
-  animation: shoot 0.7s ease-out forwards;
-  will-change: transform, opacity;
-}
-@-webkit-keyframes shoot {
-  0%   { opacity: 1; -webkit-transform: translate3d(0,0,0) rotate(-20deg); }
-  100% { opacity: 0; -webkit-transform: translate3d(200px,70px,0) rotate(-20deg); }
-}
-@keyframes shoot {
-  0%   { opacity: 1; transform: translate3d(0,0,0) rotate(-20deg); }
-  100% { opacity: 0; transform: translate3d(200px,70px,0) rotate(-20deg); }
-}
-
-/* ── Main content ── */
-.content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 620px;
-}
-
-.hero-emoji {
-  font-size: 4.5em;
-  line-height: 1;
-  margin-bottom: 14px;
-  -webkit-animation: bob 2.4s ease-in-out infinite;
-  animation: bob 2.4s ease-in-out infinite;
-  -webkit-filter: drop-shadow(0 0 18px rgba(255,220,50,0.7));
-  filter: drop-shadow(0 0 18px rgba(255,220,50,0.7));
-  will-change: transform;
-}
-@-webkit-keyframes bob {
-  0%, 100% { -webkit-transform: translate3d(0,0,0) rotate(-5deg); }
-  50%       { -webkit-transform: translate3d(0,-16px,0) rotate(5deg); }
-}
-@keyframes bob {
-  0%, 100% { transform: translate3d(0,0,0) rotate(-5deg); }
-  50%       { transform: translate3d(0,-16px,0) rotate(5deg); }
-}
-
-.title {
-  font-size: clamp(2.2em, 8vw, 3.4em);
-  font-weight: 900;
-  text-align: center;
-  line-height: 1.1;
-  margin-bottom: 14px;
-  background: linear-gradient(135deg, #f9d423 0%, #ff6b6b 30%, #c471f5 65%, #12c2e9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.badge {
-  background: linear-gradient(135deg, #f9d423, #ff8c00);
-  color: #1a1a2e;
-  font-size: 0.88em;
-  font-weight: 900;
-  padding: 7px 22px;
-  border-radius: 40px;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 20px rgba(249,212,35,0.5);
-}
-
-.subtitle {
-  color: rgba(255,255,255,0.38);
-  font-size: 0.78em;
-  font-weight: 800;
-  margin-bottom: 44px;
-  text-align: center;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
+/* ── Badges row ── */
+.home-badges{display:none;background:rgba(249,212,35,0.07);border:1px solid rgba(249,212,35,0.2);border-radius:14px;padding:10px 14px;margin-bottom:12px;}
+.home-badges-title{font-size:12px;font-weight:800;color:#ffd54f;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.home-badge-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.home-badge-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(249,212,35,0.15);border:1px solid rgba(249,212,35,0.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#ffd54f;}
 
 /* ── Subject cards ── */
-.cards { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; width: 100%; }
-
-a.card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 230px;
-  height: 210px;
-  border-radius: 26px;
-  text-decoration: none;
-  color: white;
-  text-align: center;
-  padding: 26px;
-  border: 2px solid rgba(255,255,255,0.18);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 14px 50px rgba(0,0,0,0.5);
-  -webkit-transition: -webkit-transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
-  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  will-change: transform;
-}
-a.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 65%);
-  pointer-events: none;
-}
-a.card:hover  { -webkit-transform: translateY(-10px) scale(1.06); transform: translateY(-10px) scale(1.06); box-shadow: 0 24px 70px rgba(0,0,0,0.55); }
-a.card:active { -webkit-transform: scale(0.97); transform: scale(0.97); }
-
-.english { background: linear-gradient(140deg, #7b2d8b 0%, #c45fdc 100%); }
-.maths   { background: linear-gradient(140deg, #1565c0 0%, #42a5f5 100%); }
-
-.card-icon { font-size: 3.4em; margin-bottom: 10px; line-height: 1; }
-.card-name { font-size: 1.45em; font-weight: 900; letter-spacing: 0.5px; }
-.card-sub  { font-size: 0.7em; font-weight: 700; opacity: 0.8; margin-top: 5px; }
-.card-go   {
-  margin-top: 12px;
-  background: rgba(255,255,255,0.22);
-  border-radius: 20px;
-  padding: 4px 16px;
-  font-size: 0.78em;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.footer {
-  margin-top: 44px;
-  color: rgba(255,255,255,0.28);
-  font-size: 0.78em;
-  font-weight: 800;
-  text-align: center;
-  letter-spacing: 1px;
-}
-.footer span {
-  display: inline-block;
-  -webkit-animation: sparkle-pop 3s ease-in-out infinite;
-  animation: sparkle-pop 3s ease-in-out infinite;
-}
-@-webkit-keyframes sparkle-pop {
-  0%, 100% { -webkit-transform: scale(1); }
-  50%       { -webkit-transform: scale(1.4) rotate(20deg); }
-}
-@keyframes sparkle-pop {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.4) rotate(20deg); }
-}
+.subtitle{color:rgba(255,255,255,0.35);font-size:0.75em;font-weight:800;margin-bottom:20px;text-align:center;letter-spacing:2px;text-transform:uppercase;}
+.cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;width:100%;}
+a.card{display:flex;flex-direction:column;align-items:center;justify-content:center;width:220px;height:200px;border-radius:26px;text-decoration:none;color:white;text-align:center;padding:24px;border:2px solid rgba(255,255,255,0.18);position:relative;overflow:hidden;box-shadow:0 14px 50px rgba(0,0,0,0.5);transition:transform 0.28s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.28s ease;}
+a.card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(255,255,255,0.18) 0%,transparent 65%);pointer-events:none;}
+a.card:hover{transform:translateY(-10px) scale(1.06);box-shadow:0 24px 70px rgba(0,0,0,0.55);}
+a.card:active{transform:scale(0.97);}
+.english{background:linear-gradient(140deg,#7b2d8b 0%,#c45fdc 100%);}
+.maths{background:linear-gradient(140deg,#1565c0 0%,#42a5f5 100%);}
+.card-icon{font-size:3.2em;margin-bottom:8px;line-height:1;}
+.card-name{font-size:1.4em;font-weight:900;letter-spacing:0.5px;}
+.card-sub{font-size:0.68em;font-weight:700;opacity:0.8;margin-top:5px;}
+.card-go{margin-top:10px;background:rgba(255,255,255,0.22);border-radius:20px;padding:4px 14px;font-size:0.76em;font-weight:900;letter-spacing:1px;}
+.footer{margin-top:30px;color:rgba(255,255,255,0.28);font-size:0.76em;font-weight:800;text-align:center;letter-spacing:1px;}
+.footer span{display:inline-block;animation:sparkle 3s ease-in-out infinite;}
+@keyframes sparkle{0%,100%{transform:scale(1);}50%{transform:scale(1.4) rotate(20deg);}}
+@media(max-width:480px){.home-stats{gap:6px;}.home-stat .hstat-val{font-size:18px;}.cards{gap:14px;}a.card{width:calc(50% - 7px);height:auto;padding:20px 12px;}.card-icon{font-size:2.5em;}.card-name{font-size:1.15em;}}
 </style>
 </head>
 <body>
-
-<!-- Single fixed background layer for all animated elements -->
 <div id="bgLayer"></div>
-
 <div class="content">
   <div class="hero-emoji">🌟</div>
   <div class="title">Prisha's<br>Flashcards</div>
   <div class="badge">🏆 Grammar School Champion</div>
-  <div id="homeStreak" style="display:none;margin-bottom:8px;font-family:'Nunito',sans-serif;font-weight:900;font-size:0.88em;color:#fbbf24;letter-spacing:1px"></div>
-  <div class="subtitle">Pillai Tutors · Sutton</div>
 
+  <div class="dashboard">
+    <div class="home-streak" id="homeStreak"></div>
+    <div class="home-xp-wrap" id="homeXPWrap" style="display:none">
+      <div class="home-xp-top">
+        <span class="home-level" id="homeLevel">🌱 Seedling</span>
+        <span class="home-xp-label" id="homeXPLabel">0 XP</span>
+      </div>
+      <div class="home-xp-track"><div class="home-xp-fill" id="homeXPFill"></div></div>
+    </div>
+    <div class="home-stats" id="homeStats" style="display:none">
+      <div class="home-stat"><span class="hstat-val" id="hStatRated">0</span><span class="hstat-lbl">Cards Rated</span></div>
+      <div class="home-stat"><span class="hstat-val" id="hStatMastered">0</span><span class="hstat-lbl">Mastered</span></div>
+      <div class="home-stat"><span class="hstat-val" id="hStatBadges">0</span><span class="hstat-lbl">Badges</span></div>
+    </div>
+    <div class="home-focus" id="homeFocus">
+      <div class="home-focus-title">⚡ Needs Attention</div>
+      <div class="home-weak-chips" id="homeWeakChips"></div>
+    </div>
+    <div class="home-badges" id="homeBadgesWrap">
+      <div class="home-badges-title">🏅 Recent Badges</div>
+      <div class="home-badge-chips" id="homeBadgeChips"></div>
+    </div>
+  </div>
+
+  <div class="subtitle">11+ Grammar School Prep</div>
   <div class="cards">
     <a class="card english" href="English_Flashcards.html">
       <div class="card-icon">📚</div>
       <div class="card-name">English</div>
-      <div class="card-sub">70+ cards · 17 topics</div>
+      <div class="card-sub">42 cards · 17 topics</div>
       <div class="card-go">Let's go! →</div>
     </a>
     <a class="card maths" href="Maths_Flashcards.html">
       <div class="card-icon">🔢</div>
       <div class="card-name">Maths</div>
-      <div class="card-sub">75+ cards · 20 topics</div>
+      <div class="card-sub">75 cards · 20 topics</div>
       <div class="card-go">Let's go! →</div>
     </a>
   </div>
-
   <div class="footer">You've got this, Prisha! <span>✨</span></div>
 </div>
 
 <script>
-(function() {
-  try {
-    var s = JSON.parse(localStorage.getItem('prisha_streak') || '{"date":"","count":0}');
-    var el = document.getElementById('homeStreak');
-    if (el && s.count >= 1) {
-      el.textContent = '🔥 ' + s.count + ' day streak!';
-      el.style.display = 'block';
-    }
-  } catch(e) {}
+var XP_LEVELS=[{name:'🌱 Seedling',min:0,max:149},{name:'🔭 Explorer',min:150,max:399},{name:'📖 Scholar',min:400,max:749},{name:'⭐ Achiever',min:750,max:1199},{name:'🏆 Champion',min:1200,max:1999},{name:'👑 Legend',min:2000,max:Infinity}];
+function getLevelIdx(xp){for(var i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS[i].min)return i;}return 0;}
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+
+(function(){
+  // Streak
+  var s=lsGet('prisha_streak',{day:'',count:0});
+  if(s&&s.count>0){var el=document.getElementById('homeStreak');if(el){el.textContent='🔥 '+s.count+' day streak — keep it up!';el.style.display='flex';}}
+
+  // XP bar
+  var xp=lsGet('prisha_xp',0);
+  if(xp>0||lsGet('prisha_ratings',null)){
+    var li=getLevelIdx(xp),lvl=XP_LEVELS[li];
+    var pct=li===XP_LEVELS.length-1?100:Math.round((xp-lvl.min)/(lvl.max-lvl.min)*100);
+    document.getElementById('homeXPWrap').style.display='block';
+    document.getElementById('homeLevel').textContent=lvl.name;
+    document.getElementById('homeXPLabel').textContent=xp+' XP';
+    setTimeout(function(){document.getElementById('homeXPFill').style.width=pct+'%';},100);
+  }
+
+  // Stats row
+  var ratings=lsGet('prisha_ratings',{});
+  var rKeys=Object.keys(ratings),totalRated=rKeys.length;
+  var badges=lsGet('prisha_badges',[]);
+  if(totalRated>0||badges.length>0){
+    var mastered=Object.values(ratings).filter(function(v){return v==='got';}).length;
+    document.getElementById('homeStats').style.display='flex';
+    document.getElementById('hStatRated').textContent=totalRated;
+    document.getElementById('hStatMastered').textContent=mastered;
+    document.getElementById('hStatBadges').textContent=badges.length;
+  }
+
+  // Focus areas (hard-rated topics)
+  var ALL_BADGES=[{id:'first_flip',icon:'🚀',name:'First Launch'},{id:'got5',icon:'✅',name:'Quick Learner'},{id:'streak3',icon:'🔥',name:'Streak Starter'},{id:'streak7',icon:'💫',name:'Streak Master'},{id:'topic_ace',icon:'🎯',name:'Topic Ace'},{id:'five_topics',icon:'🌟',name:'Explorer'},{id:'cards50',icon:'📚',name:'Card Champion'},{id:'cards20got',icon:'💪',name:'Mastery Master'},{id:'quiz10',icon:'🧠',name:'Quiz Whiz'},{id:'level_scholar',icon:'⭐',name:'Scholar'},{id:'level_champion',icon:'🏆',name:'Champion'},{id:'first_flip',icon:'📖',name:'First Page'},];
+  var topicHard={};
+  rKeys.forEach(function(k){if(ratings[k]==='hard'){var parts=k.split('||');var t=parts[0];if(!topicHard[t])topicHard[t]=0;topicHard[t]++;}});
+  var weakTopics=Object.keys(topicHard).sort(function(a,b){return topicHard[b]-topicHard[a];}).slice(0,5);
+  if(weakTopics.length>0){
+    var fc=document.getElementById('homeFocus'),wc=document.getElementById('homeWeakChips');
+    fc.style.display='block';wc.innerHTML='';
+    weakTopics.forEach(function(t){var chip=document.createElement('span');chip.className='home-weak-chip';chip.textContent=t+' ('+topicHard[t]+' tricky)';wc.appendChild(chip);});
+  }
+
+  // Badges earned
+  if(badges.length>0){
+    var bw=document.getElementById('homeBadgesWrap'),bc=document.getElementById('homeBadgeChips');
+    bw.style.display='block';bc.innerHTML='';
+    badges.slice(-6).forEach(function(id){
+      var def=ALL_BADGES.find(function(x){return x.id===id;});
+      if(def){var chip=document.createElement('span');chip.className='home-badge-chip';chip.textContent=def.icon+' '+def.name;bc.appendChild(chip);}
+    });
+  }
 })();
-</script>
 
-<script>
-var bg = document.getElementById('bgLayer');
-
-// ── Twinkling stars ──────────────────────────────────────────
-for (var i = 0; i < 100; i++) {
-  var s = document.createElement('div');
-  s.className = 'star';
-  var sz = (Math.random() * 2.5 + 0.8).toFixed(1);
-  s.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;'
-    + 'top:' + (Math.random() * 100).toFixed(1) + '%;'
-    + 'left:' + (Math.random() * 100).toFixed(1) + '%;'
-    + 'animation-duration:' + (Math.random() * 3 + 1.5).toFixed(1) + 's;'
-    + 'animation-delay:' + (Math.random() * 5).toFixed(1) + 's;';
-  bg.appendChild(s);
-}
-
-// ── Shooting stars ───────────────────────────────────────────
-function shootingStar() {
-  var el = document.createElement('div');
-  el.className = 'shoot';
-  el.style.cssText = 'width:' + (60 + Math.random() * 80).toFixed(0) + 'px;'
-    + 'top:' + (Math.random() * 60).toFixed(1) + '%;'
-    + 'left:' + (Math.random() * 60).toFixed(1) + '%;';
-  bg.appendChild(el);
-  setTimeout(function() { el.parentNode && el.parentNode.removeChild(el); }, 800);
-  setTimeout(shootingStar, 3500 + Math.random() * 6000);
-}
-setTimeout(shootingStar, 2000);
-
-// ── Floating emojis ──────────────────────────────────────────
-var pool = ['⭐','🦄','🌈','🎈','🚀','🦋','🌺','🎮','🐉','🏆','✨','🎯','🐸','🦁','🐬'];
-pool.forEach(function(em, i) {
-  var el = document.createElement('div');
-  el.className = 'floaty';
-  el.textContent = em;
-  var dur = (14 + Math.random() * 10).toFixed(1);
-  el.style.cssText = 'left:' + ((i / pool.length * 100) + Math.random() * 4).toFixed(1) + '%;'
-    + 'font-size:' + (1.4 + Math.random() * 0.8).toFixed(1) + 'em;'
-    + 'animation-duration:' + dur + 's;'
-    + 'animation-delay:' + (Math.random() * parseFloat(dur)).toFixed(1) + 's;';
-  bg.appendChild(el);
-});
+// Background animations
+var bg=document.getElementById('bgLayer');
+for(var i=0;i<100;i++){var s=document.createElement('div');s.className='star';var sz=(Math.random()*2.5+0.8).toFixed(1);s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100).toFixed(1)+'%;left:'+(Math.random()*100).toFixed(1)+'%;animation-duration:'+(Math.random()*3+1.5).toFixed(1)+'s;animation-delay:'+(Math.random()*5).toFixed(1)+'s;';bg.appendChild(s);}
+function shootingStar(){var el=document.createElement('div');el.className='shoot';el.style.cssText='width:'+(60+Math.random()*80).toFixed(0)+'px;top:'+(Math.random()*60).toFixed(1)+'%;left:'+(Math.random()*60).toFixed(1)+'%;';bg.appendChild(el);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},800);setTimeout(shootingStar,3500+Math.random()*6000);}
+setTimeout(shootingStar,2000);
+var pool=['⭐','🦄','🌈','🎈','🚀','🦋','🌺','🎮','🐉','🏆','✨','🎯','🐸','🦁','🐬'];
+pool.forEach(function(em,i){var el=document.createElement('div');el.className='floaty';el.textContent=em;var dur=(14+Math.random()*10).toFixed(1);el.style.cssText='left:'+((i/pool.length*100)+Math.random()*4).toFixed(1)+'%;font-size:'+(1.4+Math.random()*0.8).toFixed(1)+'em;animation-duration:'+dur+'s;animation-delay:'+(Math.random()*parseFloat(dur)).toFixed(1)+'s;';bg.appendChild(el);});
 </script>
 </body>
 </html>
