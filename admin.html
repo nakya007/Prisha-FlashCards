@@ -461,8 +461,8 @@ async function loadInviteCodes() {
     const snap = await db.collection('inviteCodes').orderBy('createdAt','desc').get();
     if (snap.empty) {
       // Seed default code on first load
-      await db.collection('inviteCodes').doc('PREP2025').set({
-        code:'PREP2025', active:true,
+      await db.collection('inviteCodes').doc('PREP2027').set({
+        code:'PREP2027', active:true,
         createdAt:firebase.firestore.FieldValue.serverTimestamp()
       });
       loadInviteCodes(); return;
