@@ -2,1033 +2,761 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>🔢 Maths Flashcards – Grammar School Prep</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 Maths — Prisha's Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Nunito', -apple-system, Arial, sans-serif; background: #f4f6fb; color: #1a1a2e; min-height: 100vh; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height:100vh;overflow-x:hidden;}
+canvas#starCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.page{position:relative;z-index:1;}
 
-  /* HEADER */
-  .page-header {
-    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
-    background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.09);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .back-btn {
-    background: #f0f2f8; border: none; border-radius: 50%;
-    width: 40px; height: 40px; font-size: 1.15em; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    touch-action: manipulation; flex-shrink: 0;
-  }
-  .header-title { font-size: 1.2em; font-weight: 900; color: #1a1a2e; }
-  .header-sub { font-size: 0.7em; color: #999; font-weight: 700; margin-top: 1px; }
-  .home-link { font-size: 0.75em; color: #aaa; text-decoration: none; font-weight: 700; margin-left: auto; flex-shrink: 0; }
-  .shuffle-header-btn {
-    margin-left: auto; background: #ffd700; border: none; border-radius: 20px;
-    padding: 7px 14px; font-size: 0.8em; font-weight: 800;
-    cursor: pointer; font-family: 'Nunito', sans-serif; touch-action: manipulation;
-  }
+/* ── Topic view ── */
+.topic-view{padding:16px;max-width:900px;margin:0 auto;}
+.hero-header{text-align:center;padding:22px 20px 10px;}
+.hero-badge{font-size:54px;display:block;filter:drop-shadow(0 0 20px rgba(100,149,237,0.7));margin-bottom:6px;}
+.hero-title{font-size:26px;font-weight:900;color:#9fa8da;margin-bottom:3px;}
+.hero-sub{font-size:13px;color:#7986cb;opacity:0.85;}
 
-  /* ═══ TOPIC VIEW ═══ */
-  .topic-intro { padding: 20px 18px 6px; text-align: center; }
-  .topic-intro h2 { font-size: 1.45em; font-weight: 900; color: #1a1a2e; }
-  .topic-intro p { font-size: 0.8em; color: #999; margin-top: 4px; font-weight: 700; }
+/* ── XP bar ── */
+.xp-bar-wrap{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;margin:10px auto;max-width:520px;}
+.level-badge{font-size:13px;font-weight:800;color:#ffd54f;min-width:110px;white-space:nowrap;}
+.xp-track{flex:1;height:9px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;}
+.xp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f9d423,#ff8c00);transition:width 0.7s cubic-bezier(0.34,1.56,0.64,1);width:0;}
+.xp-label{font-size:12px;color:rgba(255,255,255,0.5);white-space:nowrap;}
 
-  .topic-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-    gap: 13px; padding: 14px 14px 40px; max-width: 720px; margin: 0 auto;
-  }
-  .topic-tile {
-    border-radius: 18px; padding: 20px 12px 16px; cursor: pointer;
-    text-align: center; display: flex; flex-direction: column;
-    align-items: center; gap: 7px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    touch-action: manipulation; transition: transform 0.16s, box-shadow 0.16s;
-  }
-  .topic-tile:active { transform: scale(0.96); }
-  .tile-emoji { font-size: 2.2em; line-height: 1; }
-  .tile-name { font-size: 0.77em; font-weight: 900; color: white; line-height: 1.35; }
-  .tile-count { font-size: 0.63em; font-weight: 700; color: rgba(255,255,255,0.75); background: rgba(0,0,0,0.15); padding: 2px 8px; border-radius: 10px; }
-  .all-tile { background: linear-gradient(145deg, #1a1a3a, #2d2d60); grid-column: 1 / -1; flex-direction: row; padding: 16px 22px; gap: 14px; }
-  .all-tile .tile-emoji { font-size: 2em; }
-  .all-tile .tile-name { font-size: 1em; color: #ffd700; flex: 1; text-align: left; }
-  .all-tile .tile-count { font-size: 0.75em; background: rgba(255,215,0,0.15); }
+/* ── Streak badge ── */
+.streak-badge{display:none;align-items:center;gap:5px;background:rgba(255,165,0,0.15);border:1px solid rgba(255,165,0,0.4);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:#ffd54f;margin:6px auto;width:fit-content;}
 
-  /* ═══ CARD VIEW ═══ */
-  #cardView { display: none; }
-  .card-view-inner { padding: 12px 14px 40px; max-width: 680px; margin: 0 auto; }
-  .card-progress { font-size: 0.78em; color: #999; font-weight: 700; text-align: center; margin-bottom: 12px; }
+/* ── Mascot ── */
+.mascot-wrap{text-align:center;margin:8px auto 4px;max-width:280px;}
+.mascot-emoji{font-size:62px;display:block;animation:mascotBob 2.6s ease-in-out infinite;line-height:1.2;cursor:default;}
+@keyframes mascotBob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-13px) rotate(3deg);}}
+.mascot-emoji.mascot-happy{animation:mascotBounce 0.55s ease forwards;}
+@keyframes mascotBounce{0%{transform:scale(1);}30%{transform:scale(1.4) rotate(12deg);}65%{transform:scale(0.9);}100%{transform:scale(1);}}
+.mascot-bubble{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:16px;padding:8px 14px;font-size:13px;font-weight:700;margin-top:8px;position:relative;line-height:1.45;transition:opacity 0.3s;}
+.mascot-bubble::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:rgba(255,255,255,0.16);}
 
-  .card-wrapper { width: 100%; cursor: pointer; position: relative; touch-action: manipulation; margin-bottom: 18px; }
-  .card-inner { position: relative; width: 100%; }
+/* ── Stats row ── */
+.stats-row{display:flex;gap:8px;margin:10px auto;max-width:520px;}
+.stat-pill{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;}
+.stat-pill .stat-val{font-size:20px;font-weight:900;display:block;}
+.stat-pill .stat-lbl{font-size:10px;opacity:0.55;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
 
-  .card-face {
-    border-radius: 22px; display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    padding: 54px 22px 22px; text-align: center;
-    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
-    min-height: 290px; transition: opacity 0.25s ease;
-  }
-  .card-back-face {
-    position: absolute; top: 0; left: 0; width: 100%; min-height: 290px;
-    border-radius: 22px; display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    padding: 54px 22px 22px; text-align: center;
-    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
-    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
-  }
-  .card-inner.flipped .card-face { opacity: 0; pointer-events: none; }
-  .card-inner.flipped .card-back-face { opacity: 1; pointer-events: auto; }
+/* ── Focus areas ── */
+.focus-section{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 14px;margin:8px auto;max-width:520px;display:none;}
+.focus-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;color:#fca5a5;}
+.weak-topics{display:flex;flex-wrap:wrap;gap:6px;}
+.weak-chip{background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.35);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fca5a5;cursor:pointer;transition:background 0.15s;}
+.weak-chip:hover{background:rgba(239,68,68,0.38);}
 
-  .card-tag {
-    position: absolute; top: 14px; left: 14px;
-    font-size: 0.67em; font-weight: 900; padding: 3px 10px; border-radius: 10px;
-    background: rgba(255,255,255,0.2); color: white;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .card-session-lbl {
-    position: absolute; top: 14px; right: 14px;
-    font-size: 0.6em; color: rgba(255,255,255,0.5); font-weight: 700;
-    max-width: 46%; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .card-big-emoji { font-size: 2.6em; margin-bottom: 8px; line-height: 1; }
-  .card-q-text { font-size: 1.05em; font-weight: 800; color: white; line-height: 1.5; white-space: pre-wrap; }
-  .card-hint-lbl { font-size: 0.67em; color: rgba(255,255,255,0.4); margin-top: 12px; font-weight: 700; }
-  .answer-hdr { font-size: 0.62em; font-weight: 900; color: rgba(255,255,255,0.65); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .card-a-text { font-size: 0.92em; font-weight: 700; color: white; line-height: 1.7; white-space: pre-wrap; }
+/* ── Search ── */
+.search-bar{display:flex;align-items:center;background:rgba(255,255,255,0.06);border:2px solid rgba(100,149,237,0.3);border-radius:16px;padding:10px 16px;margin:12px auto;max-width:520px;}
+.search-bar input{background:none;border:none;outline:none;color:#e8eaf6;font-size:15px;font-family:'Nunito',sans-serif;width:100%;}
+.search-bar input::placeholder{color:rgba(159,168,218,0.4);}
+.search-icon{font-size:18px;margin-right:10px;opacity:0.55;}
+.no-results{text-align:center;padding:30px;opacity:0.4;display:none;}
 
-  /* NAV */
-  .nav-buttons { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
-  .nav-btn {
-    background: white; color: #444; border: 2px solid #dde0ea;
-    border-radius: 50%; width: 50px; height: 50px; font-size: 1.3em;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    touch-action: manipulation; box-shadow: 0 3px 10px rgba(0,0,0,0.09);
-  }
-  .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; box-shadow: none; }
-  .action-btn {
-    padding: 12px 24px; border-radius: 22px; border: none; cursor: pointer;
-    font-size: 0.9em; font-weight: 800; font-family: 'Nunito', sans-serif;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.14); touch-action: manipulation; transition: transform 0.15s;
-  }
-  .action-btn:active { transform: scale(0.95); }
-  .flip-btn { background: #1a1a3a; color: white; }
+/* ── Topic grid ── */
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:6px 0 24px;}
+.topic-tile{border-radius:20px;padding:22px 14px 18px;cursor:pointer;text-align:center;background:linear-gradient(145deg,#1a237e,#283593);box-shadow:0 4px 18px rgba(0,0,0,0.4);position:relative;overflow:hidden;transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease;}
+.topic-tile::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,0.16) 0%,transparent 65%);pointer-events:none;}
+.topic-tile:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 10px 32px rgba(0,0,0,0.5);}
+.topic-tile:active{transform:scale(0.97);}
+.topic-tile.all-tile{background:linear-gradient(145deg,#1a1a3e,#2d2d62);border:2px solid rgba(100,149,237,0.45);}
+.topic-tile.tricky-tile{background:linear-gradient(145deg,#7f1d1d,#dc2626);border:2px solid rgba(252,165,165,0.5);animation:trickypulse 2.5s ease-in-out infinite;}
+@keyframes trickypulse{0%,100%{box-shadow:0 4px 18px rgba(220,38,38,0.3);}50%{box-shadow:0 8px 32px rgba(220,38,38,0.65);}}
+.tile-emoji{font-size:34px;margin-bottom:8px;display:block;}
+.tile-name{font-size:12px;font-weight:700;line-height:1.3;margin-bottom:4px;}
+.tile-count{font-size:11px;opacity:0.65;}
+.tile-progress{font-size:10px;margin-top:4px;opacity:0.8;color:#90caf9;}
+.home-link{display:block;text-align:center;margin:8px auto 20px;color:#7986cb;text-decoration:none;font-size:13px;}
 
-  .progress-bar-wrap { width: 100%; background: #e4e6f0; border-radius: 6px; height: 6px; margin-top: 18px; }
-  .progress-bar { height: 6px; border-radius: 6px; transition: width 0.3s; }
+/* ── Badges FAB ── */
+.badges-fab{position:fixed;bottom:22px;right:22px;background:linear-gradient(135deg,#f9d423,#ff8c00);border:none;border-radius:50%;width:54px;height:54px;font-size:24px;cursor:pointer;box-shadow:0 4px 22px rgba(249,212,35,0.5);z-index:50;display:none;align-items:center;justify-content:center;transition:transform 0.2s,box-shadow 0.2s;}
+.badges-fab.fab-show{display:flex;}
+.badges-fab:hover{transform:scale(1.12);box-shadow:0 6px 30px rgba(249,212,35,0.7);}
 
-  @media (max-width: 480px) {
-    .topic-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 12px 12px 40px; }
-    .topic-tile { padding: 16px 10px 14px; }
-    .tile-emoji { font-size: 1.9em; }
-    .card-face, .card-back-face { min-height: 300px; padding: 54px 16px 20px; }
-    .card-q-text { font-size: 0.97em; }
-    .card-a-text { font-size: 0.85em; }
-  }
+/* ── Card view ── */
+.card-view{display:none;padding:14px;max-width:680px;margin:0 auto;}
+.page-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.page-header-text{flex:1;}
+.page-header-text h2{font-size:16px;font-weight:800;}
+.page-header-text p{font-size:11px;opacity:0.5;margin-top:2px;}
+.cv-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.font-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-weight:700;transition:background 0.15s;min-height:36px;}
+.font-btn.fb-active{background:rgba(100,149,237,0.35);border-color:rgba(100,149,237,0.7);}
+.quiz-toggle-btn{background:rgba(100,149,237,0.12);border:1px solid rgba(100,149,237,0.3);border-radius:8px;color:#90caf9;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;transition:background 0.15s;min-height:36px;}
+.quiz-toggle-btn.qt-active{background:rgba(100,149,237,0.4);border-color:#6495ed;}
+.mute-btn,.shuffle-btn,.back-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;min-height:36px;}
+.back-btn{border-radius:10px;padding:7px 14px;}
+.toolbar-spacer{flex:1;}
+.mute-btn:hover,.shuffle-btn:hover,.back-btn:hover{background:rgba(255,255,255,0.16);}
 
-  /* ═══ SPACE EXPLORER THEME ═══ */
-  body { background: linear-gradient(160deg, #040418 0%, #080820 45%, #0a102a 100%) !important; color: white !important; }
-  .page-header { background: rgba(8,8,32,0.92) !important; border-bottom: 1px solid rgba(80,130,255,0.2) !important; box-shadow: 0 2px 24px rgba(0,0,30,0.7) !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-  .back-btn { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(255,255,255,0.15) !important; }
-  .header-title { color: white !important; }
-  .header-sub { color: rgba(140,180,255,0.7) !important; }
-  .home-link { color: rgba(140,180,255,0.6) !important; }
-  .shuffle-header-btn { background: linear-gradient(135deg, #ffd700, #ff8c00) !important; }
-  .topic-intro h2 { color: white !important; }
-  .topic-intro p { color: rgba(140,180,255,0.7) !important; }
-  .card-progress { color: rgba(140,180,255,0.7) !important; }
-  .nav-btn { background: rgba(255,255,255,0.07) !important; color: white !important; border: 2px solid rgba(80,130,255,0.35) !important; box-shadow: 0 0 14px rgba(80,130,255,0.15) !important; }
-  .flip-btn { background: linear-gradient(135deg, #1565c0, #42a5f5) !important; box-shadow: 0 4px 18px rgba(66,165,245,0.4) !important; }
-  .progress-bar-wrap { background: rgba(255,255,255,0.1) !important; }
-  .theme-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: -1; overflow: hidden; }
-  .theme-star { position: absolute; background: white; border-radius: 50%; will-change: transform, opacity; -webkit-animation: t-tw ease-in-out infinite; animation: t-tw ease-in-out infinite; }
-  @-webkit-keyframes t-tw { 0%,100%{opacity:.12;-webkit-transform:scale(1);transform:scale(1)} 50%{opacity:.9;-webkit-transform:scale(1.8);transform:scale(1.8)} }
-  @keyframes t-tw { 0%,100%{opacity:.12;transform:scale(1)} 50%{opacity:.9;transform:scale(1.8)} }
-  .theme-float { position: absolute; pointer-events: none; user-select: none; opacity: 0; will-change: transform, opacity; -webkit-animation: t-rise linear infinite; animation: t-rise linear infinite; }
-  @-webkit-keyframes t-rise { 0%{-webkit-transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{-webkit-transform:translate3d(0,-10vh,0) rotate(540deg);opacity:0} }
-  @keyframes t-rise { 0%{transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{transform:translate3d(0,-10vh,0) rotate(540deg);opacity:0} }
+/* ── Session bar ── */
+.session-bar{display:flex;gap:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 16px;margin-bottom:10px;justify-content:center;flex-wrap:wrap;}
+.session-bar span{font-size:13px;font-weight:700;color:rgba(255,255,255,0.65);}
+.sb-got{color:#86efac !important;}
+.sb-xp{color:#ffd54f !important;}
 
-  /* ── TOPIC SEARCH BAR ── */
-  .search-wrap { padding: 4px 14px 14px; max-width: 720px; margin: 0 auto; }
-  .search-box { position: relative; }
-  .search-icon { position: absolute; left: 14px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); font-size: 1em; pointer-events: none; line-height: 1; }
-  .search-input {
-    width: 100%; padding: 12px 18px 12px 44px;
-    border-radius: 30px; border: 2px solid rgba(80,130,255,0.3);
-    background: rgba(255,255,255,0.08); color: white;
-    font-size: 0.9em; font-weight: 700; font-family: 'Nunito', sans-serif;
-    outline: none; -webkit-appearance: none; appearance: none;
-    -webkit-transition: border-color 0.2s, box-shadow 0.2s; transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .search-input::placeholder { color: rgba(255,255,255,0.35); font-weight: 600; }
-  .search-input:focus { border-color: rgba(80,130,255,0.65); box-shadow: 0 0 18px rgba(80,130,255,0.22); }
-  .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
-  .no-results { display: none; text-align: center; padding: 28px 14px; color: rgba(255,255,255,0.38); font-weight: 700; font-size: 0.85em; }
+/* ── Card ── */
+#cardWrapper{position:relative;cursor:pointer;margin-bottom:12px;}
+.card-rated-badge{position:absolute;top:12px;right:14px;font-size:22px;z-index:10;pointer-events:none;}
+.card-inner{position:relative;min-height:300px;}
+.card-inner.flipped .card-face-front{opacity:0;pointer-events:none;}
+.card-inner.flipped .card-face-back{opacity:1;pointer-events:auto;}
+.card-face-front,.card-face-back{border-radius:22px;padding:28px 24px;min-height:300px;display:flex;flex-direction:column;transition:opacity 0.32s ease;width:100%;box-shadow:0 8px 36px rgba(0,0,0,0.45);position:relative;overflow:hidden;}
+.card-face-back{position:absolute;top:0;left:0;opacity:0;pointer-events:none;}
+.card-face-front::after,.card-face-back::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 20%,rgba(255,255,255,0.18) 0%,transparent 60%);pointer-events:none;}
+.card-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:0.6;margin-bottom:5px;}
+.card-session{font-size:10px;opacity:0.4;margin-bottom:10px;}
+.card-emoji-big{font-size:44px;margin:6px 0 14px;line-height:1;}
+#cardQuestion{font-size:18px;font-weight:800;line-height:1.55;white-space:pre-wrap;}
+#cardAnswer{font-size:15px;line-height:1.78;white-space:pre-wrap;flex:1;}
+.flip-hint{font-size:12px;opacity:0.4;margin-top:auto;text-align:center;padding-top:14px;}
+.flip-btn{width:100%;padding:13px;border-radius:14px;border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px;background:linear-gradient(90deg,#1565c0,#42a5f5);box-shadow:0 4px 20px rgba(66,165,245,0.4);transition:transform 0.12s,box-shadow 0.12s;}
+.flip-btn:hover{transform:translateY(-2px);box-shadow:0 6px 26px rgba(66,165,245,0.55);}
+.flip-btn:active{transform:scale(0.98);}
+
+/* ── Rating buttons ── */
+.rating-wrap{display:none;flex-direction:row;gap:10px;margin-bottom:10px;}
+.rating-wrap.rw-show{display:flex;}
+.btn-got,.btn-hard{flex:1;padding:12px;border-radius:14px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.12s,box-shadow 0.12s;min-height:50px;}
+.btn-got{background:linear-gradient(90deg,#166534,#4ade80);color:#fff;box-shadow:0 4px 16px rgba(74,222,128,0.3);}
+.btn-hard{background:linear-gradient(90deg,#7f1d1d,#f87171);color:#fff;box-shadow:0 4px 16px rgba(248,113,113,0.3);}
+.btn-got:hover,.btn-hard:hover{transform:scale(1.03);}
+.btn-got:active,.btn-hard:active{transform:scale(0.97);}
+
+/* ── Nav ── */
+.nav-area{display:flex;gap:10px;margin-bottom:10px;}
+.nav-btn{flex:1;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8eaf6;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.15s,transform 0.1s;min-height:50px;}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+.nav-btn:not(:disabled):hover{background:rgba(255,255,255,0.14);transform:scale(1.02);}
+.card-progress{text-align:center;font-size:12px;opacity:0.5;margin-bottom:6px;}
+.progress-track{background:rgba(255,255,255,0.1);border-radius:99px;height:5px;margin-bottom:14px;overflow:hidden;}
+.progress-bar{height:100%;border-radius:99px;transition:width 0.35s ease;width:0;}
+
+/* ── Quiz ── */
+.quiz-area{display:none;padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;margin-bottom:12px;}
+.quiz-area.qa-show{display:block;}
+.quiz-q-box{font-size:14px;font-weight:700;margin-bottom:10px;line-height:1.5;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.quiz-opt{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8eaf6;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;text-align:left;transition:background 0.15s,transform 0.1s;min-height:44px;}
+.quiz-opt:hover{background:rgba(255,255,255,0.15);transform:scale(1.02);}
+.quiz-opt.qo-correct{background:rgba(34,197,94,0.35);border-color:#22c55e;}
+.quiz-opt.qo-wrong{background:rgba(239,68,68,0.35);border-color:#ef4444;}
+
+/* ── Font overrides ── */
+body.font-sm #cardQuestion{font-size:15px;}body.font-sm #cardAnswer{font-size:13px;}
+body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18px;}
+
+/* ── Summary / Celebration screen ── */
+.summary-screen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;justify-content:center;align-items:center;padding:20px;}
+.summary-screen.ss-show{display:flex;}
+#confettiCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.summary-card{position:relative;background:linear-gradient(145deg,#0f1535,#1e2a5e);border:1px solid rgba(100,149,237,0.3);border-radius:26px;padding:32px 26px;max-width:380px;width:100%;text-align:center;animation:sumPop 0.42s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 60px rgba(100,149,237,0.25);}
+@keyframes sumPop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.summary-mascot{font-size:68px;display:block;margin-bottom:10px;animation:mascotBounce 0.8s ease;}
+.summary-title{font-size:24px;font-weight:900;margin-bottom:4px;}
+.summary-sub{font-size:13px;opacity:0.6;margin-bottom:18px;}
+.summary-stats{display:flex;gap:10px;margin-bottom:16px;}
+.stat-box{flex:1;background:rgba(255,255,255,0.09);border-radius:14px;padding:14px 6px;}
+.stat-box span{font-size:24px;font-weight:900;display:block;color:#ffd54f;}
+.stat-box label{font-size:10px;opacity:0.6;font-weight:700;text-transform:uppercase;display:block;margin-top:3px;}
+.new-badges-wrap{min-height:10px;margin-bottom:14px;}
+.new-badge-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(249,212,35,0.18);border:1px solid rgba(249,212,35,0.45);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#ffd54f;margin:3px;animation:sumPop 0.4s ease;}
+.summary-btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:8px;box-shadow:0 4px 18px rgba(66,165,245,0.4);transition:transform 0.12s;}
+.summary-btn:hover{transform:translateY(-2px);}
+.summary-btn-sec{background:none;border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.6);border-radius:14px;padding:10px;width:100%;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;}
+
+/* ── Level-up & badge toasts ── */
+.levelup-toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) scale(0);background:linear-gradient(135deg,#f9d423,#ff8c00);color:#1a1a2e;border-radius:14px;padding:12px 22px;font-weight:900;font-size:15px;z-index:500;pointer-events:none;opacity:0;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s;white-space:nowrap;}
+.levelup-toast.lt-show{transform:translateX(-50%) scale(1);opacity:1;}
+.badge-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) scale(0);background:rgba(20,20,50,0.97);border:1px solid rgba(249,212,35,0.5);color:#ffd54f;border-radius:14px;padding:10px 20px;font-weight:800;font-size:13px;z-index:500;pointer-events:none;opacity:0;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s;white-space:nowrap;}
+.badge-toast.bt-show{transform:translateX(-50%) scale(1);opacity:1;}
+
+/* ── Badges modal ── */
+.badges-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:150;justify-content:center;align-items:center;padding:20px;}
+.badges-modal.bm-show{display:flex;}
+.badges-inner{background:linear-gradient(145deg,#0f1535,#1e2a5e);border:1px solid rgba(100,149,237,0.25);border-radius:24px;padding:26px;max-width:420px;width:100%;max-height:84vh;overflow-y:auto;animation:sumPop 0.3s ease;}
+.badges-inner h3{font-size:20px;font-weight:900;text-align:center;margin-bottom:16px;}
+.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.badge-card{border-radius:14px;padding:14px 10px;text-align:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);}
+.badge-card.earned{background:rgba(249,212,35,0.12);border-color:rgba(249,212,35,0.35);}
+.badge-card.locked{opacity:0.36;filter:grayscale(1);}
+.badge-icon{font-size:28px;margin-bottom:6px;}
+.badge-name{font-size:12px;font-weight:800;}
+.badge-desc{font-size:10px;opacity:0.6;margin-top:3px;line-height:1.3;}
+.close-modal-btn{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.22);background:none;color:rgba(255,255,255,0.65);font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+
+/* ── Transitions ── */
+@keyframes slideInRight{from{transform:translateX(36px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slideInLeft{from{transform:translateX(-36px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.slide-in-right{animation:slideInRight 0.28s ease forwards;}
+.slide-in-left{animation:slideInLeft 0.28s ease forwards;}
+
+/* ── Mobile ── */
+@media(max-width:480px){
+  .topic-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .topic-tile{padding:18px 10px 14px;}
+  .tile-emoji{font-size:28px;}
+  .tile-name{font-size:11px;}
+  .card-face-front,.card-face-back{padding:20px 16px;min-height:260px;}
+  #cardQuestion{font-size:16px;}
+  .nav-btn,.flip-btn,.btn-got,.btn-hard{min-height:52px;font-size:15px;}
+  .session-bar{gap:8px;}
+  .session-bar span{font-size:12px;}
+  .summary-card{padding:24px 16px;}
+  .stat-box span{font-size:20px;}
+  .stats-row{gap:6px;}
+  .stat-pill .stat-val{font-size:17px;}
+  .mascot-emoji{font-size:50px;}
+  .xp-bar-wrap{padding:8px 12px;}
+}
 </style>
 </head>
 <body>
-<div id="themeBg" class="theme-bg"></div>
+<canvas id="starCanvas"></canvas>
+<div class="levelup-toast" id="levelupToast"></div>
+<div class="badge-toast" id="badgeToast"></div>
+<button class="badges-fab" id="badgesFab" onclick="showBadges()">🏅</button>
 
-<!-- ═══ TOPIC VIEW ═══ -->
-<div id="topicView">
-  <div class="page-header">
-    <div>
-      <div class="header-title">🔢 Maths Flashcards</div>
-      <div class="header-sub">Grammar School Prep · Pillai Tutors</div>
-    </div>
-    <div class="streak-badge" id="streakBadge" style="display:none"></div>
-    <a class="home-link" href="index.html">🏠 Home</a>
+<!-- ══ TOPIC VIEW ══ -->
+<div class="page topic-view" id="topicView">
+  <div class="hero-header">
+    <span class="hero-badge">🚀</span>
+    <h1 class="hero-title">Maths Flashcards</h1>
+    <p class="hero-sub">🌌 Space Explorer · Prisha's 11+ Prep</p>
+    <div class="streak-badge" id="streakBadge"></div>
   </div>
-  <div class="topic-intro">
-    <h2>Choose a Topic</h2>
-    <p>Tap a topic tile to start practising</p>
+  <div class="xp-bar-wrap">
+    <span class="level-badge" id="levelBadge">🌱 Seedling</span>
+    <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
+    <span class="xp-label" id="xpLabel">0 XP</span>
   </div>
-  <div class="search-wrap">
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input class="search-input" id="searchInput" type="search"
-             placeholder="Search topics e.g. fractions, area…" autocomplete="off" autocorrect="off"
-             oninput="handleSearch(this.value)"
-             onkeydown="if(event.key==='Escape'){this.value='';handleSearch('')}">
-    </div>
+  <div class="stats-row">
+    <div class="stat-pill"><span class="stat-val" id="statTotalCards">0</span><span class="stat-lbl">Rated</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statMastered">0</span><span class="stat-lbl">Mastered</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statXPTotal">0</span><span class="stat-lbl">Total XP</span></div>
   </div>
-  <div class="no-results" id="noResults">🤔 No topics match — try a different word</div>
+  <div class="mascot-wrap">
+    <span class="mascot-emoji" id="mascotEmoji">🧑‍🚀</span>
+    <div class="mascot-bubble" id="mascotBubble">Ready to explore the cosmos of knowledge? 🌌</div>
+  </div>
+  <div class="focus-section" id="focusSection">
+    <div class="focus-title">⚡ Focus Areas — tap to practise</div>
+    <div class="weak-topics" id="weakTopicsWrap"></div>
+  </div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search topics or questions…" oninput="handleSearch(this.value)" id="searchInput">
+  </div>
   <div class="topic-grid" id="topicGrid"></div>
+  <p class="no-results" id="noResults">No topics match — try a different search!</p>
+  <a href="index.html" class="home-link">🏠 Back to Home</a>
 </div>
 
-<!-- ═══ CARD VIEW ═══ -->
-<div id="cardView">
+<!-- ══ CARD VIEW ══ -->
+<div class="page card-view" id="cardView">
   <div class="page-header">
-    <button class="back-btn" onclick="backToTopics()" title="Back to topics">&#8592;</button>
-    <div>
-      <div class="header-title" id="cvTitle"></div>
-      <div class="header-sub" id="cvSub"></div>
+    <button class="back-btn" onclick="goBackToTopics()">← Back</button>
+    <div class="page-header-text">
+      <h2 id="cvTitle"></h2>
+      <p id="cvSub"></p>
     </div>
   </div>
   <div class="cv-toolbar">
-    <button class="font-btn" id="fontSm" onclick="setFont('sm')">A-</button>
-    <button class="font-btn fb-active" id="fontMd" onclick="setFont('md')">A</button>
-    <button class="font-btn" id="fontLg" onclick="setFont('lg')">A+</button>
+    <button class="font-btn" onclick="setFont('sm')" id="fbSm">A-</button>
+    <button class="font-btn fb-active" onclick="setFont('md')" id="fbMd">A</button>
+    <button class="font-btn" onclick="setFont('lg')" id="fbLg">A+</button>
     <div class="toolbar-spacer"></div>
     <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz</button>
     <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-    <button class="shuffle-header-btn" onclick="shuffleCards()">🔀</button>
+    <button class="shuffle-btn" onclick="shuffleCards()">🔀</button>
   </div>
-  <div class="card-view-inner">
-    <div class="card-progress" id="cardProgress"></div>
-    <div class="card-wrapper" id="cardWrapper" onclick="flipCard()">
-      <div class="card-rated-badge" id="cardRatedBadge"></div>
-      <div class="card-inner" id="cardInner">
-        <div class="card-face" id="cardFront">
-          <div class="card-tag" id="frontTag"></div>
-          <div class="card-session-lbl" id="frontSession"></div>
-          <div class="card-big-emoji" id="cardEmoji"></div>
-          <div class="card-q-text" id="cardQuestion"></div>
-          <div class="card-hint-lbl">👆 Tap to reveal answer</div>
-        </div>
-        <div class="card-back-face" id="cardBack">
-          <div class="card-tag" id="backTag"></div>
-          <div class="card-session-lbl" id="backSession"></div>
-          <div class="answer-hdr">✨ Answer</div>
-          <div class="card-a-text" id="cardAnswer"></div>
-          <div class="card-hint-lbl">👆 Tap to see question</div>
-        </div>
+  <div class="session-bar">
+    <span>🃏 <span id="sbCards">0</span> seen</span>
+    <span class="sb-got">✅ <span id="sbGot">0</span> got it</span>
+    <span class="sb-xp">⚡ +<span id="sbXP">0</span> XP</span>
+  </div>
+  <div id="cardWrapper" onclick="flipCard()">
+    <div class="card-rated-badge" id="cardRatedBadge"></div>
+    <div class="card-inner" id="cardInner">
+      <div class="card-face-front" id="cardFront">
+        <div class="card-tag" id="frontTag"></div>
+        <div class="card-session" id="frontSession"></div>
+        <div class="card-emoji-big" id="cardEmoji"></div>
+        <div id="cardQuestion"></div>
+        <div class="flip-hint">Tap to reveal answer ✨</div>
+      </div>
+      <div class="card-face-back" id="cardBack">
+        <div class="card-tag" id="backTag"></div>
+        <div class="card-session" id="backSession"></div>
+        <div id="cardAnswer"></div>
       </div>
     </div>
-    <div class="nav-buttons">
-      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
-      <button class="action-btn flip-btn" id="flipBtn" onclick="flipCard()">Flip Card</button>
-      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
-    </div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="rating-wrap" id="ratingWrap">
-      <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
-      <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
-    </div>
-    <div class="quiz-area" id="quizArea">
-      <div class="quiz-q-box" id="quizQuestion"></div>
-      <div class="quiz-opts" id="quizOpts"></div>
-    </div>
+  </div>
+  <button class="flip-btn" id="flipBtn" onclick="flipCard()">Tap to Flip 🚀</button>
+  <div class="rating-wrap" id="ratingWrap">
+    <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
+    <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
+  </div>
+  <div class="quiz-area" id="quizArea">
+    <div class="quiz-q-box" id="quizQuestion"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+  </div>
+  <div class="card-progress" id="cardProgress"></div>
+  <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="nav-area">
+    <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Previous</button>
+    <button class="nav-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
   </div>
 </div>
 
+<!-- ══ SUMMARY / CELEBRATION SCREEN ══ -->
+<div class="summary-screen" id="summaryScreen">
+  <canvas id="confettiCanvas"></canvas>
+  <div class="summary-card">
+    <span class="summary-mascot" id="summaryMascot">🧑‍🚀</span>
+    <div class="summary-title" id="summaryTitle">Mission Complete!</div>
+    <div class="summary-sub" id="summarySub">You're out of this world! 🌌</div>
+    <div class="summary-stats">
+      <div class="stat-box"><span id="statSeen">0</span><label>Seen</label></div>
+      <div class="stat-box"><span id="statGot">0</span><label>Got It!</label></div>
+      <div class="stat-box"><span id="statXP">+0</span><label>XP</label></div>
+    </div>
+    <div class="new-badges-wrap" id="newBadgesWrap"></div>
+    <button class="summary-btn" onclick="closeSummary()">Keep Exploring! 🚀</button>
+    <button class="summary-btn-sec" onclick="closeSummaryAndBack()">Back to Topics</button>
+  </div>
+</div>
+
+<!-- ══ BADGES MODAL ══ -->
+<div class="badges-modal" id="badgesModal" onclick="if(event.target===this)hideBadges()">
+  <div class="badges-inner">
+    <h3>🏅 Your Badges</h3>
+    <div class="badges-grid" id="badgesGrid"></div>
+    <button class="close-modal-btn" onclick="hideBadges()">Close</button>
+  </div>
+</div>
+
+<!-- ══ FEATURE SCRIPT (loads before main) ══ -->
 <script>
-const TOPIC_META = {
-  "Place Value":               { emoji:"🔢", g1:"#1565c0", g2:"#1e88e5", d1:"#0d47a1", d2:"#1565c0" },
-  "Rounding":                  { emoji:"🎯", g1:"#6a1b9a", g2:"#8e24aa", d1:"#4a148c", d2:"#6a1b9a" },
-  "Addition & Subtraction":    { emoji:"➕", g1:"#e65100", g2:"#f57c00", d1:"#bf360c", d2:"#e65100" },
-  "Multiplication":            { emoji:"✖️", g1:"#c62828", g2:"#e53935", d1:"#b71c1c", d2:"#c62828" },
-  "Factors & Multiples":       { emoji:"🔍", g1:"#2e7d32", g2:"#388e3c", d1:"#1b5e20", d2:"#2e7d32" },
-  "Fractions":                 { emoji:"🍕", g1:"#880e4f", g2:"#ad1457", d1:"#560027", d2:"#880e4f" },
-  "Decimals":                  { emoji:"🔸", g1:"#00838f", g2:"#00acc1", d1:"#006064", d2:"#00838f" },
-  "Percentages":               { emoji:"💯", g1:"#558b2f", g2:"#7cb342", d1:"#33691e", d2:"#558b2f" },
-  "FDP Conversions":           { emoji:"🔄", g1:"#bf360c", g2:"#e64a19", d1:"#8d1f00", d2:"#bf360c" },
-  "Ratio":                     { emoji:"⚖️", g1:"#283593", g2:"#3949ab", d1:"#1a237e", d2:"#283593" },
-  "Area & Perimeter":          { emoji:"📐", g1:"#004d40", g2:"#00695c", d1:"#002b27", d2:"#004d40" },
-  "2D Shapes & Angles":        { emoji:"🔺", g1:"#f57f17", g2:"#f9a825", d1:"#e65100", d2:"#f57f17" },
-  "3D Shapes & Volume":        { emoji:"🎲", g1:"#37474f", g2:"#546e7a", d1:"#263238", d2:"#37474f" },
-  "Measurement & Conversions": { emoji:"📏", g1:"#5d4037", g2:"#6d4c41", d1:"#3e2723", d2:"#5d4037" },
-  "Roman Numerals":            { emoji:"🏛️", g1:"#424242", g2:"#616161", d1:"#212121", d2:"#424242" },
-  "Negative Numbers":          { emoji:"🌡️", g1:"#0277bd", g2:"#0288d1", d1:"#01579b", d2:"#0277bd" },
-  "Coordinates":               { emoji:"🗺️", g1:"#4527a0", g2:"#5e35b1", d1:"#311b92", d2:"#4527a0" },
-  "Statistics":                { emoji:"📊", g1:"#ad1457", g2:"#d81b60", d1:"#880e4f", d2:"#ad1457" },
-  "Transformations":           { emoji:"🔁", g1:"#1b5e20", g2:"#2e7d32", d1:"#0a3d12", d2:"#1b5e20" },
-  "Problem Solving":           { emoji:"🧩", g1:"#e65100", g2:"#ff8f00", d1:"#bf360c", d2:"#e65100" },
+var isQuizMode=false,soundMuted=false,sessionSeen={},isSwiping=false,_confAnim=null,_audioCtx=null;
+var sessionXP=0,sessionGot=0,sessionCards=0,newlyEarnedBadges=[],sessionQuizCorrect=0;
+
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+/* ── Sound ── */
+function _getAC(){if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();return _audioCtx;}
+function _tone(f,dur,type,vol){try{var ac=_getAC(),o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=type||'sine';o.frequency.setValueAtTime(f,ac.currentTime);g.gain.setValueAtTime(vol||0.18,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);o.start();o.stop(ac.currentTime+dur);}catch(e){}}
+function playFlip(){if(soundMuted)return;_tone(440,0.08,'sine',0.12);setTimeout(function(){_tone(520,0.08,'sine',0.10);},60);}
+function playGot(){if(soundMuted)return;[523,659,784].forEach(function(f,i){setTimeout(function(){_tone(f,0.15,'sine',0.15);},i*80);});}
+function playHard(){if(soundMuted)return;_tone(330,0.2,'triangle',0.12);}
+function playCelebrate(){if(soundMuted)return;[523,659,784,1047].forEach(function(f,i){setTimeout(function(){_tone(f,0.25,'sine',0.18);},i*100);});}
+
+/* ── Font ── */
+function initFont(){_applyFont(lsGet('prisha_font','md'));}
+function setFont(s){lsSet('prisha_font',s);_applyFont(s);}
+function _applyFont(s){['sm','md','lg'].forEach(function(c){document.body.classList.remove('font-'+c);var id='fb'+c.charAt(0).toUpperCase()+c.slice(1);var b=document.getElementById(id);if(b)b.classList.remove('fb-active');});document.body.classList.add('font-'+s);var btn=document.getElementById('fb'+s.charAt(0).toUpperCase()+s.slice(1));if(btn)btn.classList.add('fb-active');}
+
+/* ── Mute ── */
+function initMute(){soundMuted=lsGet('prisha_mute',false);_updMute();}
+function toggleMute(){soundMuted=!soundMuted;lsSet('prisha_mute',soundMuted);_updMute();}
+function _updMute(){var b=document.getElementById('muteBtn');if(b)b.textContent=soundMuted?'🔇':'🔊';}
+
+/* ── Streak ── */
+function _today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function updateStreak(){var s=lsGet('prisha_streak',{day:'',count:0}),today=_today();if(s.day===today){_showStreak(s.count);return;}var yest=new Date();yest.setDate(yest.getDate()-1);var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();var nc=s.day===ys?s.count+1:1;s={day:today,count:nc};lsSet('prisha_streak',s);_showStreak(nc);if(nc>=3)checkBadge('streak3');if(nc>=7)checkBadge('streak7');}
+function _showStreak(n){var b=document.getElementById('streakBadge');if(!b)return;if(n>0){b.textContent='🔥 '+n+' day streak';b.style.display='flex';}else{b.style.display='none';}}
+
+/* ── Ratings ── */
+function _ratings(){return lsGet('prisha_ratings',{});}
+function _key(t,q){return t+'||'+q;}
+function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;lsSet('prisha_ratings',r);}
+function getCardRating(t,q){return _ratings()[_key(t,q)]||null;}
+function showRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.add('rw-show');}
+function hideRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.remove('rw-show');}
+function rateCard(val){
+  if(!filtered||!filtered.length)return;
+  var card=filtered[current];
+  saveRating(card.topic,card.q,val);
+  updateRatedBadge();
+  if(val==='got'){
+    playGot(); sessionGot++; sessionXP+=10; sessionCards++;
+    addXP(10);
+    var totalGot=Object.values(_ratings()).filter(function(v){return v==='got';}).length;
+    if(sessionGot>=5)checkBadge('got5');
+    if(totalGot>=20)checkBadge('cards20got');
+    mascotSay(_pick(MASCOT_GOT),true);
+  } else {
+    playHard(); sessionXP+=3; sessionCards++;
+    addXP(3);
+    mascotSay(_pick(MASCOT_HARD),false);
+  }
+  var totalRated=Object.keys(_ratings()).length;
+  if(totalRated>=50)checkBadge('cards50');
+  updateSessionBar();
+  hideRatingBtns();
+}
+function updateRatedBadge(){var b=document.getElementById('cardRatedBadge');if(!b||!filtered||!filtered.length)return;var r=getCardRating(filtered[current].topic,filtered[current].q);b.textContent=r==='got'?'✅':r==='hard'?'😅':'';}
+
+/* ── Tricky cards ── */
+function getTrickyCards(){var r=_ratings(),out=[];if(typeof ALL_CARDS!=='undefined'){ALL_CARDS.forEach(function(c){if(r[_key(c.topic,c.q)]==='hard')out.push(c);});}return out;}
+
+/* ── XP & Levels ── */
+var XP_LEVELS=[
+  {name:'🌱 Seedling',min:0,max:149},
+  {name:'🔭 Explorer',min:150,max:399},
+  {name:'📖 Scholar',min:400,max:749},
+  {name:'⭐ Achiever',min:750,max:1199},
+  {name:'🏆 Champion',min:1200,max:1999},
+  {name:'👑 Legend',min:2000,max:Infinity}
+];
+function getLevelIdx(xp){for(var i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS[i].min)return i;}return 0;}
+function addXP(amt){
+  var xp=lsGet('prisha_xp',0),oldLvl=getLevelIdx(xp);
+  xp+=amt; lsSet('prisha_xp',xp);
+  var newLvl=getLevelIdx(xp);
+  if(newLvl>oldLvl){showLevelUpToast(XP_LEVELS[newLvl].name);if(newLvl>=3)checkBadge('level_scholar');if(newLvl>=4)checkBadge('level_champion');}
+  updateXPBar();
+}
+function updateXPBar(){
+  var xp=lsGet('prisha_xp',0),li=getLevelIdx(xp),lvl=XP_LEVELS[li];
+  var pct=li===XP_LEVELS.length-1?100:Math.round((xp-lvl.min)/(lvl.max-lvl.min)*100);
+  var f=document.getElementById('xpFill');if(f)f.style.width=pct+'%';
+  var l=document.getElementById('xpLabel');if(l)l.textContent=xp+' XP';
+  var b=document.getElementById('levelBadge');if(b)b.textContent=lvl.name;
+}
+function showLevelUpToast(name){
+  var t=document.getElementById('levelupToast');if(!t)return;
+  t.textContent='🎉 Level Up! '+name;
+  t.classList.add('lt-show');
+  setTimeout(function(){t.classList.remove('lt-show');},2800);
+}
+function updateStatsRow(){
+  var r=_ratings(),total=Object.keys(r).length,mastered=Object.values(r).filter(function(v){return v==='got';}).length,xp=lsGet('prisha_xp',0);
+  var e;e=document.getElementById('statTotalCards');if(e)e.textContent=total;
+  e=document.getElementById('statMastered');if(e)e.textContent=mastered;
+  e=document.getElementById('statXPTotal');if(e)e.textContent=xp;
+}
+function updateSessionBar(){
+  var total=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);
+  var e;e=document.getElementById('sbCards');if(e)e.textContent=total;
+  e=document.getElementById('sbGot');if(e)e.textContent=sessionGot;
+  e=document.getElementById('sbXP');if(e)e.textContent=sessionXP;
+}
+
+/* ── Badges ── */
+var BADGES=[
+  {id:'first_flip',icon:'🚀',name:'First Launch',desc:'Flip your first card'},
+  {id:'got5',icon:'✅',name:'Quick Learner',desc:'5 Got it! in one session'},
+  {id:'streak3',icon:'🔥',name:'Streak Starter',desc:'Study 3 days in a row'},
+  {id:'streak7',icon:'💫',name:'Streak Master',desc:'Study 7 days in a row'},
+  {id:'topic_ace',icon:'🎯',name:'Topic Ace',desc:'Finish a topic with 80%+ Got it!'},
+  {id:'five_topics',icon:'🌟',name:'Explorer',desc:'Complete 5 different topics'},
+  {id:'cards50',icon:'📚',name:'Card Champion',desc:'Have 50 rated cards'},
+  {id:'cards20got',icon:'💪',name:'Mastery Master',desc:'Master 20 cards'},
+  {id:'quiz10',icon:'🧠',name:'Quiz Whiz',desc:'Ace 10 quiz questions'},
+  {id:'level_scholar',icon:'⭐',name:'Scholar',desc:'Reach Scholar level'},
+  {id:'level_champion',icon:'🏆',name:'Champion',desc:'Reach Champion level'},
+];
+function checkBadge(id){var earned=lsGet('prisha_badges',[]);if(earned.indexOf(id)===-1){earned.push(id);lsSet('prisha_badges',earned);newlyEarnedBadges.push(id);showBadgeToast(id);}}
+function showBadgeToast(id){var b=BADGES.find(function(x){return x.id===id;});if(!b)return;var t=document.getElementById('badgeToast');if(!t)return;t.textContent=b.icon+' Badge unlocked: '+b.name+'!';t.classList.add('bt-show');setTimeout(function(){t.classList.remove('bt-show');},3000);}
+function showBadges(){
+  var earned=lsGet('prisha_badges',[]),grid=document.getElementById('badgesGrid');
+  if(!grid)return;grid.innerHTML='';
+  BADGES.forEach(function(b){var isE=earned.indexOf(b.id)!==-1;var c=document.createElement('div');c.className='badge-card '+(isE?'earned':'locked');c.innerHTML='<div class="badge-icon">'+b.icon+'</div><div class="badge-name">'+b.name+'</div><div class="badge-desc">'+b.desc+'</div>';grid.appendChild(c);});
+  document.getElementById('badgesModal').classList.add('bm-show');
+}
+function hideBadges(){document.getElementById('badgesModal').classList.remove('bm-show');}
+
+/* ── Mascot ── */
+var MASCOT_GOT=['Stellar! ⭐','Perfect trajectory! 🎯','Houston, we have a genius! 🏆','Out of this world! 🌌','Brilliant! You\'re a star! 🚀'];
+var MASCOT_HARD=['Even astronauts need extra training! 💪','We\'ll get there together! 🛸','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'];
+var MASCOT_START=['Mission launched! Let\'s go! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸'];
+function _pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function mascotSay(msg,happy){
+  var bubble=document.getElementById('mascotBubble'),em=document.getElementById('mascotEmoji');
+  if(bubble)bubble.textContent=msg;
+  if(em&&happy){em.classList.remove('mascot-happy');void em.offsetWidth;em.classList.add('mascot-happy');setTimeout(function(){em.classList.remove('mascot-happy');},600);}
+}
+
+/* ── Session progress tracking ── */
+function trackCardSeen(topic,q){if(!sessionSeen[topic])sessionSeen[topic]={};sessionSeen[topic][q]=true;}
+function refreshTileProgress(){document.querySelectorAll('.topic-tile:not(.all-tile):not(.tricky-tile)').forEach(function(tile){var ne=tile.querySelector('.tile-name');if(!ne)return;var topic=ne.textContent.trim(),seen=sessionSeen[topic]?Object.keys(sessionSeen[topic]).length:0,total=typeof ALL_CARDS!=='undefined'?ALL_CARDS.filter(function(c){return c.topic===topic;}).length:0;var pp=tile.querySelector('.tile-progress');if(!pp){pp=document.createElement('div');pp.className='tile-progress';tile.appendChild(pp);}pp.textContent=seen>0?seen+'/'+total+' seen':'';});}
+function updateProgressSection(){
+  var r=_ratings(),topicHard={};
+  if(typeof ALL_CARDS!=='undefined'){ALL_CARDS.forEach(function(c){if(!topicHard[c.topic])topicHard[c.topic]=0;if(r[_key(c.topic,c.q)]==='hard')topicHard[c.topic]++;});}
+  var weak=Object.keys(topicHard).filter(function(t){return topicHard[t]>0;}).sort(function(a,b){return topicHard[b]-topicHard[a];}).slice(0,5);
+  var fs=document.getElementById('focusSection'),wrap=document.getElementById('weakTopicsWrap');
+  if(!fs||!wrap)return;
+  if(weak.length===0){fs.style.display='none';return;}
+  fs.style.display='block';wrap.innerHTML='';
+  weak.forEach(function(t){var meta=typeof TOPIC_META!=='undefined'?(TOPIC_META[t]||{emoji:'📚'}):{emoji:'📚'};var chip=document.createElement('span');chip.className='weak-chip';chip.textContent=meta.emoji+' '+t+' ('+topicHard[t]+')';chip.onclick=function(){enterTopic(t);};wrap.appendChild(chip);});
+}
+
+/* ── Quiz ── */
+function toggleQuizMode(){isQuizMode=!isQuizMode;var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}}
+function renderQuiz(){if(!filtered||!filtered.length)return;var card=filtered[current],correct=card.q;var pool=filtered.filter(function(c){return c.q!==correct;}).sort(function(){return Math.random()-0.5;}).slice(0,3).map(function(c){return c.q;});var opts=[correct].concat(pool).sort(function(){return Math.random()-0.5;});var qb=document.getElementById('quizQuestion');if(qb)qb.textContent='Which question matches this answer?\n'+card.a.substring(0,80)+'…';var ob=document.getElementById('quizOpts');if(!ob)return;ob.innerHTML='';opts.forEach(function(o){var btn=document.createElement('button');btn.className='quiz-opt';btn.textContent=o.length>60?o.substring(0,57)+'…':o;btn.onclick=function(){answerQuiz(o,correct,ob);};ob.appendChild(btn);});}
+function answerQuiz(chosen,correct,container){var btns=container.querySelectorAll('.quiz-opt');btns.forEach(function(b){b.onclick=null;var t=b.textContent,c=correct.length>60?correct.substring(0,57)+'…':correct,ch=chosen.length>60?chosen.substring(0,57)+'…':chosen;if(t===c)b.classList.add('qo-correct');else if(t===ch)b.classList.add('qo-wrong');});if(chosen===correct){playGot();sessionQuizCorrect++;var tqc=lsGet('prisha_quiz_correct',0)+1;lsSet('prisha_quiz_correct',tqc);if(tqc>=10)checkBadge('quiz10');}else playHard();}
+
+/* ── Summary / Celebration ── */
+function showSessionSummary(){
+  playCelebrate();_startConf();
+  var totalSeen=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);
+  if(filtered&&filtered.length){var gotCount=filtered.filter(function(c){return getCardRating(c.topic,c.q)==='got';}).length;if(gotCount/filtered.length>=0.8)checkBadge('topic_ace');}
+  if(filtered&&filtered.length&&filtered[0].topic){var ct=lsGet('prisha_completed_topics',[]),tn=filtered[0].topic;if(ct.indexOf(tn)===-1){ct.push(tn);lsSet('prisha_completed_topics',ct);if(ct.length>=5)checkBadge('five_topics');}}
+  addXP(50);var xpEarned=sessionXP+50;
+  var e;e=document.getElementById('statSeen');if(e)e.textContent=totalSeen;
+  e=document.getElementById('statGot');if(e)e.textContent=sessionGot;
+  e=document.getElementById('statXP');if(e)e.textContent='+'+xpEarned+' XP';
+  var titles=['Mission Complete! 🚀','Topic Conquered! 🌟','Brilliant Work! 🏆','Stellar! ⭐','Out of This World! 🌌'];
+  e=document.getElementById('summaryTitle');if(e)e.textContent=titles[Math.floor(Math.random()*titles.length)];
+  var nb=document.getElementById('newBadgesWrap');if(nb){nb.innerHTML='';newlyEarnedBadges.forEach(function(id){var b=BADGES.find(function(x){return x.id===id;});if(b){var chip=document.createElement('div');chip.className='new-badge-chip';chip.textContent=b.icon+' '+b.name;nb.appendChild(chip);}});}
+  newlyEarnedBadges=[];sessionXP=0;sessionGot=0;sessionCards=0;sessionQuizCorrect=0;
+  document.getElementById('summaryScreen').classList.add('ss-show');
+}
+function closeSummary(){_stopConf();document.getElementById('summaryScreen').classList.remove('ss-show');}
+function closeSummaryAndBack(){closeSummary();goBackToTopics();}
+function _startConf(){var cv=document.getElementById('confettiCanvas');if(!cv)return;var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;var p=[];for(var i=0;i<130;i++)p.push({x:Math.random()*cv.width,y:Math.random()*-cv.height,vx:(Math.random()-0.5)*4.5,vy:Math.random()*4+2,color:'hsl('+(Math.random()*360)+',80%,60%)',size:Math.random()*8+4,angle:Math.random()*Math.PI*2,spin:(Math.random()-0.5)*0.2});function step(){ctx.clearRect(0,0,cv.width,cv.height);p.forEach(function(pt){ctx.save();ctx.translate(pt.x,pt.y);ctx.rotate(pt.angle);ctx.fillStyle=pt.color;ctx.fillRect(-pt.size/2,-pt.size/2,pt.size,pt.size);ctx.restore();pt.x+=pt.vx;pt.y+=pt.vy;pt.angle+=pt.spin;if(pt.y>cv.height)pt.y=-20;});_confAnim=requestAnimationFrame(step);}step();}
+function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=null;}var cv=document.getElementById('confettiCanvas');if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}}
+
+/* ── Swipe ── */
+(function(){var sx=0,sy=0,th=50;window.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
+
+initFont(); initMute(); updateStreak();
+</script>
+<!-- ══ MAIN SCRIPT ══ -->
+<script>
+const TOPIC_META={
+  "Place Value":               {emoji:"🔢",g1:"#1565c0",g2:"#1e88e5",d1:"#0d47a1",d2:"#1565c0"},
+  "Rounding":                  {emoji:"🎯",g1:"#6a1b9a",g2:"#8e24aa",d1:"#4a148c",d2:"#6a1b9a"},
+  "Addition & Subtraction":    {emoji:"➕",g1:"#e65100",g2:"#f57c00",d1:"#bf360c",d2:"#e65100"},
+  "Multiplication":            {emoji:"✖️",g1:"#c62828",g2:"#e53935",d1:"#b71c1c",d2:"#c62828"},
+  "Factors & Multiples":       {emoji:"🔍",g1:"#2e7d32",g2:"#388e3c",d1:"#1b5e20",d2:"#2e7d32"},
+  "Fractions":                 {emoji:"🍕",g1:"#880e4f",g2:"#ad1457",d1:"#560027",d2:"#880e4f"},
+  "Decimals":                  {emoji:"🔸",g1:"#00838f",g2:"#00acc1",d1:"#006064",d2:"#00838f"},
+  "Percentages":               {emoji:"💯",g1:"#558b2f",g2:"#7cb342",d1:"#33691e",d2:"#558b2f"},
+  "FDP Conversions":           {emoji:"🔄",g1:"#bf360c",g2:"#e64a19",d1:"#8d1f00",d2:"#bf360c"},
+  "Ratio":                     {emoji:"⚖️",g1:"#283593",g2:"#3949ab",d1:"#1a237e",d2:"#283593"},
+  "Area & Perimeter":          {emoji:"📐",g1:"#004d40",g2:"#00695c",d1:"#002b27",d2:"#004d40"},
+  "2D Shapes & Angles":        {emoji:"🔺",g1:"#f57f17",g2:"#f9a825",d1:"#e65100",d2:"#f57f17"},
+  "3D Shapes & Volume":        {emoji:"🎲",g1:"#37474f",g2:"#546e7a",d1:"#263238",d2:"#37474f"},
+  "Measurement & Conversions": {emoji:"📏",g1:"#5d4037",g2:"#6d4c41",d1:"#3e2723",d2:"#5d4037"},
+  "Roman Numerals":            {emoji:"🏛️",g1:"#424242",g2:"#616161",d1:"#212121",d2:"#424242"},
+  "Negative Numbers":          {emoji:"🌡️",g1:"#0277bd",g2:"#0288d1",d1:"#01579b",d2:"#0277bd"},
+  "Coordinates":               {emoji:"🗺️",g1:"#4527a0",g2:"#5e35b1",d1:"#311b92",d2:"#4527a0"},
+  "Statistics":                {emoji:"📊",g1:"#ad1457",g2:"#d81b60",d1:"#880e4f",d2:"#ad1457"},
+  "Transformations":           {emoji:"🔁",g1:"#1b5e20",g2:"#2e7d32",d1:"#0a3d12",d2:"#1b5e20"},
+  "Problem Solving":           {emoji:"🧩",g1:"#e65100",g2:"#ff8f00",d1:"#bf360c",d2:"#e65100"},
 };
-
-const FUN_EMOJIS = ["🦄","🐉","🦊","🐸","🦁","🐧","🦋","🐬","🦖","🐙","🌈","⭐","🚀","🌺","🎈","🍦","🎮","🦜","🐣","🌻","🎸","🏆","🎭","🦩","🐳"];
-
-const ALL_CARDS = [
-  // ── PLACE VALUE ────────────────────────────────────────────────────────────
-  { topic:"Place Value", session:"Lessons 1F–3F · Rev 1", q:"What does each digit in 347,592 represent?", a:"3 = Hundred Thousands (300,000)\n4 = Ten Thousands (40,000)\n7 = Thousands (7,000)\n5 = Hundreds (500)\n9 = Tens (90)\n2 = Ones (2)" },
-  { topic:"Place Value", session:"Lesson 2F · Rev 1", q:"How do you multiply and divide by 10, 100, and 1,000?", a:"× 10: move digits ONE place LEFT → 45 × 10 = 450\n× 100: move TWO places LEFT → 3.6 × 100 = 360\n\n÷ 10: move digits ONE place RIGHT → 720 ÷ 10 = 72\n÷ 1,000: move THREE places RIGHT → 5,000 ÷ 1,000 = 5" },
-  { topic:"Place Value", session:"Revision 1", q:"Decimal place values. Which is greater: 0.7 or 0.69?", a:"Tenths: 0.1  ·  Hundredths: 0.01  ·  Thousandths: 0.001\n\n0.7 = 0.70 (7 tenths)\n0.69 = 6 tenths + 9 hundredths\n\n0.7 > 0.69 ✓\n\nCompare digit by digit from the left!" },
-  // ── ROUNDING ───────────────────────────────────────────────────────────────
-  { topic:"Rounding", session:"Lesson 3F", q:"Rules for rounding. Round 4,763 to nearest 10, 100, and 1,000.", a:"Look at the digit to the RIGHT:\n• 5 or more → round UP\n• less than 5 → round DOWN\n\nNearest 10: units digit = 3 → round DOWN → 4,760\nNearest 100: tens digit = 6 → round UP → 4,800\nNearest 1,000: hundreds digit = 7 → round UP → 5,000" },
-  { topic:"Rounding", session:"Lesson 3F", q:"How do you round decimals? Round 4.673 to 1 d.p. and 2 d.p.", a:"To 1 d.p.: look at 2nd decimal (7 ≥ 5) → round UP → 4.7\n\nTo 2 d.p.: look at 3rd decimal (3 < 5) → round DOWN → 4.67\n\nd.p. = decimal places — count from the decimal point." },
-  { topic:"Rounding", session:"Revision", q:"TRICKY: Round 3.999 to 1 d.p. and to the nearest whole number.", a:"To 1 d.p.: look at 2nd decimal (9 ≥ 5) → round UP\n3.999 → 4.0 ✓\n\nTo nearest whole number: look at 1st decimal (9 ≥ 5) → round UP\n3.999 → 4 ✓\n\nWhen rounding UP causes a digit to become 10, carry over to the next column!" },
-  // ── ADDITION & SUBTRACTION ─────────────────────────────────────────────────
-  { topic:"Addition & Subtraction", session:"Lessons 1F, 5 · Rev 1", q:"Column ADDITION — show 4,573 + 2,846", a:"  4573\n+ 2846\n──────\nFrom the right:\n3+6=9 · 7+4=11 (write 1, carry 1)\n5+8+1=14 (write 4, carry 1) · 4+2+1=7\n\nAnswer: 7,419\n\nLine up by place value · carry when total ≥ 10" },
-  { topic:"Addition & Subtraction", session:"Rev 2 · Lesson 7 22", q:"How do you add and subtract DECIMALS?\nShow 12.4 + 7.56 and 10 − 3.7", a:"Line up the DECIMAL POINTS:\n  12.40\n+  7.56\n──────\n  19.96\n\n  10.0\n−  3.7\n──────\n   6.3\n\nAdd zeros to match decimal places!" },
-  { topic:"Addition & Subtraction", session:"Revision", q:"TRICKY: 1,003 − 456 using column subtraction", a:"You need to borrow from far away!\n\n  1 0 0 3\n−     4 5 6\n─────────\n\nBorrow across zeros: 1003 − 456\n= 1000 − 456 + 3\n= 544 + 3\n= 547 ✓\n\nAlternative: count up from 456 → 460 → 500 → 1003 = 547" },
-  // ── MULTIPLICATION ─────────────────────────────────────────────────────────
-  { topic:"Multiplication", session:"Lesson 1F · 14F · Rev 1", q:"LONG MULTIPLICATION (2-digit × 2-digit) — show 34 × 27", a:"Step 1: 34 × 7 = 238\nStep 2: 34 × 20 = 680\nStep 3: 238 + 680 = 918\n\nGrid method:\n      30    4\n  7:  210 + 28 = 238\n 20:  600 + 80 = 680\n            918 ✓\n\nEstimate: 34 × 30 ≈ 1,020" },
-  { topic:"Multiplication", session:"Lesson 7 22", q:"What are the first 12 SQUARE NUMBERS?", a:"1² = 1\n2² = 4\n3² = 9\n4² = 16\n5² = 25\n6² = 36\n7² = 49\n8² = 64\n9² = 81\n10² = 100\n11² = 121\n12² = 144" },
-  { topic:"Multiplication", session:"Lesson 7 22", q:"What is a SQUARE ROOT? Find √49, √144, √225.", a:"A square root is the number that × itself gives the answer.\n\n√49 = 7 (7 × 7 = 49)\n√144 = 12 (12 × 12 = 144)\n√225 = 15 (15 × 15 = 225)\n√100 = 10\n√64 = 8\n\nSymbol: √" },
-  { topic:"Multiplication", session:"Revision", q:"What is BODMAS? Calculate:\n3 + 4 × 2  and  (3 + 4) × 2", a:"BODMAS = the ORDER of operations:\nB – Brackets first\nO – Orders (powers & roots)\nD – Division\nM – Multiplication\nA – Addition\nS – Subtraction\n\nDo × and ÷ BEFORE + and −!\n\n3 + 4 × 2 = 3 + 8 = 11 ✓  (NOT 14!)\n(3 + 4) × 2 = 7 × 2 = 14 ✓" },
-  // ── FACTORS & MULTIPLES ────────────────────────────────────────────────────
-  { topic:"Factors & Multiples", session:"Lesson 2F · 4F", q:"What is a FACTOR? Find all factors of 36.", a:"A factor divides EXACTLY into another number.\n\nFactors of 36:\n1, 2, 3, 4, 6, 9, 12, 18, 36\n\nFactor PAIRS:\n1×36 · 2×18 · 3×12 · 4×9 · 6×6\n\nAlways start at 1 and work upwards!" },
-  { topic:"Factors & Multiples", session:"Lesson 2F", q:"What is a MULTIPLE? List the first 8 multiples of 7.", a:"A multiple is a number IN a times table.\n\nMultiples of 7:\n7, 14, 21, 28, 35, 42, 49, 56...\n\nIs 84 a multiple of 7?\n84 ÷ 7 = 12 ✓ Yes!" },
-  { topic:"Factors & Multiples", session:"Lesson 4F · 11F", q:"What is a PRIME NUMBER? List all primes up to 30.", a:"A prime has EXACTLY 2 factors: 1 and itself.\n\nPrimes up to 30:\n2, 3, 5, 7, 11, 13, 17, 19, 23, 29\n\n1 is NOT a prime\n2 is the ONLY even prime" },
-  { topic:"Factors & Multiples", session:"Lesson 4F · 11F", q:"What are the DIVISIBILITY RULES?", a:"÷ 2: ends in 0, 2, 4, 6, or 8\n÷ 3: digit sum divisible by 3\n÷ 4: last two digits divisible by 4\n÷ 5: ends in 0 or 5\n÷ 6: divisible by BOTH 2 and 3\n÷ 9: digit sum divisible by 9\n÷ 10: ends in 0\n\nTest: 4,356 ÷ 9? → 4+3+5+6=18 ✓" },
-  { topic:"Factors & Multiples", session:"Revision 38", q:"What is the LCM? Find LCM of 4 and 6.", a:"LCM = SMALLEST number that is a multiple of all given numbers.\n\nMultiples of 4: 4, 8, 12, 16...\nMultiples of 6: 6, 12, 18...\n\nLCM of 4 and 6 = 12 ✓\n\nNeeded when adding fractions with different denominators!" },
-  { topic:"Factors & Multiples", session:"Revision", q:"What is the HCF? Find HCF of 24 and 36.", a:"HCF = HIGHEST COMMON FACTOR\nThe LARGEST number that divides exactly into all given numbers.\n\nFactors of 24: 1, 2, 3, 4, 6, 8, 12, 24\nFactors of 36: 1, 2, 3, 4, 6, 9, 12, 18, 36\nCommon factors: 1, 2, 3, 4, 6, 12\n\nHCF = 12 ✓\n\nUsed to SIMPLIFY fractions!" },
-  // ── FRACTIONS ──────────────────────────────────────────────────────────────
-  { topic:"Fractions", session:"Lesson 4F · 6 · Rev 3, 33", q:"What are the types of fractions?", a:"PROPER: numerator < denominator → 3/4 · 2/7\nIMPROPER: numerator ≥ denominator → 7/4 · 11/5\nMIXED NUMBER: whole + fraction → 1¾ · 2½\n\nNumerator = top\nDenominator = bottom" },
-  { topic:"Fractions", session:"Lesson 4F · Rev 3", q:"Convert IMPROPER ↔ MIXED NUMBER", a:"Improper → Mixed: divide top by bottom\n  7/4: 7÷4 = 1 remainder 3 → 1¾\n  11/3: 11÷3 = 3 remainder 2 → 3⅔\n\nMixed → Improper: (whole × denominator) + numerator\n  2¾: (2×4)+3 = 11 → 11/4\n  3⅔: (3×3)+2 = 11 → 11/3" },
-  { topic:"Fractions", session:"Lesson 6 · Rev 3, 33", q:"What are EQUIVALENT FRACTIONS? Give 3 equivalent to ¾.", a:"Equivalent fractions have the SAME VALUE.\n\n¾ = 6/8 = 9/12 = 12/16\n\nTo find: multiply or divide BOTH top and bottom by the SAME number.\n\nTo simplify: divide both by their HCF." },
-  { topic:"Fractions", session:"Lesson 6", q:"How do you SIMPLIFY a fraction? Simplify 18/24.", a:"Find the HCF of top and bottom.\n\nFactors of 18: 1, 2, 3, 6, 9, 18\nFactors of 24: 1, 2, 3, 4, 6, 8, 12, 24\nHCF = 6\n\n18÷6 = 3 · 24÷6 = 4\n\nSimplified: 3/4 ✓" },
-  { topic:"Fractions", session:"Rev 3, 33 · Lesson 7 22", q:"ADD fractions with DIFFERENT denominators — 1/3 + 1/4", a:"Find LCM of denominators:\nLCM of 3 and 4 = 12\n\n1/3 = 4/12\n1/4 = 3/12\n\n4/12 + 3/12 = 7/12 ✓\n\nSubtraction: 5/6 − 1/4\nLCM=12 → 10/12 − 3/12 = 7/12 ✓" },
-  { topic:"Fractions", session:"Lesson 6", q:"How do you MULTIPLY fractions? Calculate 2/3 × 3/5.", a:"Multiply top × top, bottom × bottom.\n\n2/3 × 3/5 = (2×3)/(3×5) = 6/15 = 2/5\n\nTip: Cancel BEFORE multiplying if possible:\n²/₃ × ³/₅ → cancel the 3s → 2/5 ✓" },
-  { topic:"Fractions", session:"Lesson 6 · Rev 34", q:"Find a FRACTION OF AN AMOUNT — 3/4 of £60", a:"Step 1: Divide by the denominator\n  £60 ÷ 4 = £15\n\nStep 2: Multiply by the numerator\n  £15 × 3 = £45\n\nAnswer: 3/4 of £60 = £45 ✓\n\nMemory trick: DIVIDE then MULTIPLY" },
-  { topic:"Fractions", session:"Revision", q:"How do you DIVIDE fractions?\nCalculate: ¾ ÷ ⅖", a:"Use the KFC method:\nK – Keep the first fraction\nF – Flip the second fraction\nC – Change ÷ to ×\n\n¾ ÷ ⅖  =  ¾ × 5/2  =  15/8  =  1⅞ ✓\n\nTricky: ½ ÷ ¼\n= ½ × 4 = 4/2 = 2\n(How many quarters fit in a half? 2!)" },
-  // ── DECIMALS ───────────────────────────────────────────────────────────────
-  { topic:"Decimals", session:"Rev 2 · Lesson 7 22", q:"Decimal place values — explain 0.473", a:"0.473:\n4 = TENTHS (4/10 = 0.4)\n7 = HUNDREDTHS (7/100 = 0.07)\n3 = THOUSANDTHS (3/1000 = 0.003)\n\n0.473 = 0.4 + 0.07 + 0.003" },
-  { topic:"Decimals", session:"Revision 2", q:"Multiply a decimal by a whole number — 3.4 × 6", a:"Ignore the decimal, multiply, then replace it.\n\n34 × 6 = 204\n→ 3.4 × 6 = 20.4\n\nCheck: 3.4 ≈ 3, so 3×6=18 — answer ~20.4 ✓\n\n1.25 × 4: 125×4=500 → 5.00 = 5" },
-  // ── PERCENTAGES ────────────────────────────────────────────────────────────
-  { topic:"Percentages", session:"Lessons 9F, 10F · Rev 35, 36", q:"Key percentage facts", a:"100% = the whole\n50% = half (÷2)\n25% = one quarter (÷4)\n10% = one tenth (÷10)\n1% = one hundredth (÷100)\n5% = half of 10%\n75% = three quarters (÷4 ×3)\n20% = one fifth (÷5)" },
-  { topic:"Percentages", session:"Lessons 9F, 10F · Rev 35", q:"Find a PERCENTAGE OF A NUMBER — 35% of 120", a:"Build-up method:\n10% of 120 = 12\n30% = 12 × 3 = 36\n5% = 12 ÷ 2 = 6\n35% = 36 + 6 = 42 ✓\n\nDecimal method:\n0.35 × 120 = 42 ✓" },
-  { topic:"Percentages", session:"Lesson 14F · Rev 35, 36", q:"Calculate a SALE PRICE — 20% off £85", a:"Method 1: find discount, subtract.\n10% of £85 = £8.50\n20% = £8.50 × 2 = £17\nSale price = £85 − £17 = £68 ✓\n\nMethod 2 (faster): pay 80%.\n0.8 × £85 = £68 ✓" },
-  { topic:"Percentages", session:"Revision 36", q:"What PERCENTAGE is 18 of 72?", a:"Divide the part by the whole, then × 100:\n\n18 ÷ 72 × 100\n= 0.25 × 100\n= 25%\n\nSo 18 is 25% of 72 ✓" },
-  { topic:"Percentages", session:"Revision", q:"PERCENTAGE CHANGE — A coat was £80, now costs £96.\nWhat is the percentage increase?", a:"% change = (change ÷ original) × 100\n\nChange = 96 − 80 = £16\n% increase = (16 ÷ 80) × 100 = 20% ✓\n\nDecrease example:\n£50 drops to £35. Change = £15.\n(15 ÷ 50) × 100 = 30% decrease ✓\n\nAlways divide by the ORIGINAL amount!" },
-  // ── FDP CONVERSIONS ────────────────────────────────────────────────────────
-  { topic:"FDP Conversions", session:"Rev 37 · Lesson 10F", q:"How do you convert FRACTION ↔ DECIMAL ↔ PERCENTAGE?", a:"Fraction → Decimal: divide top by bottom\n  3/4 = 3÷4 = 0.75\n\nDecimal → Percentage: × 100\n  0.75 × 100 = 75%\n\nPercentage → Decimal: ÷ 100\n  75% ÷ 100 = 0.75\n\nPercentage → Fraction: write over 100, simplify\n  75% = 75/100 = 3/4" },
-  { topic:"FDP Conversions", session:"Rev 37 · Lesson 10F", q:"KEY FDP equivalents — learn these by heart!", a:"1/2 = 0.5 = 50%\n1/4 = 0.25 = 25%\n3/4 = 0.75 = 75%\n1/5 = 0.2 = 20%\n2/5 = 0.4 = 40%\n1/10 = 0.1 = 10%\n3/10 = 0.3 = 30%\n1/3 ≈ 0.333 ≈ 33.3%\n1/8 = 0.125 = 12.5%\n1/20 = 0.05 = 5%" },
-  // ── RATIO ─────────────────────────────────────────────────────────────────
-  { topic:"Ratio", session:"Lessons 11F, 15F · Rev 38", q:"What is a RATIO? How do you simplify one?", a:"A ratio compares quantities using ':'\n\n2 red, 3 blue balls → ratio = 2:3\n\nTo simplify: divide both sides by HCF:\n4:6 → HCF=2 → 2:3 ✓\n12:18 → HCF=6 → 2:3 ✓" },
-  { topic:"Ratio", session:"Lesson 15F · Rev 38", q:"SHARE AN AMOUNT in a ratio — £56 in ratio 3:5", a:"Step 1: Total parts = 3 + 5 = 8\nStep 2: One part = £56 ÷ 8 = £7\nStep 3:\n  First share: 3 × £7 = £21\n  Second share: 5 × £7 = £35\n\nCheck: £21 + £35 = £56 ✓" },
-  { topic:"Ratio", session:"Lesson 11F · Rev 38", q:"Ratio of boys to girls is 3:4. There are 21 boys. How many girls?", a:"3 parts = 21 boys\n1 part = 21 ÷ 3 = 7\n4 parts (girls) = 4 × 7 = 28 girls\n\nTotal = 21 + 28 = 49 children\n\nFind the VALUE of ONE part first!" },
-  { topic:"Ratio", session:"Revision", q:"TRICKY RATIO: A recipe for 4 people needs 300g flour.\nHow much for 6 people?", a:"Find the amount for 1 person first:\n300g ÷ 4 = 75g per person\n\nFor 6 people:\n75g × 6 = 450g ✓\n\nThis is called SCALING a recipe.\nAlways find the UNIT rate (per 1) then multiply!" },
-  // ── AREA AND PERIMETER ─────────────────────────────────────────────────────
-  { topic:"Area & Perimeter", session:"Lessons 16F, 17F, 20F", q:"PERIMETER — find the perimeter of a rectangle 8cm × 5cm", a:"Perimeter = total distance AROUND the outside.\n\nRectangle: P = 2 × (length + width)\nP = 2 × (8 + 5) = 2 × 13 = 26cm\n\nOther shapes: ADD ALL SIDES\nUnits: cm, m, km (NOT squared!)" },
-  { topic:"Area & Perimeter", session:"Lessons 16F, 17F, 20F", q:"AREA formulas — Rectangle · Triangle · Parallelogram · Trapezium", a:"RECTANGLE: A = length × width\n\nTRIANGLE: A = ½ × base × height\n\nPARALLELOGRAM: A = base × perpendicular height\n(NOT the slant side!)\n\nTRAPEZIUM: A = ½ × (a + b) × h\n(a and b are the parallel sides)\n\nUnits: ALWAYS squared! cm², m²" },
-  { topic:"Area & Perimeter", session:"Revision 41", q:"Area of a trapezium — parallel sides 7cm and 11cm, height 6cm", a:"A = ½ × (a + b) × h\nA = ½ × (7 + 11) × 6\nA = ½ × 18 × 6\nA = ½ × 108\nA = 54cm² ✓\n\nCheck: between 7×6=42 and 11×6=66 ✓" },
-  { topic:"Area & Perimeter", session:"Revision", q:"COMPOUND SHAPE — Find the area of an L-shape.\n(10cm × 8cm rectangle with a 4cm × 3cm corner removed)", a:"Split into two rectangles!\n\nMethod 1 — Subtract:\nFull rectangle: 10 × 8 = 80 cm²\nRemoved corner: 4 × 3 = 12 cm²\nL-shape = 80 − 12 = 68 cm² ✓\n\nMethod 2 — Add two pieces:\nWork out dimensions of each piece and add.\n\nTip: always DRAW and LABEL the shape!" },
-  // ── 2D SHAPES ──────────────────────────────────────────────────────────────
-  { topic:"2D Shapes & Angles", session:"Lessons 16F, 19F, 20F", q:"Angles in a TRIANGLE — types and rule", a:"Angles in a triangle ALWAYS add up to 180°.\n\nEQUILATERAL: all 3 angles = 60° (all sides equal)\nISOSCELES: 2 angles equal (2 sides equal)\nSCALENE: no equal angles, no equal sides\nRIGHT-ANGLED: one angle = 90°" },
-  { topic:"2D Shapes & Angles", session:"Lesson 19F", q:"SUM OF INTERIOR ANGLES formula for polygons", a:"Sum = (n − 2) × 180°\n\nTriangle (3 sides): 180°\nQuadrilateral (4): 360°\nPentagon (5): 540°\nHexagon (6): 720°\nOctagon (8): 1,080°\n\nQuadrilateral angles always add up to 360°!" },
-  // ── 3D SHAPES & VOLUME ─────────────────────────────────────────────────────
-  { topic:"3D Shapes & Volume", session:"Lessons 19F, 20F", q:"VOLUME — formula for a cuboid. Find volume of 5cm × 4cm × 3cm.", a:"Volume = amount of 3D SPACE inside a shape.\nMeasured in CUBIC UNITS: cm³, m³\n\nCUBOID: V = length × width × height\n5 × 4 × 3 = 60cm³\n\nCUBE: V = side³\n4cm cube → 4³ = 64cm³" },
-  { topic:"3D Shapes & Volume", session:"Lesson 19F", q:"Properties of: cube · cuboid · cylinder · cone · sphere", a:"CUBE: 6 square faces · 12 edges · 8 vertices\nCUBOID: 6 rect. faces · 12 edges · 8 vertices\nCYLINDER: 2 circular faces · 1 curved surface · 2 edges\nCONE: 1 circular face · 1 curved surface · 1 apex\nSPHERE: 0 flat faces · 0 edges · 0 vertices" },
-  // ── MEASUREMENT & CONVERSIONS ──────────────────────────────────────────────
-  { topic:"Measurement & Conversions", session:"Lessons 21F, 22F", q:"KEY METRIC conversions", a:"LENGTH:\n10mm = 1cm · 100cm = 1m · 1,000m = 1km\n\nMASS:\n1,000g = 1kg · 1,000kg = 1 tonne\n\nCAPACITY:\n1,000ml = 1 litre\n\nBig → small: MULTIPLY\nSmall → big: DIVIDE" },
-  { topic:"Measurement & Conversions", session:"Lesson 22F", q:"IMPERIAL to METRIC conversions (approximate)", a:"LENGTH:\n1 inch ≈ 2.54cm · 1 foot ≈ 30cm\n1 mile ≈ 1.6km (5 miles ≈ 8km)\n\nMASS:\n1 ounce ≈ 28g · 1 pound ≈ 450g\n\nCAPACITY:\n1 pint ≈ 568ml · 1 gallon ≈ 4.5 litres" },
-  // ── ROMAN NUMERALS ─────────────────────────────────────────────────────────
-  { topic:"Roman Numerals", session:"Lesson 23F", q:"ROMAN NUMERAL symbols and the subtraction rule", a:"I=1 · V=5 · X=10 · L=50\nC=100 · D=500 · M=1,000\n\nSubtraction rule: smaller BEFORE larger = subtract:\nIV=4 · IX=9 · XL=40 · XC=90\nCD=400 · CM=900\n\nNever use the same symbol more than 3 times in a row." },
-  { topic:"Roman Numerals", session:"Lesson 23F", q:"Read: XLVII · MCMXCIX · MMXXVI", a:"XLVII:\nXL=40 · V=5 · II=2 → 47\n\nMCMXCIX:\nM=1000 · CM=900 · XC=90 · IX=9 → 1,999\n\nMMXXVI:\nMM=2000 · XX=20 · VI=6 → 2,026" },
-  { topic:"Roman Numerals", session:"Revision", q:"TRICKY: Write 1,944 and 2,024 in Roman Numerals.", a:"1,944:\nM = 1000\nCM = 900\nXL = 40\nIV = 4\n→ MCMXLIV ✓\n\n2,024:\nMM = 2000\nXX = 20\nIV = 4\n→ MMXXIV ✓" },
-  // ── NEGATIVE NUMBERS ───────────────────────────────────────────────────────
-  { topic:"Negative Numbers", session:"Lesson 24F", q:"How do you ORDER negative numbers? Which is smaller: -8 or -2?", a:"Negative numbers are BELOW zero.\n\nOrder: -10 < -7 < -3 < -1 < 0 < 2 < 5\n\n-8 is LESS than -2\n(further left on the number line = smaller)\n\nUse a number line to help!" },
-  { topic:"Negative Numbers", session:"Lesson 24F", q:"Calculate: -3 + 8 · 4 - 9 · -5 - 3 · -2 + (-4)", a:"-3 + 8 = 5\n(start at -3, go 8 right)\n\n4 - 9 = -5\n(start at 4, go 9 left)\n\n-5 - 3 = -8\n(go 3 more left)\n\n-2 + (-4) = -2 - 4 = -6\n(adding a negative = subtracting)" },
-  { topic:"Negative Numbers", session:"Lesson 24F", q:"Temperature: Moscow is −24°C. Dubai is +34°C.\nWhat is the difference in temperature?", a:"Difference = higher − lower\n= 34 − (−24)\n= 34 + 24\n= 58°C ✓\n\nNumber line method:\n−24 → 0 = 24 steps up\n0 → +34 = 34 steps up\nTotal = 24 + 34 = 58°C\n\nKey rule: subtracting a NEGATIVE = ADDING!\n− (−24) = +24" },
-  // ── COORDINATES ────────────────────────────────────────────────────────────
-  { topic:"Coordinates", session:"Lesson 25F", q:"How do you read and plot COORDINATES?", a:"Always go ALONG first, then UP/DOWN.\nMemory: 'along the corridor, then up the stairs'\n\nFormat: (x, y) — x horizontal, y vertical\nOrigin = (0, 0)\n\n(3, 5) → 3 right, then 5 up\n(-2, 4) → 2 left, then 4 up" },
-  { topic:"Coordinates", session:"Lesson 25F", q:"What are the FOUR QUADRANTS?", a:"Q1 (top right): x+, y+ → (3, 4)\nQ2 (top left): x−, y+ → (-3, 4)\nQ3 (bottom left): x−, y− → (-3, -4)\nQ4 (bottom right): x+, y− → (3, -4)\n\nPoints ON axes:\n(0, 5) → on the y-axis\n(5, 0) → on the x-axis" },
-  // ── STATISTICS ─────────────────────────────────────────────────────────────
-  { topic:"Statistics", session:"Lesson 26F", q:"Define MEAN, MODE, MEDIAN, and RANGE.", a:"MEAN: add all values ÷ how many values\n\nMODE: most frequent value\n\nMEDIAN: middle value when in ORDER\n(even number → mean of the two middle ones)\n\nRANGE: largest − smallest\n(measures spread, not average)" },
-  { topic:"Statistics", session:"Lesson 26F", q:"Calculate mean, mode, median, range for: 3, 7, 7, 2, 9, 7, 4", a:"In order: 2, 3, 4, 7, 7, 7, 9\n\nMEAN: (2+3+4+7+7+7+9) ÷ 7 = 39 ÷ 7 ≈ 5.57\n\nMODE: 7 (appears 3 times)\n\nMEDIAN: 7 (4th value in list of 7)\n\nRANGE: 9 − 2 = 7" },
-  { topic:"Statistics", session:"Lesson 29F", q:"How do you read a PIE CHART?", a:"Pie chart = data as parts of a whole circle (360°).\n\nFull circle = 360° = 100%\n90° sector = 1/4 = 25%\n180° sector = 1/2 = 50%\n\nTo find value from sector:\n(angle ÷ 360) × total frequency\n\nExample: 60°, total=120\n60/360 × 120 = 20 items" },
-  { topic:"Statistics", session:"Revision", q:"MEAN from a FREQUENCY TABLE:\nScore:     1   2   3   4\nFrequency: 3   5   4   2", a:"Multiply score × frequency for each:\n1 × 3 =  3\n2 × 5 = 10\n3 × 4 = 12\n4 × 2 =  8\nTotal of values = 33\n\nTotal frequency = 3+5+4+2 = 14\n\nMean = 33 ÷ 14 ≈ 2.36 ✓\n\nDon't just average the scores — use the frequencies!" },
-  // ── TRANSFORMATIONS ────────────────────────────────────────────────────────
-  { topic:"Transformations", session:"Lesson 30F", q:"THREE types of transformation — define each", a:"TRANSLATION: sliding a shape — no rotation or reflection.\nDescribe: units right/left and up/down.\n\nREFLECTION: flipping over a MIRROR LINE.\nEach point = equal distance from the mirror line.\n\nROTATION: turning around a FIXED POINT.\nDescribe: centre, direction (CW/ACW), angle." },
-  { topic:"Transformations", session:"Lesson 30F", q:"How do you REFLECT in the y-axis and x-axis?", a:"Reflect in the Y-AXIS:\n• x changes sign · y stays same\n(3, 4) → (-3, 4)\n\nReflect in the X-AXIS:\n• x stays same · y changes sign\n(3, 4) → (3, -4)" },
-  { topic:"Transformations", session:"Lesson 30F", q:"ROTATION rules — rotate (3, 1) 90° clockwise about the origin", a:"90° clockwise: (x, y) → (y, −x)\n90° anticlockwise: (x, y) → (−y, x)\n180°: (x, y) → (−x, −y)\n\n(3, 1) rotated 90° clockwise:\n(x, y) → (y, −x)\n(3, 1) → (1, −3) ✓" },
-  // ── PROBLEM SOLVING ────────────────────────────────────────────────────────
-  { topic:"Problem Solving", session:"All Sessions", q:"What is the RUCSAC method?", a:"R – Read the question carefully\nU – Underline key information\nC – Choose the operation (+, −, ×, ÷)\nS – Solve the calculation\nA – Answer with correct units\nC – Check your answer makes sense\n\nAlways ESTIMATE first!" },
-  { topic:"Problem Solving", session:"All Sessions", q:"Tips for MULTI-STEP word problems", a:"1. Read carefully — find ALL the steps needed\n2. Extract the key numbers\n3. Decide the order of operations\n4. Work step by step, writing each stage\n5. Keep units throughout\n6. Check: does the answer make sense?\n\nTip: Draw a bar model if stuck!" },
-  { topic:"Problem Solving", session:"All Sessions", q:"How do you ESTIMATE? Try: 48 × 21 and 312 ÷ 4.9", a:"Round to 1 significant figure (or a nearby easy number):\n\n48 × 21  ≈  50 × 20  =  1,000\n(actual = 1,008 ✓ — very close!)\n\n312 ÷ 4.9  ≈  300 ÷ 5  =  60\n(actual = 63.7 ✓)\n\nAlways estimate FIRST to check your final answer makes sense!" },
+const FUN_EMOJIS=["🦄","🐉","🦊","🐸","🦁","🐧","🦋","🐬","🦖","🐙","🌈","⭐","🚀","🌺","🎈","🍦","🎮","🦜","🐣","🌻","🎸","🏆","🎭","🦩","🐳"];
+const ALL_CARDS=[
+  {topic:"Place Value",session:"Lessons 1F–3F · Rev 1",q:"What does each digit in 347,592 represent?",a:"3 = Hundred Thousands (300,000)\n4 = Ten Thousands (40,000)\n7 = Thousands (7,000)\n5 = Hundreds (500)\n9 = Tens (90)\n2 = Ones (2)"},
+  {topic:"Place Value",session:"Lesson 2F · Rev 1",q:"How do you multiply and divide by 10, 100, and 1,000?",a:"× 10: move digits ONE place LEFT → 45 × 10 = 450\n× 100: move TWO places LEFT → 3.6 × 100 = 360\n\n÷ 10: move digits ONE place RIGHT → 720 ÷ 10 = 72\n÷ 1,000: move THREE places RIGHT → 5,000 ÷ 1,000 = 5"},
+  {topic:"Place Value",session:"Revision 1",q:"Decimal place values. Which is greater: 0.7 or 0.69?",a:"Tenths: 0.1  ·  Hundredths: 0.01  ·  Thousandths: 0.001\n\n0.7 = 0.70 (7 tenths)\n0.69 = 6 tenths + 9 hundredths\n\n0.7 > 0.69 ✓\n\nCompare digit by digit from the left!"},
+  {topic:"Rounding",session:"Lesson 3F",q:"Rules for rounding. Round 4,763 to nearest 10, 100, and 1,000.",a:"Look at the digit to the RIGHT:\n• 5 or more → round UP\n• less than 5 → round DOWN\n\nNearest 10: units digit = 3 → round DOWN → 4,760\nNearest 100: tens digit = 6 → round UP → 4,800\nNearest 1,000: hundreds digit = 7 → round UP → 5,000"},
+  {topic:"Rounding",session:"Lesson 3F",q:"How do you round decimals? Round 4.673 to 1 d.p. and 2 d.p.",a:"To 1 d.p.: look at 2nd decimal (7 ≥ 5) → round UP → 4.7\n\nTo 2 d.p.: look at 3rd decimal (3 < 5) → round DOWN → 4.67\n\nd.p. = decimal places — count from the decimal point."},
+  {topic:"Rounding",session:"Revision",q:"TRICKY: Round 3.999 to 1 d.p. and to the nearest whole number.",a:"To 1 d.p.: look at 2nd decimal (9 ≥ 5) → round UP\n3.999 → 4.0 ✓\n\nTo nearest whole number: look at 1st decimal (9 ≥ 5) → round UP\n3.999 → 4 ✓"},
+  {topic:"Addition & Subtraction",session:"Lessons 1F, 5 · Rev 1",q:"Column ADDITION — show 4,573 + 2,846",a:"  4573\n+ 2846\n──────\n3+6=9 · 7+4=11 (carry 1) · 5+8+1=14 (carry 1) · 4+2+1=7\n\nAnswer: 7,419\n\nLine up by place value · carry when total ≥ 10"},
+  {topic:"Addition & Subtraction",session:"Rev 2 · Lesson 7",q:"How do you add and subtract DECIMALS?\nShow 12.4 + 7.56 and 10 − 3.7",a:"Line up the DECIMAL POINTS:\n  12.40\n+  7.56\n──────\n  19.96\n\n  10.0\n−  3.7\n──────\n   6.3\n\nAdd zeros to match decimal places!"},
+  {topic:"Addition & Subtraction",session:"Revision",q:"TRICKY: 1,003 − 456 using column subtraction",a:"Borrow across zeros: 1003 − 456\n= 1000 − 456 + 3\n= 544 + 3\n= 547 ✓\n\nAlternative: count up from 456 → 460 → 500 → 1003 = 547"},
+  {topic:"Multiplication",session:"Lesson 1F · 14F · Rev 1",q:"LONG MULTIPLICATION — show 34 × 27",a:"Step 1: 34 × 7 = 238\nStep 2: 34 × 20 = 680\nStep 3: 238 + 680 = 918\n\nGrid method:\n      30    4\n  7:  210 + 28 = 238\n 20:  600 + 80 = 680\n            918 ✓"},
+  {topic:"Multiplication",session:"Lesson 7",q:"What are the first 12 SQUARE NUMBERS?",a:"1²=1 · 2²=4 · 3²=9 · 4²=16 · 5²=25 · 6²=36\n7²=49 · 8²=64 · 9²=81 · 10²=100 · 11²=121 · 12²=144"},
+  {topic:"Multiplication",session:"Lesson 7",q:"What is a SQUARE ROOT? Find √49, √144, √225.",a:"A square root is the number that × itself gives the answer.\n\n√49 = 7 (7×7=49)\n√144 = 12 (12×12=144)\n√225 = 15 (15×15=225)"},
+  {topic:"Multiplication",session:"Revision",q:"What is BODMAS? Calculate:\n3 + 4 × 2  and  (3 + 4) × 2",a:"BODMAS = order of operations:\nB–Brackets · O–Orders · D–Division · M–Multiplication · A–Addition · S–Subtraction\n\n3 + 4 × 2 = 3 + 8 = 11 ✓  (NOT 14!)\n(3 + 4) × 2 = 7 × 2 = 14 ✓"},
+  {topic:"Factors & Multiples",session:"Lesson 2F · 4F",q:"What is a FACTOR? Find all factors of 36.",a:"A factor divides EXACTLY into another number.\n\nFactors of 36: 1, 2, 3, 4, 6, 9, 12, 18, 36\n\nFactor pairs: 1×36 · 2×18 · 3×12 · 4×9 · 6×6"},
+  {topic:"Factors & Multiples",session:"Lesson 2F",q:"What is a MULTIPLE? List first 8 multiples of 7.",a:"A multiple is a number IN a times table.\n\nMultiples of 7: 7, 14, 21, 28, 35, 42, 49, 56..."},
+  {topic:"Factors & Multiples",session:"Lesson 4F · 11F",q:"What is a PRIME NUMBER? List all primes up to 30.",a:"A prime has EXACTLY 2 factors: 1 and itself.\n\nPrimes up to 30: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29\n\n1 is NOT prime · 2 is the ONLY even prime"},
+  {topic:"Factors & Multiples",session:"Lesson 4F · 11F",q:"What are the DIVISIBILITY RULES?",a:"÷2: ends in 0,2,4,6,8\n÷3: digit sum divisible by 3\n÷4: last two digits divisible by 4\n÷5: ends in 0 or 5\n÷6: divisible by BOTH 2 and 3\n÷9: digit sum divisible by 9\n÷10: ends in 0"},
+  {topic:"Factors & Multiples",session:"Revision 38",q:"What is the LCM? Find LCM of 4 and 6.",a:"LCM = SMALLEST number that is a multiple of all given numbers.\n\nMultiples of 4: 4, 8, 12...\nMultiples of 6: 6, 12...\n\nLCM of 4 and 6 = 12 ✓"},
+  {topic:"Factors & Multiples",session:"Revision",q:"What is the HCF? Find HCF of 24 and 36.",a:"HCF = HIGHEST number that divides exactly into all given numbers.\n\nFactors of 24: 1,2,3,4,6,8,12,24\nFactors of 36: 1,2,3,4,6,9,12,18,36\n\nHCF = 12 ✓"},
+  {topic:"Fractions",session:"Lesson 4F · 6 · Rev 3",q:"What are the types of fractions?",a:"PROPER: numerator < denominator → 3/4\nIMPROPER: numerator ≥ denominator → 7/4\nMIXED NUMBER: whole + fraction → 1¾\n\nNumerator = top · Denominator = bottom"},
+  {topic:"Fractions",session:"Lesson 4F · Rev 3",q:"Convert IMPROPER ↔ MIXED NUMBER",a:"Improper → Mixed: divide top by bottom\n  7/4: 7÷4 = 1 rem 3 → 1¾\n  11/3: 11÷3 = 3 rem 2 → 3⅔\n\nMixed → Improper: (whole × denom) + num\n  2¾: (2×4)+3 = 11/4"},
+  {topic:"Fractions",session:"Lesson 6 · Rev 3",q:"What are EQUIVALENT FRACTIONS? Give 3 equivalent to ¾.",a:"¾ = 6/8 = 9/12 = 12/16\n\nTo find: multiply or divide BOTH top and bottom by the SAME number."},
+  {topic:"Fractions",session:"Lesson 6",q:"How do you SIMPLIFY a fraction? Simplify 18/24.",a:"Find the HCF of top and bottom.\nHCF of 18 and 24 = 6\n\n18÷6 = 3 · 24÷6 = 4\n\nSimplified: 3/4 ✓"},
+  {topic:"Fractions",session:"Rev 3 · Lesson 7",q:"ADD fractions with DIFFERENT denominators — 1/3 + 1/4",a:"LCM of 3 and 4 = 12\n\n1/3 = 4/12\n1/4 = 3/12\n\n4/12 + 3/12 = 7/12 ✓"},
+  {topic:"Fractions",session:"Lesson 6",q:"How do you MULTIPLY fractions? Calculate 2/3 × 3/5.",a:"Multiply top × top, bottom × bottom.\n\n2/3 × 3/5 = 6/15 = 2/5\n\nCancel before multiplying if possible!"},
+  {topic:"Fractions",session:"Lesson 6 · Rev 34",q:"Find a FRACTION OF AN AMOUNT — 3/4 of £60",a:"Step 1: Divide by the denominator → £60 ÷ 4 = £15\nStep 2: Multiply by the numerator → £15 × 3 = £45\n\nAnswer: 3/4 of £60 = £45 ✓"},
+  {topic:"Fractions",session:"Revision",q:"How do you DIVIDE fractions?\nCalculate: ¾ ÷ ⅖",a:"KFC method:\nK – Keep the first fraction\nF – Flip the second fraction\nC – Change ÷ to ×\n\n¾ ÷ ⅖ = ¾ × 5/2 = 15/8 = 1⅞ ✓"},
+  {topic:"Decimals",session:"Rev 2 · Lesson 7",q:"Decimal place values — explain 0.473",a:"4 = TENTHS (0.4)\n7 = HUNDREDTHS (0.07)\n3 = THOUSANDTHS (0.003)\n\n0.473 = 0.4 + 0.07 + 0.003"},
+  {topic:"Decimals",session:"Revision 2",q:"Multiply a decimal by a whole number — 3.4 × 6",a:"34 × 6 = 204 → 3.4 × 6 = 20.4\n\nIgnore the decimal, multiply, then replace it.\nCheck: 3×6=18, so ~20 makes sense ✓"},
+  {topic:"Percentages",session:"Lessons 9F, 10F · Rev 35",q:"Key percentage facts",a:"100% = the whole · 50% = half (÷2)\n25% = quarter (÷4) · 10% = tenth (÷10)\n1% = hundredth (÷100) · 5% = half of 10%\n75% = three quarters · 20% = fifth (÷5)"},
+  {topic:"Percentages",session:"Lessons 9F, 10F · Rev 35",q:"Find a PERCENTAGE OF A NUMBER — 35% of 120",a:"10% of 120 = 12\n30% = 12 × 3 = 36\n5% = 12 ÷ 2 = 6\n35% = 36 + 6 = 42 ✓\n\nDecimal: 0.35 × 120 = 42 ✓"},
+  {topic:"Percentages",session:"Lesson 14F · Rev 35",q:"Calculate a SALE PRICE — 20% off £85",a:"10% of £85 = £8.50\n20% = £8.50 × 2 = £17\nSale price = £85 − £17 = £68 ✓\n\nFaster: pay 80% → 0.8 × £85 = £68 ✓"},
+  {topic:"Percentages",session:"Revision 36",q:"What PERCENTAGE is 18 of 72?",a:"18 ÷ 72 × 100 = 0.25 × 100 = 25%\n\nSo 18 is 25% of 72 ✓"},
+  {topic:"Percentages",session:"Revision",q:"PERCENTAGE CHANGE — coat was £80, now £96. What is the % increase?",a:"% change = (change ÷ original) × 100\nChange = 96 − 80 = £16\n% increase = (16 ÷ 80) × 100 = 20% ✓\n\nAlways divide by the ORIGINAL amount!"},
+  {topic:"FDP Conversions",session:"Rev 37 · Lesson 10F",q:"How do you convert FRACTION ↔ DECIMAL ↔ PERCENTAGE?",a:"Fraction → Decimal: divide top by bottom → 3/4 = 0.75\nDecimal → Percentage: × 100 → 0.75 × 100 = 75%\nPercentage → Decimal: ÷ 100 → 75% ÷ 100 = 0.75\nPercentage → Fraction: write over 100, simplify → 75% = 3/4"},
+  {topic:"FDP Conversions",session:"Rev 37 · Lesson 10F",q:"KEY FDP equivalents — learn these by heart!",a:"1/2=0.5=50% · 1/4=0.25=25% · 3/4=0.75=75%\n1/5=0.2=20% · 2/5=0.4=40% · 1/10=0.1=10%\n1/3≈0.333≈33.3% · 1/8=0.125=12.5%"},
+  {topic:"Ratio",session:"Lessons 11F, 15F · Rev 38",q:"What is a RATIO? How do you simplify one?",a:"A ratio compares quantities using ':'\n\n2 red, 3 blue → ratio = 2:3\n\nTo simplify: divide both sides by HCF\n4:6 → HCF=2 → 2:3 ✓"},
+  {topic:"Ratio",session:"Lesson 15F · Rev 38",q:"SHARE AN AMOUNT in a ratio — £56 in ratio 3:5",a:"Total parts = 3+5 = 8\nOne part = £56 ÷ 8 = £7\nFirst share: 3×£7 = £21\nSecond share: 5×£7 = £35\n\nCheck: £21+£35 = £56 ✓"},
+  {topic:"Ratio",session:"Lesson 11F · Rev 38",q:"Ratio of boys to girls is 3:4. There are 21 boys. How many girls?",a:"3 parts = 21 boys\n1 part = 21÷3 = 7\n4 parts (girls) = 4×7 = 28 girls ✓"},
+  {topic:"Ratio",session:"Revision",q:"Recipe for 4 people needs 300g flour. How much for 6 people?",a:"Per person: 300g ÷ 4 = 75g\nFor 6: 75g × 6 = 450g ✓\n\nAlways find the UNIT rate (per 1) then multiply!"},
+  {topic:"Area & Perimeter",session:"Lessons 16F, 17F, 20F",q:"PERIMETER — find perimeter of rectangle 8cm × 5cm",a:"Perimeter = total distance AROUND the outside.\n\nRectangle: P = 2 × (l + w) = 2 × (8+5) = 26cm\n\nUnits: cm, m, km (NOT squared!)"},
+  {topic:"Area & Perimeter",session:"Lessons 16F, 17F, 20F",q:"AREA formulas — Rectangle · Triangle · Parallelogram · Trapezium",a:"RECTANGLE: l × w\nTRIANGLE: ½ × base × height\nPARALLELOGRAM: base × perpendicular height\nTRAPEZIUM: ½ × (a+b) × h\n\nUnits: ALWAYS squared! cm², m²"},
+  {topic:"Area & Perimeter",session:"Revision 41",q:"Area of trapezium — parallel sides 7cm and 11cm, height 6cm",a:"A = ½ × (a+b) × h\nA = ½ × (7+11) × 6\nA = ½ × 108 = 54cm² ✓"},
+  {topic:"Area & Perimeter",session:"Revision",q:"COMPOUND SHAPE — L-shape: 10cm×8cm with 4cm×3cm corner removed",a:"Subtract: 10×8 − 4×3 = 80 − 12 = 68cm² ✓\n\nAlways DRAW and LABEL the shape!"},
+  {topic:"2D Shapes & Angles",session:"Lessons 16F, 19F, 20F",q:"Angles in a TRIANGLE — types and rule",a:"Angles in a triangle ALWAYS add up to 180°.\n\nEQUILATERAL: all 3 angles = 60°\nISOSCELES: 2 angles equal\nSCALENE: no equal angles\nRIGHT-ANGLED: one angle = 90°"},
+  {topic:"2D Shapes & Angles",session:"Lesson 19F",q:"SUM OF INTERIOR ANGLES formula for polygons",a:"Sum = (n−2) × 180°\n\nTriangle (3): 180°\nQuadrilateral (4): 360°\nPentagon (5): 540°\nHexagon (6): 720°\nOctagon (8): 1,080°"},
+  {topic:"3D Shapes & Volume",session:"Lessons 19F, 20F",q:"VOLUME — formula for a cuboid. Find volume of 5×4×3cm.",a:"Volume = amount of 3D SPACE inside.\nCUBOID: V = l × w × h = 5×4×3 = 60cm³\n\nCUBE: V = side³ → 4cm cube: 4³ = 64cm³"},
+  {topic:"3D Shapes & Volume",session:"Lesson 19F",q:"Properties of: cube · cuboid · cylinder · cone · sphere",a:"CUBE: 6 sq faces · 12 edges · 8 vertices\nCUBOID: 6 rect faces · 12 edges · 8 vertices\nCYLINDER: 2 circular faces · 1 curved · 2 edges\nCONE: 1 circular face · 1 curved · 1 apex\nSPHERE: 0 flat faces · 0 edges · 0 vertices"},
+  {topic:"Measurement & Conversions",session:"Lessons 21F, 22F",q:"KEY METRIC conversions",a:"LENGTH: 10mm=1cm · 100cm=1m · 1000m=1km\nMASS: 1000g=1kg · 1000kg=1 tonne\nCAPACITY: 1000ml=1 litre\n\nBig→small: MULTIPLY · Small→big: DIVIDE"},
+  {topic:"Measurement & Conversions",session:"Lesson 22F",q:"IMPERIAL to METRIC (approximate)",a:"LENGTH: 1 inch≈2.54cm · 1 foot≈30cm · 1 mile≈1.6km\nMASS: 1 pound≈450g\nCAPACITY: 1 pint≈568ml · 1 gallon≈4.5 litres"},
+  {topic:"Roman Numerals",session:"Lesson 23F",q:"ROMAN NUMERAL symbols and the subtraction rule",a:"I=1 · V=5 · X=10 · L=50 · C=100 · D=500 · M=1000\n\nSubtraction rule: smaller BEFORE larger = subtract:\nIV=4 · IX=9 · XL=40 · XC=90 · CD=400 · CM=900"},
+  {topic:"Roman Numerals",session:"Lesson 23F",q:"Read: XLVII · MCMXCIX · MMXXVI",a:"XLVII: XL=40 + V=5 + II=2 → 47\nMCMXCIX: M=1000+CM=900+XC=90+IX=9 → 1999\nMMXXVI: MM=2000+XX=20+VI=6 → 2026"},
+  {topic:"Roman Numerals",session:"Revision",q:"TRICKY: Write 1,944 and 2,024 in Roman Numerals.",a:"1,944: M+CM+XL+IV = MCMXLIV ✓\n2,024: MM+XX+IV = MMXXIV ✓"},
+  {topic:"Negative Numbers",session:"Lesson 24F",q:"How do you ORDER negative numbers? Which is smaller: -8 or -2?",a:"-8 is LESS than -2\n(further left on number line = smaller)\n\nOrder: -10 < -7 < -3 < -1 < 0 < 2 < 5"},
+  {topic:"Negative Numbers",session:"Lesson 24F",q:"Calculate: -3+8 · 4-9 · -5-3 · -2+(-4)",a:"-3+8 = 5\n4-9 = -5\n-5-3 = -8\n-2+(-4) = -2-4 = -6\n\nAdding a negative = subtracting!"},
+  {topic:"Negative Numbers",session:"Lesson 24F",q:"Moscow is −24°C. Dubai is +34°C. What is the difference?",a:"Difference = 34 − (−24) = 34 + 24 = 58°C ✓\n\nNumber line: −24→0 = 24 steps, 0→+34 = 34 steps\nTotal = 58°C\n\nKey: subtracting a NEGATIVE = ADDING!"},
+  {topic:"Coordinates",session:"Lesson 25F",q:"How do you read and plot COORDINATES?",a:"Along first, then up/down.\n'Along the corridor, then up the stairs'\n\nFormat: (x, y) — x horizontal, y vertical\n(3,5) → 3 right, 5 up\n(-2,4) → 2 left, 4 up"},
+  {topic:"Coordinates",session:"Lesson 25F",q:"What are the FOUR QUADRANTS?",a:"Q1 (top right): x+, y+ → (3,4)\nQ2 (top left): x−, y+ → (-3,4)\nQ3 (bottom left): x−, y− → (-3,-4)\nQ4 (bottom right): x+, y− → (3,-4)"},
+  {topic:"Statistics",session:"Lesson 26F",q:"Define MEAN, MODE, MEDIAN, and RANGE.",a:"MEAN: add all values ÷ how many\nMODE: most frequent value\nMEDIAN: middle value when in ORDER\nRANGE: largest − smallest"},
+  {topic:"Statistics",session:"Lesson 26F",q:"Calculate mean, mode, median, range for: 3, 7, 7, 2, 9, 7, 4",a:"In order: 2, 3, 4, 7, 7, 7, 9\n\nMEAN: (2+3+4+7+7+7+9)÷7 = 39÷7 ≈ 5.57\nMODE: 7 (appears 3 times)\nMEDIAN: 7 (4th of 7)\nRANGE: 9−2 = 7"},
+  {topic:"Statistics",session:"Lesson 29F",q:"How do you read a PIE CHART?",a:"Full circle = 360° = 100%\n90° = 1/4 = 25%\n180° = 1/2 = 50%\n\nValue from sector: (angle÷360) × total\nExample: 60°, total=120 → 60/360×120 = 20 items"},
+  {topic:"Statistics",session:"Revision",q:"MEAN from a FREQUENCY TABLE:\nScore: 1 2 3 4\nFreq:  3 5 4 2",a:"1×3=3, 2×5=10, 3×4=12, 4×2=8\nTotal = 33 · Frequency total = 14\n\nMean = 33÷14 ≈ 2.36 ✓\n\nDon't just average the scores — use frequencies!"},
+  {topic:"Transformations",session:"Lesson 30F",q:"THREE types of transformation — define each",a:"TRANSLATION: sliding — no rotation or reflection. Describe right/left and up/down.\n\nREFLECTION: flipping over a MIRROR LINE.\n\nROTATION: turning around a FIXED POINT. Describe: centre, direction, angle."},
+  {topic:"Transformations",session:"Lesson 30F",q:"How do you REFLECT in the y-axis and x-axis?",a:"Reflect in Y-AXIS: x changes sign, y stays\n(3,4) → (-3,4)\n\nReflect in X-AXIS: x stays, y changes sign\n(3,4) → (3,-4)"},
+  {topic:"Transformations",session:"Lesson 30F",q:"ROTATION rules — rotate (3,1) 90° clockwise about origin",a:"90° clockwise: (x,y) → (y,−x)\n90° anticlockwise: (x,y) → (−y,x)\n180°: (x,y) → (−x,−y)\n\n(3,1) 90° CW → (1,−3) ✓"},
+  {topic:"Problem Solving",session:"All Sessions",q:"What is the RUCSAC method?",a:"R – Read carefully\nU – Underline key info\nC – Choose the operation\nS – Solve\nA – Answer with units\nC – Check your answer makes sense\n\nAlways ESTIMATE first!"},
+  {topic:"Problem Solving",session:"All Sessions",q:"Tips for MULTI-STEP word problems",a:"1. Read carefully — find ALL steps\n2. Extract key numbers\n3. Decide order of operations\n4. Work step by step\n5. Keep units throughout\n6. Check: does answer make sense?"},
+  {topic:"Problem Solving",session:"All Sessions",q:"How do you ESTIMATE? Try: 48×21 and 312÷4.9",a:"Round to 1 significant figure:\n48×21 ≈ 50×20 = 1,000 (actual=1,008 ✓)\n312÷4.9 ≈ 300÷5 = 60 (actual=63.7 ✓)\n\nAlways estimate FIRST!"},
 ];
 
-let filtered = [];
-let current = 0;
-let isFlipped = false;
-let activeMeta = null;
+let filtered=[],current=0,isFlipped=false,activeMeta=null;
 
-// ── BUILD TOPIC GRID ──────────────────────────────────────────────────────────
-function buildTopicGrid() {
-  var topics = [...new Set(ALL_CARDS.map(function(c) { return c.topic; }))];
-  var grid = document.getElementById("topicGrid");
-  grid.innerHTML = "";
-
-  // Tricky Cards tile (only if any hard-rated cards exist) - goes FIRST
-  var trickyCards = (typeof getTrickyCards === 'function') ? getTrickyCards() : [];
-  if (trickyCards.length > 0) {
-    var trickTile = document.createElement("div");
-    trickTile.className = "topic-tile tricky-tile";
-    trickTile.innerHTML = '<div class="tile-emoji">😅</div><div class="tile-name">Tricky Cards</div><div class="tile-count">' + trickyCards.length + ' card' + (trickyCards.length > 1 ? 's' : '') + '</div>';
-    trickTile.onclick = function() {
-      var hardCards = getTrickyCards();
-      if (hardCards.length === 0) { alert('No tricky cards yet! Rate some cards first.'); return; }
-      filtered = hardCards;
-      current = 0; isFlipped = false;
-      document.getElementById('cardInner').classList.remove('flipped');
-      document.getElementById('cvTitle').textContent = '😅 Tricky Cards';
-      document.getElementById('cvSub').textContent = hardCards.length + ' cards to practice';
-      activeMeta = {emoji:'😅', g1:'#7f1d1d', g2:'#dc2626', d1:'#450a0a', d2:'#7f1d1d'};
-      document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #7f1d1d, #dc2626)';
-      document.getElementById('topicView').style.display = 'none';
-      document.getElementById('cardView').style.display = 'block';
-      renderCard();
-    };
-    grid.appendChild(trickTile);
+function buildTopicGrid(){
+  const topics=[...new Set(ALL_CARDS.map(c=>c.topic))];
+  const grid=document.getElementById("topicGrid");grid.innerHTML="";
+  const trickyCards=getTrickyCards();
+  if(trickyCards.length>0){
+    const t=document.createElement("div");t.className="topic-tile tricky-tile";
+    t.innerHTML=`<div class="tile-emoji">😅</div><div class="tile-name">Tricky Cards</div><div class="tile-count">${trickyCards.length} card${trickyCards.length!==1?'s':''}</div>`;
+    t.onclick=function(){const h=getTrickyCards();if(!h.length)return;filtered=h;current=0;isFlipped=false;document.getElementById("cvTitle").textContent="😅 Tricky Cards";document.getElementById("cvSub").textContent=h.length+" cards to practise";activeMeta={emoji:"😅",g1:"#7f1d1d",g2:"#dc2626",d1:"#450a0a",d2:"#7f1d1d"};_enterCardView();};
+    grid.appendChild(t);
   }
-
-  // Practice All tile
-  var allTile = document.createElement("div");
-  allTile.className = "topic-tile all-tile";
-  allTile.innerHTML = '<div class="tile-emoji">⭐</div><div class="tile-name">Practice All Topics</div><div class="tile-count">' + ALL_CARDS.length + ' cards</div>';
-  allTile.onclick = function() { enterTopic("__all__"); };
-  grid.appendChild(allTile);
-
-  topics.forEach(function(t) {
-    var meta = TOPIC_META[t] || { emoji:"📚", g1:"#37474f", g2:"#546e7a" };
-    var count = ALL_CARDS.filter(function(c) { return c.topic === t; }).length;
-    var tile = document.createElement("div");
-    tile.className = "topic-tile";
-    tile.style.background = "linear-gradient(145deg, " + meta.g1 + ", " + meta.g2 + ")";
-    tile.innerHTML = '<div class="tile-emoji">' + meta.emoji + '</div><div class="tile-name">' + t + '</div><div class="tile-count">' + count + ' cards</div>';
-    tile.onclick = (function(topic) { return function() { enterTopic(topic); }; })(t);
-    grid.appendChild(tile);
+  const allTile=document.createElement("div");allTile.className="topic-tile all-tile";
+  allTile.innerHTML=`<div class="tile-emoji">⭐</div><div class="tile-name">Practice All Topics</div><div class="tile-count">${ALL_CARDS.length} cards</div>`;
+  allTile.onclick=()=>enterTopic("__all__");grid.appendChild(allTile);
+  topics.forEach(t=>{
+    const meta=TOPIC_META[t]||{emoji:"📚",g1:"#37474f",g2:"#546e7a"};
+    const count=ALL_CARDS.filter(c=>c.topic===t).length;
+    const tile=document.createElement("div");tile.className="topic-tile";
+    tile.style.background=`linear-gradient(145deg,${meta.g1},${meta.g2})`;
+    tile.innerHTML=`<div class="tile-emoji">${meta.emoji}</div><div class="tile-name">${t}</div><div class="tile-count">${count} cards</div>`;
+    tile.onclick=()=>enterTopic(t);grid.appendChild(tile);
   });
-
-  if (typeof refreshTileProgress === 'function') refreshTileProgress();
+  refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
+  document.getElementById('badgesFab').classList.add('fab-show');
 }
 
-// ── ENTER A TOPIC ─────────────────────────────────────────────────────────────
-function enterTopic(topic) {
+function _enterCardView(){window.scrollTo(0,0);
+  document.getElementById("cardInner").classList.remove("flipped");
+  document.getElementById("progressBar").style.background=`linear-gradient(90deg,${activeMeta.g1},${activeMeta.g2})`;
+  sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;newlyEarnedBadges=[];updateSessionBar();
+  document.getElementById("topicView").style.display="none";
+  var cv=document.getElementById("cardView");cv.style.display="block";cv.classList.add('slide-in-right');
+  setTimeout(function(){cv.classList.remove('slide-in-right');},300);
+  mascotSay(_pick(MASCOT_START),false);
+  renderCard();
+}
+
+function enterTopic(topic){
   updateStreak();
-  if (topic === "__all__") {
-    filtered = [...ALL_CARDS];
-    activeMeta = { emoji:"⭐", g1:"#1a1a3a", g2:"#2d2d60", d1:"#0d0d1e", d2:"#1a1a3a" };
-    document.getElementById("cvTitle").textContent = "⭐ All Topics";
-    document.getElementById("cvSub").textContent = ALL_CARDS.length + " cards";
-  } else {
-    filtered = ALL_CARDS.filter(c => c.topic === topic);
-    activeMeta = TOPIC_META[topic] || { emoji:"📚", g1:"#37474f", g2:"#546e7a", d1:"#263238", d2:"#37474f" };
-    document.getElementById("cvTitle").textContent = activeMeta.emoji + " " + topic;
-    document.getElementById("cvSub").textContent = filtered.length + " card" + (filtered.length !== 1 ? "s" : "");
+  if(topic==="__all__"){
+    filtered=[...ALL_CARDS];activeMeta={emoji:"⭐",g1:"#1a1a3a",g2:"#2d2d60",d1:"#0d0d1e",d2:"#1a1a3a"};
+    document.getElementById("cvTitle").textContent="⭐ All Topics";
+    document.getElementById("cvSub").textContent=ALL_CARDS.length+" cards";
+  }else{
+    filtered=ALL_CARDS.filter(c=>c.topic===topic);
+    activeMeta=TOPIC_META[topic]||{emoji:"📚",g1:"#37474f",g2:"#546e7a",d1:"#263238",d2:"#37474f"};
+    document.getElementById("cvTitle").textContent=activeMeta.emoji+" "+topic;
+    document.getElementById("cvSub").textContent=filtered.length+" card"+(filtered.length!==1?"s":"");
   }
-  current = 0; isFlipped = false;
-  document.getElementById("cardInner").classList.remove("flipped");
-  document.getElementById("progressBar").style.background = `linear-gradient(90deg, ${activeMeta.g1}, ${activeMeta.g2})`;
-  document.getElementById("topicView").style.display = "none";
-  document.getElementById("cardView").style.display = "block";
-  renderCard();
+  current=0;isFlipped=false;_enterCardView();
 }
 
-// ── BACK TO TOPICS ────────────────────────────────────────────────────────────
-function backToTopics() {
-  document.getElementById("cardView").style.display = "none";
-  document.getElementById("topicView").style.display = "block";
-  isFlipped = false;
-  document.getElementById("cardInner").classList.remove("flipped");
-  if (typeof refreshTileProgress === 'function') refreshTileProgress();
-  isQuizMode = false;
-  var quizArea = document.getElementById('quizArea');
-  if (quizArea) quizArea.classList.remove('qa-show');
-  var wrapper = document.getElementById('cardWrapper');
-  if (wrapper) wrapper.style.display = '';
-  var flipBtn = document.getElementById('flipBtn');
-  if (flipBtn) flipBtn.style.display = '';
-  var qToggle = document.getElementById('quizToggle');
-  if (qToggle) qToggle.classList.remove('qt-active');
+function goBackToTopics(){window.scrollTo(0,0);
+  document.getElementById("cardView").style.display="none";
+  var tv=document.getElementById("topicView");tv.style.display="block";
+  tv.classList.add('slide-in-left');setTimeout(function(){tv.classList.remove('slide-in-left');},300);
+  isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");
+  hideRatingBtns();isQuizMode=false;
+  var qa=document.getElementById("quizArea");if(qa)qa.classList.remove("qa-show");
+  var cw=document.getElementById("cardWrapper");if(cw)cw.style.display="";
+  var fb=document.getElementById("flipBtn");if(fb)fb.style.display="";
+  var qt=document.getElementById("quizToggle");if(qt)qt.classList.remove("qt-active");
+  sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;
+  refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
 }
 
-// ── RENDER CARD ───────────────────────────────────────────────────────────────
-function renderCard() {
-  if (filtered.length === 0) {
-    document.getElementById("cardProgress").textContent = "No cards";
-    return;
-  }
-  const card = filtered[current];
-  const meta = activeMeta;
-
-  document.getElementById("cardFront").style.background = `linear-gradient(145deg, ${meta.g1}, ${meta.g2})`;
-  document.getElementById("cardBack").style.background = `linear-gradient(145deg, ${meta.d1}, ${meta.d2})`;
-
-  const cardMeta = TOPIC_META[card.topic] || { emoji:"📚" };
-  const tagText = cardMeta.emoji + " " + card.topic;
-  document.getElementById("frontTag").textContent = tagText;
-  document.getElementById("backTag").textContent = tagText;
-  document.getElementById("frontSession").textContent = card.session;
-  document.getElementById("backSession").textContent = card.session;
-  const funEmoji = FUN_EMOJIS[current % FUN_EMOJIS.length];
-  document.getElementById("cardEmoji").textContent = cardMeta.emoji + " " + funEmoji;
-  document.getElementById("cardQuestion").textContent = card.q;
-  document.getElementById("cardAnswer").textContent = card.a;
-
-  document.getElementById("cardProgress").textContent = "Card " + (current + 1) + " of " + filtered.length;
-  document.getElementById("prevBtn").disabled = current === 0;
-  document.getElementById("nextBtn").disabled = current === filtered.length - 1;
-  const pct = filtered.length > 1 ? (current / (filtered.length - 1)) * 100 : 100;
-  document.getElementById("progressBar").style.width = pct + "%";
-  if (typeof updateRatedBadge === 'function') updateRatedBadge();
-  if (typeof hideRatingBtns === 'function') hideRatingBtns();
-  if (typeof trackCardSeen === 'function') trackCardSeen(filtered[current].topic, filtered[current].q);
+function renderCard(){
+  if(!filtered.length){document.getElementById("cardProgress").textContent="No cards";return;}
+  const card=filtered[current],meta=activeMeta;
+  document.getElementById("cardFront").style.background=`linear-gradient(145deg,${meta.g1},${meta.g2})`;
+  document.getElementById("cardBack").style.background=`linear-gradient(145deg,${meta.d1},${meta.d2})`;
+  const cardMeta=TOPIC_META[card.topic]||{emoji:"📚"};
+  const tag=cardMeta.emoji+" "+card.topic;
+  document.getElementById("frontTag").textContent=tag;document.getElementById("backTag").textContent=tag;
+  document.getElementById("frontSession").textContent=card.session;document.getElementById("backSession").textContent=card.session;
+  document.getElementById("cardEmoji").textContent=cardMeta.emoji+" "+FUN_EMOJIS[current%FUN_EMOJIS.length];
+  document.getElementById("cardQuestion").textContent=card.q;document.getElementById("cardAnswer").textContent=card.a;
+  document.getElementById("cardProgress").textContent="Card "+(current+1)+" of "+filtered.length;
+  document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===filtered.length-1;
+  const pct=filtered.length>1?(current/(filtered.length-1))*100:100;
+  document.getElementById("progressBar").style.width=pct+"%";
+  updateRatedBadge();hideRatingBtns();
+  trackCardSeen(card.topic,card.q);updateSessionBar();
+  if(isQuizMode)setTimeout(renderQuiz,0);
 }
 
-// ── FLIP ──────────────────────────────────────────────────────────────────────
-function flipCard() {
-  if (typeof isSwiping !== 'undefined' && isSwiping) return;
-  isFlipped = !isFlipped;
-  if (typeof playFlip === 'function') playFlip();
-  if (isFlipped && !isQuizMode) { if (typeof showRatingBtns === 'function') showRatingBtns(); }
-  else { if (typeof hideRatingBtns === 'function') hideRatingBtns(); }
-  document.getElementById("cardInner").classList.toggle("flipped", isFlipped);
+function flipCard(){
+  if(isSwiping)return;
+  isFlipped=!isFlipped;
+  document.getElementById("cardInner").classList.toggle("flipped",isFlipped);
+  playFlip();
+  if(isFlipped){checkBadge('first_flip');if(!isQuizMode)showRatingBtns();}else hideRatingBtns();
 }
 
-// ── NAVIGATE ──────────────────────────────────────────────────────────────────
-function navigate(dir) {
-  if (typeof hideRatingBtns === 'function') hideRatingBtns();
-  if (dir > 0 && current >= filtered.length - 1) {
-    if (typeof triggerCelebration === 'function') triggerCelebration();
-    return;
-  }
-  const newIdx = current + dir;
-  if (newIdx >= 0 && newIdx < filtered.length) {
-    current = newIdx; isFlipped = false;
-    document.getElementById("cardInner").classList.remove("flipped");
-    if (typeof trackCardSeen === 'function') trackCardSeen(filtered[current] ? filtered[current].topic : '', filtered[current] ? filtered[current].q : '');
-    if (isQuizMode) { if (typeof renderQuiz === 'function') renderQuiz(); } else renderCard();
-  }
+function navigate(dir){
+  hideRatingBtns();
+  if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}
+  const n=current+dir;
+  if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
 }
 
-// ── SHUFFLE ───────────────────────────────────────────────────────────────────
-function shuffleCards() {
-  for (let i = filtered.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
-  }
-  current = 0; isFlipped = false;
-  document.getElementById("cardInner").classList.remove("flipped");
-  renderCard();
+function shuffleCards(){
+  for(let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
+  current=0;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();
 }
 
-// ── KEYBOARD ──────────────────────────────────────────────────────────────────
-document.addEventListener("keydown", e => {
-  if (document.getElementById("cardView").style.display === "none") return;
-  if (e.key === "ArrowRight") navigate(1);
-  else if (e.key === "ArrowLeft") navigate(-1);
-  else if (e.key === " " || e.key === "Enter") { e.preventDefault(); flipCard(); }
-  else if (e.key === "Escape") backToTopics();
+document.addEventListener("keydown",e=>{
+  if(document.getElementById("cardView").style.display==="none")return;
+  if(e.key==="ArrowRight")navigate(1);
+  else if(e.key==="ArrowLeft")navigate(-1);
+  else if(e.key===" "||e.key==="Enter"){e.preventDefault();flipCard();}
+  else if(e.key==="Escape")goBackToTopics();
 });
 
-// ── TOPIC SEARCH ─────────────────────────────────────────────────────────────
-function handleSearch(val) {
-  var q = val.trim().toLowerCase();
-  var allTile = document.querySelector('.all-tile');
-  var tiles = document.querySelectorAll('.topic-tile:not(.all-tile)');
-  var visible = 0;
-
-  // Build a set of topics that have at least one matching card
-  var topicsWithMatch = new Set();
-  if (q) {
-    ALL_CARDS.forEach(function(card) {
-      if (card.topic.toLowerCase().includes(q) ||
-          card.q.toLowerCase().includes(q) ||
-          card.a.toLowerCase().includes(q)) {
-        topicsWithMatch.add(card.topic);
-      }
-    });
-  }
-
-  tiles.forEach(function(tile) {
-    var nameEl = tile.querySelector('.tile-name');
-    var name = nameEl ? nameEl.textContent.toLowerCase() : '';
-    var show = !q || name.includes(q) || topicsWithMatch.has(nameEl ? nameEl.textContent.trim() : '');
-    tile.style.display = show ? '' : 'none';
-    if (show) visible++;
-  });
-
-  if (allTile) allTile.style.display = q ? 'none' : '';
-  var nr = document.getElementById('noResults');
-  if (nr) nr.style.display = (q && visible === 0) ? 'block' : 'none';
+function handleSearch(val){
+  var q=val.trim().toLowerCase(),allTile=document.querySelector('.all-tile'),tiles=document.querySelectorAll('.topic-tile:not(.all-tile)'),visible=0,match=new Set();
+  if(q)ALL_CARDS.forEach(function(c){if(c.topic.toLowerCase().includes(q)||c.q.toLowerCase().includes(q)||c.a.toLowerCase().includes(q))match.add(c.topic);});
+  tiles.forEach(function(tile){var ne=tile.querySelector('.tile-name'),name=ne?ne.textContent.toLowerCase():'',show=!q||name.includes(q)||match.has(ne?ne.textContent.trim():'');tile.style.display=show?'':'none';if(show)visible++;});
+  if(allTile)allTile.style.display=q?'none':'';
+  var nr=document.getElementById('noResults');if(nr)nr.style.display=(q&&visible===0)?'block':'none';
 }
 
 buildTopicGrid();
 </script>
-
-<div id="celebrateOverlay">
-  <canvas id="confettiCanvas"></canvas>
-  <div class="celebrate-msg" id="celebrateMsg">🎉<br>Well done Prisha!<br>🌟 Topic Complete!</div>
-  <button class="celebrate-btn" onclick="closeCelebration()">Keep going! ✨</button>
-</div>
-
-<style>
-/* ── NEW FEATURES CSS ── */
-.cv-toolbar { display:flex; gap:8px; align-items:center; padding:6px 14px 8px; background:rgba(0,0,0,0.2); flex-wrap:wrap; }
-.font-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:8px; padding:4px 11px; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.82em; -webkit-tap-highlight-color:transparent; }
-.font-btn.fb-active { background:rgba(255,255,255,0.3); border-color:rgba(255,255,255,0.6); }
-.quiz-toggle-btn, .mute-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:10px; padding:5px 12px; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8em; -webkit-tap-highlight-color:transparent; }
-.quiz-toggle-btn.qt-active { background:rgba(100,200,100,0.3); border-color:rgba(100,255,100,0.5); }
-.toolbar-spacer { flex:1; }
-.font-sm .card-q-text { font-size:0.85em!important; }
-.font-sm .card-a-text { font-size:0.78em!important; }
-.font-lg .card-q-text { font-size:1.22em!important; }
-.font-lg .card-a-text { font-size:1.06em!important; }
-.rating-wrap { display:none; gap:10px; justify-content:center; padding:10px 0 0; }
-.rating-wrap.rw-show { display:flex; }
-.btn-got  { flex:1; max-width:170px; background:linear-gradient(135deg,#166534,#22c55e); color:white; border:none; border-radius:16px; padding:13px 10px; font-size:0.9em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 14px rgba(34,197,94,0.35); -webkit-tap-highlight-color:transparent; }
-.btn-hard { flex:1; max-width:170px; background:linear-gradient(135deg,#991b1b,#ef4444); color:white; border:none; border-radius:16px; padding:13px 10px; font-size:0.9em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 14px rgba(239,68,68,0.35); -webkit-tap-highlight-color:transparent; }
-.card-rated-badge { position:absolute; top:10px; right:12px; font-size:1.3em; z-index:5; pointer-events:none; }
-.streak-badge { background:linear-gradient(135deg,#f97316,#fbbf24); color:#1c0a00; font-weight:900; border-radius:20px; padding:5px 14px; font-size:0.75em; letter-spacing:0.5px; white-space:nowrap; }
-.tricky-tile { background:linear-gradient(145deg,#7f1d1d,#dc2626)!important; }
-.tile-progress { font-size:0.58em; color:rgba(255,255,255,0.55); margin-top:3px; font-weight:700; }
-.quiz-area { display:none; flex-direction:column; gap:0; padding:0; }
-.quiz-area.qa-show { display:flex; }
-.quiz-q-box { background:rgba(255,255,255,0.08); border-radius:16px; padding:18px 20px; margin:10px 14px 0; color:white; font-weight:800; font-size:0.92em; line-height:1.5; }
-.quiz-opts { display:flex; flex-direction:column; gap:9px; padding:12px 14px; }
-.quiz-opt { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15); border-radius:14px; padding:13px 16px; color:white; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer; text-align:left; font-size:0.84em; line-height:1.4; -webkit-tap-highlight-color:transparent; transition:background 0.12s; }
-.quiz-opt:active { background:rgba(255,255,255,0.16); }
-.quiz-opt.qo-correct { background:rgba(34,197,94,0.35)!important; border-color:#22c55e!important; }
-.quiz-opt.qo-wrong   { background:rgba(239,68,68,0.35)!important; border-color:#ef4444!important; }
-.quiz-opt:disabled   { cursor:default; }
-#celebrateOverlay { position:fixed; inset:0; z-index:999; background:rgba(0,0,10,0.88); display:none; flex-direction:column; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
-#celebrateOverlay.co-show { display:flex; }
-#confettiCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.celebrate-msg { position:relative; z-index:1; text-align:center; color:white; font-family:'Nunito',sans-serif; font-size:clamp(1.6em,5vw,2.6em); font-weight:900; line-height:1.4; text-shadow:0 2px 24px rgba(255,200,0,0.6); -webkit-animation:cel-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; animation:cel-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
-@-webkit-keyframes cel-pop { 0%{-webkit-transform:scale(0.3);opacity:0} 100%{-webkit-transform:scale(1);opacity:1} }
-@keyframes cel-pop { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
-.celebrate-btn { position:relative; z-index:1; margin-top:28px; background:white; color:#1a1a2e; border:none; border-radius:24px; padding:14px 34px; font-size:1em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
-</style>
-
 <script>
-// ══════════════════════════════════════════════════
-//  FEATURE PACK — All 9 UX Enhancements
-// ══════════════════════════════════════════════════
-
-// ── Shared state ──────────────────────────────────
-var isQuizMode = false;
-var soundMuted = false;
-var currentFont = 'md';
-var sessionSeen = {};
-var isSwiping = false;
-
-// ── localStorage helpers ──────────────────────────
-function lsGet(k, def) {
-  try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e) { return def; }
-}
-function lsSet(k, v) {
-  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
-}
-
-// ── 7. Sound effects ──────────────────────────────
-var _audioCtx = null;
-function getAudioCtx() {
-  if (!_audioCtx) {
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) _audioCtx = new AC();
-  }
-  return _audioCtx;
-}
-function _playTone(freq, type, startT, dur, gainVal) {
-  var ctx = getAudioCtx();
-  if (!ctx) return;
-  var osc = ctx.createOscillator();
-  var g   = ctx.createGain();
-  osc.connect(g); g.connect(ctx.destination);
-  osc.frequency.value = freq;
-  osc.type = type || 'sine';
-  g.gain.setValueAtTime(gainVal || 0.09, startT);
-  g.gain.exponentialRampToValueAtTime(0.0001, startT + dur);
-  osc.start(startT);
-  osc.stop(startT + dur + 0.01);
-}
-function playFlip() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var osc = ctx.createOscillator();
-  var g   = ctx.createGain();
-  osc.connect(g); g.connect(ctx.destination);
-  osc.frequency.setValueAtTime(380, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.12);
-  g.gain.setValueAtTime(0.07, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-  osc.start(); osc.stop(ctx.currentTime + 0.13);
-}
-function playGot() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var t = ctx.currentTime;
-  [523, 659, 784].forEach(function(f, i) { _playTone(f, 'sine', t + i*0.13, 0.2, 0.1); });
-}
-function playHard() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var t = ctx.currentTime;
-  _playTone(220, 'sawtooth', t, 0.22, 0.07);
-}
-function playCelebrate() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var t = ctx.currentTime;
-  [523, 784, 1047, 1047].forEach(function(f, i) { _playTone(f, 'sine', t + i*0.1, 0.18, 0.12); });
-}
-
-// ── 8. Font size toggle ───────────────────────────
-function initFont() {
-  currentFont = lsGet('prisha_font', 'md');
-  applyFont(currentFont);
-}
-function setFont(size) {
-  currentFont = size;
-  lsSet('prisha_font', size);
-  applyFont(size);
-}
-function applyFont(size) {
-  document.body.classList.remove('font-sm','font-md','font-lg');
-  document.body.classList.add('font-' + size);
-  ['fontSm','fontMd','fontLg'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.remove('fb-active');
-  });
-  var map = {sm:'fontSm', md:'fontMd', lg:'fontLg'};
-  var btn = document.getElementById(map[size]);
-  if (btn) btn.classList.add('fb-active');
-}
-
-// ── Mute toggle ───────────────────────────────────
-function initMute() {
-  soundMuted = lsGet('prisha_mute', false);
-  updateMuteBtn();
-}
-function toggleMute() {
-  soundMuted = !soundMuted;
-  lsSet('prisha_mute', soundMuted);
-  updateMuteBtn();
-}
-function updateMuteBtn() {
-  var btn = document.getElementById('muteBtn');
-  if (btn) btn.textContent = soundMuted ? '🔇' : '🔊';
-}
-
-// ── 5. Daily streak ───────────────────────────────
-function getToday() {
-  var d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function updateStreak() {
-  var today = getToday();
-  var yesterday = (function(){
-    var d2 = new Date(); d2.setDate(d2.getDate()-1);
-    return d2.getFullYear() + '-' + String(d2.getMonth()+1).padStart(2,'0') + '-' + String(d2.getDate()).padStart(2,'0');
-  })();
-  var s = lsGet('prisha_streak', {date:'', count:0});
-  if (s.date === today) { showStreakBadge(s.count); return; }
-  var newCount = (s.date === yesterday) ? s.count + 1 : 1;
-  lsSet('prisha_streak', {date: today, count: newCount});
-  showStreakBadge(newCount);
-}
-function showStreakBadge(count) {
-  var badge = document.getElementById('streakBadge');
-  if (!badge) return;
-  if (count >= 1) {
-    badge.textContent = '🔥 ' + count + ' day streak';
-    badge.style.display = 'inline-block';
-  }
-}
-
-// ── 1. Self-rating buttons ────────────────────────
-function getRatings() { return lsGet('prisha_ratings', {}); }
-function saveRating(topic, question, val) {
-  var r = getRatings();
-  r[topic + '|' + question] = val;
-  lsSet('prisha_ratings', r);
-}
-function getCardRating(topic, question) {
-  return getRatings()[topic + '|' + question] || null;
-}
-function showRatingBtns() {
-  var wrap = document.getElementById('ratingWrap');
-  if (wrap) wrap.classList.add('rw-show');
-}
-function hideRatingBtns() {
-  var wrap = document.getElementById('ratingWrap');
-  if (wrap) wrap.classList.remove('rw-show');
-}
-function rateCard(val) {
-  if (!filtered || !filtered[current]) return;
-  var card = filtered[current];
-  saveRating(card.topic, card.q, val);
-  if (val === 'got') playGot(); else playHard();
-  updateRatedBadge();
-  var isLast = (current >= filtered.length - 1);
-  hideRatingBtns();
-  if (isLast) {
-    triggerCelebration();
-  } else {
-    setTimeout(function() { navigate(1); }, 400);
-  }
-}
-function updateRatedBadge() {
-  var badge = document.getElementById('cardRatedBadge');
-  if (!badge || !filtered || !filtered[current]) return;
-  var card = filtered[current];
-  var r = getCardRating(card.topic, card.q);
-  badge.textContent = r === 'got' ? '✅' : (r === 'hard' ? '😅' : '');
-}
-
-// ── 2. Tricky cards ───────────────────────────────
-function getTrickyCards() {
-  var ratings = getRatings();
-  return ALL_CARDS.filter(function(c) { return ratings[c.topic + '|' + c.q] === 'hard'; });
-}
-
-// ── 3. Celebration ────────────────────────────────
-var confettiAnim = null;
-var celebratedTopics = {};
-function triggerCelebration() {
-  var topic = (filtered && filtered[0]) ? filtered[0].topic : 'done';
-  if (celebratedTopics[topic]) return;
-  celebratedTopics[topic] = true;
-  playCelebrate();
-  var overlay = document.getElementById('celebrateOverlay');
-  var msg = document.getElementById('celebrateMsg');
-  if (!overlay) return;
-  if (msg) msg.innerHTML = '🎉<br>Well done Prisha!<br>🌟 Topic Complete!';
-  overlay.classList.add('co-show');
-  startConfetti();
-}
-function closeCelebration() {
-  var overlay = document.getElementById('celebrateOverlay');
-  if (overlay) overlay.classList.remove('co-show');
-  stopConfetti();
-}
-function startConfetti() {
-  var canvas = document.getElementById('confettiCanvas');
-  if (!canvas) return;
-  var ctx2 = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  var particles = [];
-  var colors = ['#f9d423','#ff6b6b','#c471f5','#12c2e9','#22c55e','#fb923c','#818cf8'];
-  for (var i = 0; i < 120; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      w: 8 + Math.random() * 8,
-      h: 4 + Math.random() * 5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      speed: 2 + Math.random() * 3,
-      angle: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 0.15,
-      drift: (Math.random() - 0.5) * 1.2
-    });
-  }
-  function frame() {
-    ctx2.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(function(p) {
-      p.y += p.speed;
-      p.x += p.drift;
-      p.angle += p.spin;
-      if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
-      ctx2.save();
-      ctx2.translate(p.x, p.y);
-      ctx2.rotate(p.angle);
-      ctx2.fillStyle = p.color;
-      ctx2.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx2.restore();
-    });
-    confettiAnim = requestAnimationFrame(frame);
-  }
-  frame();
-}
-function stopConfetti() {
-  if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
-  var canvas = document.getElementById('confettiCanvas');
-  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-}
-
-// ── 6. Topic progress ─────────────────────────────
-function trackCardSeen(topic, question) {
-  if (!topic) return;
-  if (!sessionSeen[topic]) sessionSeen[topic] = [];
-  if (sessionSeen[topic].indexOf(question) < 0) sessionSeen[topic].push(question);
-}
-function refreshTileProgress() {
-  var tiles = document.querySelectorAll('.topic-tile:not(.all-tile):not(.tricky-tile)');
-  tiles.forEach(function(tile) {
-    var nameEl = tile.querySelector('.tile-name');
-    if (!nameEl) return;
-    var topic = nameEl.textContent.trim();
-    var seen = sessionSeen[topic] ? sessionSeen[topic].length : 0;
-    var total = ALL_CARDS.filter(function(c) { return c.topic === topic; }).length;
-    var prog = tile.querySelector('.tile-progress');
-    if (!prog) {
-      prog = document.createElement('div');
-      prog.className = 'tile-progress';
-      tile.appendChild(prog);
-    }
-    prog.textContent = seen > 0 ? (seen + '/' + total + ' seen') : '';
-  });
-}
-
-// ── 9. Quiz mode ─────────────────────────────────
-function toggleQuizMode() {
-  isQuizMode = !isQuizMode;
-  var btn = document.getElementById('quizToggle');
-  if (btn) btn.classList.toggle('qt-active', isQuizMode);
-  var wrapper = document.getElementById('cardWrapper');
-  var quizArea = document.getElementById('quizArea');
-  var flipBtn = document.getElementById('flipBtn');
-  if (wrapper) wrapper.style.display = isQuizMode ? 'none' : '';
-  if (quizArea) quizArea.classList.toggle('qa-show', isQuizMode);
-  if (flipBtn) flipBtn.style.display = isQuizMode ? 'none' : '';
-  hideRatingBtns();
-  if (isQuizMode) renderQuiz(); else renderCard();
-}
-function renderQuiz() {
-  if (!filtered || !filtered[current]) return;
-  var card = filtered[current];
-  var qEl = document.getElementById('quizQuestion');
-  var optsEl = document.getElementById('quizOpts');
-  if (!qEl || !optsEl) return;
-  qEl.textContent = card.q;
-  var others = ALL_CARDS.filter(function(c) { return c.topic !== card.topic || c.q !== card.q; });
-  for (var i = others.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i+1));
-    var tmp = others[i]; others[i] = others[j]; others[j] = tmp;
-  }
-  var distractors = others.slice(0, 3).map(function(c) { return c.a.replace(/\n/g,' ').substring(0, 100); });
-  var correctAns = card.a.replace(/\n/g,' ').substring(0, 100);
-  var options = [correctAns].concat(distractors);
-  for (var ii = options.length - 1; ii > 0; ii--) {
-    var jj = Math.floor(Math.random() * (ii+1));
-    var tt = options[ii]; options[ii] = options[jj]; options[jj] = tt;
-  }
-  optsEl.innerHTML = '';
-  options.forEach(function(opt) {
-    var btn = document.createElement('button');
-    btn.className = 'quiz-opt';
-    btn.textContent = opt;
-    btn.onclick = (function(o) { return function() { answerQuiz(this, o, correctAns); }; })(opt);
-    optsEl.appendChild(btn);
-  });
-}
-function answerQuiz(el, chosen, correct) {
-  var all = document.querySelectorAll('.quiz-opt');
-  all.forEach(function(b) { b.onclick = null; });
-  if (chosen === correct) {
-    el.classList.add('qo-correct');
-    playGot();
-    if (filtered && filtered[current]) saveRating(filtered[current].topic, filtered[current].q, 'got');
-    setTimeout(function() { navigate(1); }, 1200);
-  } else {
-    el.classList.add('qo-wrong');
-    playHard();
-    all.forEach(function(b) { if (b.textContent === correct) b.classList.add('qo-correct'); });
-    setTimeout(function() { navigate(1); }, 1600);
-  }
-}
-
-// ── 4. Swipe gestures ─────────────────────────────
-(function() {
-  var sx = 0, sy = 0;
-  document.addEventListener('touchstart', function(e) {
-    sx = e.touches[0].clientX;
-    sy = e.touches[0].clientY;
-    isSwiping = false;
-  }, {passive: true});
-  document.addEventListener('touchend', function(e) {
-    var cv = document.getElementById('cardView');
-    if (!cv || cv.style.display === 'none') return;
-    var dx = e.changedTouches[0].clientX - sx;
-    var dy = e.changedTouches[0].clientY - sy;
-    var adx = Math.abs(dx), ady = Math.abs(dy);
-    if (adx > ady && adx > 48) {
-      isSwiping = true;
-      navigate(dx < 0 ? 1 : -1);
-    } else if (ady > adx && dy < -55) {
-      isSwiping = true;
-      if (!isQuizMode) flipCard();
-    }
-    setTimeout(function() { isSwiping = false; }, 300);
-  }, {passive: true});
-})();
-
-// ── Init on load ──────────────────────────────────
-(function() {
-  initFont();
-  initMute();
-  updateStreak();
-})();
-</script>
-
-<script>
-// ── Space Explorer Theme ──────────────────────────────────────
-(function() {
-  const bg = document.getElementById('themeBg');
-
-  // Twinkling stars
-  for (let i = 0; i < 90; i++) {
-    const s = document.createElement('div');
-    s.className = 'theme-star';
-    const sz = (Math.random() * 2.4 + 0.5).toFixed(1);
-    s.style.cssText = `width:${sz}px;height:${sz}px;top:${(Math.random()*100).toFixed(1)}%;left:${(Math.random()*100).toFixed(1)}%;animation-duration:${(Math.random()*3+1.5).toFixed(1)}s;animation-delay:${(Math.random()*5).toFixed(1)}s;`;
-    bg.appendChild(s);
-  }
-
-  // Occasional shooting star
-  function shoot() {
-    const el = document.createElement('div');
-    el.style.cssText = `position:absolute;pointer-events:none;width:${60+Math.random()*80}px;height:2px;top:${Math.random()*55}%;left:${Math.random()*55}%;background:linear-gradient(90deg,rgba(255,255,255,0.9),transparent);border-radius:2px;-webkit-animation:t-shoot 0.7s ease-out forwards;animation:t-shoot 0.7s ease-out forwards;`;
-    bg.appendChild(el);
-    if (!document.getElementById('t-shoot-kf')) {
-      const kf = document.createElement('style'); kf.id = 't-shoot-kf';
-      kf.textContent = '@-webkit-keyframes t-shoot{0%{opacity:1;-webkit-transform:translate3d(0,0,0) rotate(-20deg)}100%{opacity:0;-webkit-transform:translate3d(200px,70px,0) rotate(-20deg)}} @keyframes t-shoot{0%{opacity:1;transform:translate3d(0,0,0) rotate(-20deg)}100%{opacity:0;transform:translate3d(200px,70px,0) rotate(-20deg)}}';
-      document.head.appendChild(kf);
-    }
-    setTimeout(() => el.remove(), 850);
-    setTimeout(shoot, 3500 + Math.random() * 7000);
-  }
-  setTimeout(shoot, 2500);
-
-  // Floating space emojis — appended to fixed bg container
-  const pool = ['🚀','🪐','🔭','⭐','🛸','💫','🌌','✨','🤖','🌠','🛰️','🔬'];
-  pool.forEach((em, i) => {
-    const el = document.createElement('div');
-    el.className = 'theme-float';
-    const dur = (15 + Math.random() * 10).toFixed(1);
-    el.style.cssText = `left:${((i / pool.length) * 100 + Math.random() * 4).toFixed(1)}%;font-size:${(1.2 + Math.random() * 0.8).toFixed(1)}em;animation-duration:${dur}s;animation-delay:${(Math.random() * parseFloat(dur)).toFixed(1)}s;`;
-    el.textContent = em;
-    bg.appendChild(el);
-  });
+(function(){
+  var canvas=document.getElementById("starCanvas"),ctx=canvas.getContext("2d"),W,H,stars=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener("resize",resize);
+  for(var i=0;i<200;i++)stars.push({x:Math.random()*99999,y:Math.random()*99999,r:Math.random()*1.8+0.3,s:Math.random()*0.4+0.1,a:Math.random()*Math.PI*2,blink:Math.random()*Math.PI*2,bspeed:Math.random()*0.02+0.005});
+  function draw(){ctx.clearRect(0,0,W,H);stars.forEach(function(s){var ox=((s.x+s.a*s.s*120)%W+W)%W,oy=((s.y+s.a*s.s*60)%H+H)%H,alpha=0.45+0.55*Math.sin(s.blink);ctx.beginPath();ctx.arc(ox,oy,s.r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,"+alpha+")";ctx.fill();s.a+=s.s*0.005;s.blink+=s.bspeed;});requestAnimationFrame(draw);}
+  draw();
 })();
 </script>
 </body>
