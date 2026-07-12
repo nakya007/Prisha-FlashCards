@@ -98,7 +98,8 @@ canvas#leafCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-eve
 .card-face-back{position:absolute;top:0;left:0;opacity:0;pointer-events:none;}
 .card-face-front::after,.card-face-back::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 20%,rgba(255,255,255,0.18) 0%,transparent 60%);pointer-events:none;}
 .card-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:0.6;margin-bottom:5px;}
-.card-session{font-size:10px;opacity:0.4;margin-bottom:10px;}
+.card-session{font-size:10px;opacity:0.4;margin-bottom:10px;display:none;}
+body.admin-preview .card-session{display:block;}
 .card-emoji-big{font-size:44px;margin:6px 0 14px;line-height:1;}
 #cardQuestion{font-size:18px;font-weight:800;line-height:1.55;white-space:pre-wrap;}
 #cardAnswer{font-size:15px;line-height:1.78;white-space:pre-wrap;}
@@ -446,6 +447,7 @@ const ALL_CARDS=[
 ];
 
 let filtered=[],current=0,isFlipped=false,activeMeta=null;
+if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('admin-preview');
 
 function buildTopicGrid(){
   const topics=[...new Set(ALL_CARDS.map(c=>c.topic))];
