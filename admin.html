@@ -91,6 +91,20 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
 .btn-print{background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;}
 .btn-close{background:rgba(255,255,255,0.07);color:#e8eaf6;border:1px solid rgba(255,255,255,0.12);}
 
+/* Invite code cards */
+.code-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.code-card.inactive{opacity:0.45;}
+.code-pill{font-size:16px;font-weight:900;letter-spacing:1px;font-family:'Courier New',monospace;}
+.code-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-top:3px;display:inline-block;}
+.code-active{background:rgba(129,199,132,0.15);color:#a5d6a7;border:1px solid rgba(129,199,132,0.3);}
+.code-inactive{background:rgba(239,154,154,0.12);color:#ef9a9a;border:1px solid rgba(239,154,154,0.25);}
+.code-actions{display:flex;gap:6px;flex-shrink:0;}
+.btn-code{padding:6px 11px;border-radius:8px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:opacity 0.15s;}
+.btn-deactivate{background:rgba(239,154,154,0.12);color:#ef9a9a;border:1px solid rgba(239,154,154,0.25);}
+.btn-activate{background:rgba(129,199,132,0.12);color:#a5d6a7;border:1px solid rgba(129,199,132,0.25);}
+.btn-delete{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);}
+.code-err{color:#ef9a9a;font-size:12px;margin-top:8px;}
+
 @media(max-width:600px){
   .summary-bar{grid-template-columns:repeat(2,1fr);}
   .students-grid{grid-template-columns:1fr;}
@@ -142,6 +156,25 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
   </div>
 
   <div class="students-grid" id="studentsGrid">
+    <div class="empty-state"><div class="loading-spinner"></div></div>
+  </div>
+
+  <!-- Invite Codes -->
+  <div class="section-header" style="margin-top:32px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div class="dash-title" style="font-size:18px;">🔑 Invite Codes</div>
+      <div class="dash-sub">Students enter these codes to join the site</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="newCodeInput" type="text" placeholder="New code e.g. SUMMER25"
+        style="padding:9px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8eaf6;font-size:13px;font-family:'Nunito',sans-serif;font-weight:700;outline:none;text-transform:uppercase;width:190px;"
+        oninput="this.value=this.value.toUpperCase()"
+        onkeydown="if(event.key==='Enter')addInviteCode()">
+      <button class="btn-sm" onclick="addInviteCode()"
+        style="background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;">+ Add Code</button>
+    </div>
+  </div>
+  <div id="codesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
     <div class="empty-state"><div class="loading-spinner"></div></div>
   </div>
 </div>
@@ -224,6 +257,7 @@ function showDashboard() {
   document.getElementById('signinWrap').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   loadStudents();
+  loadInviteCodes();
 }
 
 async function loadStudents() {
@@ -255,6 +289,16 @@ async function loadStudents() {
 
 function refreshStudents() { loadStudents(); }
 
+async function deleteStudent(id, name) {
+  if (!confirm(`Delete ${name}'s profile and all their progress? This cannot be undone.`)) return;
+  try {
+    await db.collection('users').doc(id).delete();
+    loadStudents();
+  } catch(e) {
+    alert('Failed to delete student: ' + e.message);
+  }
+}
+
 function updateSummaryBar(students) {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -278,7 +322,7 @@ function buildStudentCard(s) {
   const card = document.createElement('div');
   card.className = 'student-card';
 
-  const theme    = s.theme || 'space';
+  const theme    = s.themeMaths || s.theme || 'space';
   const emoji    = THEME_EMOJIS[theme] || '📖';
   const color    = THEME_COLORS[theme] || '#1a237e';
   const ratings  = s.ratings || {};
@@ -335,7 +379,10 @@ function buildStudentCard(s) {
     </div>
     ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge-chip">🏅 ${escHtml(b)}</span>`).join('')}</div>` : ''}
     <div class="last-active">Last active: ${lastAct}</div>
-    <button class="report-btn" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Generate Report</button>
+    <div style="display:flex;gap:8px;margin-top:2px;">
+      <button class="report-btn" style="flex:1;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Generate Report</button>
+      <button class="report-btn" style="flex:0 0 auto;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️ Delete</button>
+    </div>
   `;
   return card;
 }
@@ -379,14 +426,14 @@ function openReport(sJson) {
     <div class="report-section">
       <div class="report-section-title">Overview</div>
       <div class="report-row"><span>Student Name</span><span class="report-val">${escHtml(s.name||'—')}</span></div>
-      <div class="report-row"><span>Theme</span><span class="report-val">${THEME_EMOJIS[s.theme]||''} ${s.theme||'—'}</span></div>
+      <div class="report-row"><span>Theme</span><span class="report-val">${s.theme||'—'}</span></div>
       <div class="report-row"><span>Joined</span><span class="report-val">${joined}</span></div>
       <div class="report-row"><span>Last Active</span><span class="report-val">${lastAct}</span></div>
-      <div class="report-row"><span>Current Streak</span><span class="report-val">${(s.streak||0) > 0 ? s.streak + ' days 🔥' : 'None'}</span></div>
+      <div class="report-row"><span>Current Streak</span><span class="report-val">${(s.streak||0)>0?s.streak+' days 🔥':'None'}</span></div>
     </div>
     <div class="report-section">
       <div class="report-section-title">Progress Summary</div>
-      <div class="report-row"><span>Total XP Earned</span><span class="report-val">${s.xp || 0}</span></div>
+      <div class="report-row"><span>Total XP Earned</span><span class="report-val">${s.xp||0}</span></div>
       <div class="report-row"><span>Cards Seen</span><span class="report-val">${total}</span></div>
       <div class="report-row"><span>Cards Mastered</span><span class="report-val">${mastered} (${mastPct}%)</span></div>
       <div class="report-row"><span>Cards Needing Practice</span><span class="report-val">${hard}</span></div>
@@ -403,14 +450,82 @@ function closeReportModal(e) {
     document.getElementById('reportModal').classList.remove('open');
 }
 
-function printReport() {
-  window.print();
+function printReport() { window.print(); }
+
+// ── Invite Codes ──────────────────────────────────────────────────
+async function loadInviteCodes() {
+  const grid = document.getElementById('codesGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div></div>';
+  try {
+    const snap = await db.collection('inviteCodes').orderBy('createdAt','desc').get();
+    if (snap.empty) {
+      // Seed default code on first load
+      await db.collection('inviteCodes').doc('PREP2025').set({
+        code:'PREP2025', active:true,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      loadInviteCodes(); return;
+    }
+    grid.innerHTML = '';
+    snap.forEach(doc => grid.appendChild(buildCodeCard(doc.id, doc.data())));
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#ef9a9a;font-size:13px;padding:12px;">Failed to load codes.</div>';
+  }
+}
+
+function buildCodeCard(id, data) {
+  const div = document.createElement('div');
+  div.className = 'code-card' + (data.active ? '' : ' inactive');
+  div.innerHTML = `
+    <div>
+      <div class="code-pill">${escHtml(id)}</div>
+      <span class="code-status ${data.active ? 'code-active' : 'code-inactive'}">${data.active ? 'Active' : 'Inactive'}</span>
+    </div>
+    <div class="code-actions">
+      ${data.active
+        ? `<button class="btn-code btn-deactivate" onclick="toggleCode('${escHtml(id)}',false)">Deactivate</button>`
+        : `<button class="btn-code btn-activate"   onclick="toggleCode('${escHtml(id)}',true)">Activate</button>`}
+      <button class="btn-code btn-delete" onclick="deleteCode('${escHtml(id)}')">✕</button>
+    </div>`;
+  return div;
+}
+
+async function addInviteCode() {
+  const input = document.getElementById('newCodeInput');
+  const code  = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if (!code || code.length < 4) {
+    alert('Code must be at least 4 letters/numbers (A–Z, 0–9 only).'); return;
+  }
+  try {
+    await db.collection('inviteCodes').doc(code).set({
+      code, active:true,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = '';
+    loadInviteCodes();
+  } catch(e) { alert('Failed to add code: ' + e.message); }
+}
+
+async function toggleCode(code, active) {
+  try {
+    await db.collection('inviteCodes').doc(code).update({ active });
+    loadInviteCodes();
+  } catch(e) { alert('Failed to update code.'); }
+}
+
+async function deleteCode(code) {
+  if (!confirm(`Delete code "${code}"? Students with this code won't be able to join.`)) return;
+  try {
+    await db.collection('inviteCodes').doc(code).delete();
+    loadInviteCodes();
+  } catch(e) { alert('Failed to delete code.'); }
 }
 
 // ── Utils ─────────────────────────────────────────────────────────
 function formatDate(d) {
   if (!d) return '—';
-  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+  return d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
 }
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -418,9 +533,7 @@ function escHtml(s) {
 
 // ── Auto-check if already signed in ──────────────────────────────
 auth.onAuthStateChanged(user => {
-  if (user && user.email === ADMIN_EMAIL) {
-    showDashboard();
-  }
+  if (user && user.email === ADMIN_EMAIL) showDashboard();
 });
 </script>
 </body>
