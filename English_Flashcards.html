@@ -2,1012 +2,557 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>📚 English Flashcards – Grammar School Prep</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦉 English — Prisha's Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Nunito', -apple-system, Arial, sans-serif; background: #f4f6fb; color: #1a1a2e; min-height: 100vh; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:#030f06;color:#e8f5e9;min-height:100vh;overflow-x:hidden;}
+canvas#leafCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.page{position:relative;z-index:1;}
 
-  /* HEADER */
-  .page-header {
-    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
-    background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.09);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .back-btn {
-    background: #f0f2f8; border: none; border-radius: 50%;
-    width: 40px; height: 40px; font-size: 1.15em; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    touch-action: manipulation; flex-shrink: 0;
-  }
-  .header-title { font-size: 1.2em; font-weight: 900; color: #1a1a2e; }
-  .header-sub { font-size: 0.7em; color: #999; font-weight: 700; margin-top: 1px; }
-  .home-link { font-size: 0.75em; color: #aaa; text-decoration: none; font-weight: 700; margin-left: auto; flex-shrink: 0; }
-  .shuffle-header-btn {
-    margin-left: auto; background: #ffd700; border: none; border-radius: 20px;
-    padding: 7px 14px; font-size: 0.8em; font-weight: 800;
-    cursor: pointer; font-family: 'Nunito', sans-serif; touch-action: manipulation;
-  }
+.topic-view{padding:16px;max-width:900px;margin:0 auto;}
+.hero-header{text-align:center;padding:22px 20px 10px;}
+.hero-badge{font-size:54px;display:block;filter:drop-shadow(0 0 20px rgba(80,200,120,0.7));margin-bottom:6px;}
+.hero-title{font-size:26px;font-weight:900;color:#a5d6a7;margin-bottom:3px;}
+.hero-sub{font-size:13px;color:#81c784;opacity:0.85;}
 
-  /* ═══ TOPIC VIEW ═══ */
-  .topic-intro { padding: 20px 18px 6px; text-align: center; }
-  .topic-intro h2 { font-size: 1.45em; font-weight: 900; color: #1a1a2e; }
-  .topic-intro p { font-size: 0.8em; color: #999; margin-top: 4px; font-weight: 700; }
+.xp-bar-wrap{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(80,200,120,0.18);border-radius:14px;margin:10px auto;max-width:520px;}
+.level-badge{font-size:13px;font-weight:800;color:#ffd54f;min-width:110px;white-space:nowrap;}
+.xp-track{flex:1;height:9px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;}
+.xp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f9d423,#ff8c00);transition:width 0.7s cubic-bezier(0.34,1.56,0.64,1);width:0;}
+.xp-label{font-size:12px;color:rgba(255,255,255,0.5);white-space:nowrap;}
 
-  .topic-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-    gap: 13px; padding: 14px 14px 40px; max-width: 720px; margin: 0 auto;
-  }
-  .topic-tile {
-    border-radius: 18px; padding: 20px 12px 16px; cursor: pointer;
-    text-align: center; display: flex; flex-direction: column;
-    align-items: center; gap: 7px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    touch-action: manipulation; transition: transform 0.16s, box-shadow 0.16s;
-  }
-  .topic-tile:active { transform: scale(0.96); }
-  .tile-emoji { font-size: 2.2em; line-height: 1; }
-  .tile-name { font-size: 0.77em; font-weight: 900; color: white; line-height: 1.35; }
-  .tile-count { font-size: 0.63em; font-weight: 700; color: rgba(255,255,255,0.75); background: rgba(0,0,0,0.15); padding: 2px 8px; border-radius: 10px; }
-  .all-tile { background: linear-gradient(145deg, #1a1a3a, #2d2d60); grid-column: 1 / -1; flex-direction: row; padding: 16px 22px; gap: 14px; }
-  .all-tile .tile-emoji { font-size: 2em; }
-  .all-tile .tile-name { font-size: 1em; color: #ffd700; flex: 1; text-align: left; }
-  .all-tile .tile-count { font-size: 0.75em; background: rgba(255,215,0,0.15); }
+.streak-badge{display:none;align-items:center;gap:5px;background:rgba(255,165,0,0.15);border:1px solid rgba(255,165,0,0.4);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:#ffd54f;margin:6px auto;width:fit-content;}
 
-  /* ═══ CARD VIEW ═══ */
-  #cardView { display: none; }
-  .card-view-inner { padding: 12px 14px 40px; max-width: 680px; margin: 0 auto; }
-  .card-progress { font-size: 0.78em; color: #999; font-weight: 700; text-align: center; margin-bottom: 12px; }
+.mascot-wrap{text-align:center;margin:8px auto 4px;max-width:280px;}
+.mascot-emoji{font-size:62px;display:block;animation:mascotBob 2.6s ease-in-out infinite;line-height:1.2;cursor:default;}
+@keyframes mascotBob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-13px) rotate(3deg);}}
+.mascot-emoji.mascot-happy{animation:mascotBounce 0.55s ease forwards;}
+@keyframes mascotBounce{0%{transform:scale(1);}30%{transform:scale(1.4) rotate(12deg);}65%{transform:scale(0.9);}100%{transform:scale(1);}}
+.mascot-bubble{background:rgba(80,200,120,0.1);border:1px solid rgba(80,200,120,0.2);border-radius:16px;padding:8px 14px;font-size:13px;font-weight:700;margin-top:8px;position:relative;line-height:1.45;}
+.mascot-bubble::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:rgba(80,200,120,0.2);}
 
-  .card-wrapper { width: 100%; cursor: pointer; position: relative; touch-action: manipulation; margin-bottom: 18px; }
-  .card-inner { position: relative; width: 100%; }
+.stats-row{display:flex;gap:8px;margin:10px auto;max-width:520px;}
+.stat-pill{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(80,200,120,0.15);border-radius:12px;padding:10px 6px;text-align:center;}
+.stat-pill .stat-val{font-size:20px;font-weight:900;display:block;}
+.stat-pill .stat-lbl{font-size:10px;opacity:0.55;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
 
-  .card-face {
-    border-radius: 22px; display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    padding: 54px 22px 22px; text-align: center;
-    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
-    min-height: 290px; transition: opacity 0.25s ease;
-  }
-  .card-back-face {
-    position: absolute; top: 0; left: 0; width: 100%; min-height: 290px;
-    border-radius: 22px; display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    padding: 54px 22px 22px; text-align: center;
-    box-shadow: 0 10px 32px rgba(0,0,0,0.18);
-    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
-  }
-  .card-inner.flipped .card-face { opacity: 0; pointer-events: none; }
-  .card-inner.flipped .card-back-face { opacity: 1; pointer-events: auto; }
+.focus-section{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 14px;margin:8px auto;max-width:520px;display:none;}
+.focus-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;color:#fca5a5;}
+.weak-topics{display:flex;flex-wrap:wrap;gap:6px;}
+.weak-chip{background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.35);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fca5a5;cursor:pointer;transition:background 0.15s;}
+.weak-chip:hover{background:rgba(239,68,68,0.38);}
 
-  .card-tag {
-    position: absolute; top: 14px; left: 14px;
-    font-size: 0.67em; font-weight: 900; padding: 3px 10px; border-radius: 10px;
-    background: rgba(255,255,255,0.2); color: white;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .card-session-lbl {
-    position: absolute; top: 14px; right: 14px;
-    font-size: 0.6em; color: rgba(255,255,255,0.5); font-weight: 700;
-    max-width: 46%; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .card-big-emoji { font-size: 2.6em; margin-bottom: 8px; line-height: 1; }
-  .card-q-text { font-size: 1.05em; font-weight: 800; color: white; line-height: 1.5; white-space: pre-wrap; }
-  .card-hint-lbl { font-size: 0.67em; color: rgba(255,255,255,0.4); margin-top: 12px; font-weight: 700; }
-  .answer-hdr { font-size: 0.62em; font-weight: 900; color: rgba(255,255,255,0.65); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-  .card-a-text { font-size: 0.92em; font-weight: 700; color: white; line-height: 1.7; white-space: pre-wrap; }
+.search-bar{display:flex;align-items:center;background:rgba(255,255,255,0.06);border:2px solid rgba(80,200,120,0.3);border-radius:16px;padding:10px 16px;margin:12px auto;max-width:520px;}
+.search-bar input{background:none;border:none;outline:none;color:#e8f5e9;font-size:15px;font-family:'Nunito',sans-serif;width:100%;}
+.search-bar input::placeholder{color:rgba(165,214,167,0.4);}
+.search-icon{font-size:18px;margin-right:10px;opacity:0.55;}
+.no-results{text-align:center;padding:30px;opacity:0.4;display:none;}
 
-  /* NAV */
-  .nav-buttons { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
-  .nav-btn {
-    background: white; color: #444; border: 2px solid #dde0ea;
-    border-radius: 50%; width: 50px; height: 50px; font-size: 1.3em;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    touch-action: manipulation; box-shadow: 0 3px 10px rgba(0,0,0,0.09);
-  }
-  .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; box-shadow: none; }
-  .action-btn {
-    padding: 12px 24px; border-radius: 22px; border: none; cursor: pointer;
-    font-size: 0.9em; font-weight: 800; font-family: 'Nunito', sans-serif;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.14); touch-action: manipulation; transition: transform 0.15s;
-  }
-  .action-btn:active { transform: scale(0.95); }
-  .flip-btn { background: #1a1a3a; color: white; }
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:6px 0 24px;}
+.topic-tile{border-radius:20px;padding:22px 14px 18px;cursor:pointer;text-align:center;background:linear-gradient(145deg,#1b5e20,#2e7d32);box-shadow:0 4px 18px rgba(0,0,0,0.4);position:relative;overflow:hidden;transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease;}
+.topic-tile::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,0.16) 0%,transparent 65%);pointer-events:none;}
+.topic-tile:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 10px 32px rgba(0,0,0,0.5);}
+.topic-tile:active{transform:scale(0.97);}
+.topic-tile.all-tile{background:linear-gradient(145deg,#0a2e10,#1a5e22);border:2px solid rgba(80,200,120,0.45);}
+.topic-tile.tricky-tile{background:linear-gradient(145deg,#7f1d1d,#dc2626);border:2px solid rgba(252,165,165,0.5);animation:trickypulse 2.5s ease-in-out infinite;}
+@keyframes trickypulse{0%,100%{box-shadow:0 4px 18px rgba(220,38,38,0.3);}50%{box-shadow:0 8px 32px rgba(220,38,38,0.65);}}
+.tile-emoji{font-size:34px;margin-bottom:8px;display:block;}
+.tile-name{font-size:12px;font-weight:700;line-height:1.3;margin-bottom:4px;}
+.tile-count{font-size:11px;opacity:0.65;}
+.tile-progress{font-size:10px;margin-top:4px;opacity:0.8;color:#a5d6a7;}
+.home-link{display:block;text-align:center;margin:8px auto 20px;color:#81c784;text-decoration:none;font-size:13px;}
 
-  .progress-bar-wrap { width: 100%; background: #e4e6f0; border-radius: 6px; height: 6px; margin-top: 18px; }
-  .progress-bar { height: 6px; border-radius: 6px; transition: width 0.3s; }
+.badges-fab{position:fixed;bottom:22px;right:22px;background:linear-gradient(135deg,#f9d423,#ff8c00);border:none;border-radius:50%;width:54px;height:54px;font-size:24px;cursor:pointer;box-shadow:0 4px 22px rgba(249,212,35,0.5);z-index:50;display:none;align-items:center;justify-content:center;transition:transform 0.2s,box-shadow 0.2s;}
+.badges-fab.fab-show{display:flex;}
+.badges-fab:hover{transform:scale(1.12);box-shadow:0 6px 30px rgba(249,212,35,0.7);}
 
-  @media (max-width: 480px) {
-    .topic-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 12px 12px 40px; }
-    .topic-tile { padding: 16px 10px 14px; }
-    .tile-emoji { font-size: 1.9em; }
-    .card-face, .card-back-face { min-height: 300px; padding: 54px 16px 20px; }
-    .card-q-text { font-size: 0.97em; }
-    .card-a-text { font-size: 0.85em; }
-  }
+.card-view{display:none;padding:14px;max-width:680px;margin:0 auto;}
+.page-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.page-header-text{flex:1;}
+.page-header-text h2{font-size:16px;font-weight:800;}
+.page-header-text p{font-size:11px;opacity:0.5;margin-top:2px;}
+.cv-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.font-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8f5e9;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-weight:700;transition:background 0.15s;min-height:36px;}
+.font-btn.fb-active{background:rgba(80,200,120,0.35);border-color:rgba(80,200,120,0.7);}
+.quiz-toggle-btn{background:rgba(80,200,120,0.12);border:1px solid rgba(80,200,120,0.3);border-radius:8px;color:#a5d6a7;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;transition:background 0.15s;min-height:36px;}
+.quiz-toggle-btn.qt-active{background:rgba(80,200,120,0.4);border-color:#50c878;}
+.mute-btn,.shuffle-btn,.back-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8f5e9;cursor:pointer;padding:5px 10px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;min-height:36px;}
+.back-btn{border-radius:10px;padding:7px 14px;}
+.toolbar-spacer{flex:1;}
+.mute-btn:hover,.shuffle-btn:hover,.back-btn:hover{background:rgba(255,255,255,0.16);}
 
-  /* ═══ ENCHANTED LIBRARY THEME ═══ */
-  body { background: linear-gradient(160deg, #050f08 0%, #0a1f10 45%, #08181a 100%) !important; color: white !important; }
-  .page-header { background: rgba(5,15,8,0.92) !important; border-bottom: 1px solid rgba(80,200,120,0.25) !important; box-shadow: 0 2px 24px rgba(0,0,0,0.7) !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-  .back-btn { background: rgba(255,255,255,0.1) !important; color: white !important; border: 1px solid rgba(80,200,120,0.25) !important; }
-  .header-title { color: white !important; }
-  .header-sub { color: rgba(120,220,160,0.75) !important; }
-  .home-link { color: rgba(120,220,160,0.65) !important; }
-  .shuffle-header-btn { background: linear-gradient(135deg, #2e7d32, #66bb6a) !important; color: white !important; }
-  .topic-intro h2 { color: white !important; }
-  .topic-intro p { color: rgba(120,220,160,0.75) !important; }
-  .card-progress { color: rgba(120,220,160,0.75) !important; }
-  .nav-btn { background: rgba(255,255,255,0.07) !important; color: white !important; border: 2px solid rgba(80,200,120,0.3) !important; box-shadow: 0 0 14px rgba(60,180,80,0.12) !important; }
-  .flip-btn { background: linear-gradient(135deg, #1b5e20, #43a047) !important; box-shadow: 0 4px 18px rgba(67,160,71,0.4) !important; }
-  .progress-bar-wrap { background: rgba(255,255,255,0.1) !important; }
-  .theme-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: -1; overflow: hidden; }
-  .theme-star { position: absolute; border-radius: 50%; will-change: transform, opacity; -webkit-animation: t-tw ease-in-out infinite; animation: t-tw ease-in-out infinite; }
-  @-webkit-keyframes t-tw { 0%,100%{opacity:.1;-webkit-transform:scale(1);transform:scale(1)} 50%{opacity:.9;-webkit-transform:scale(2);transform:scale(2)} }
-  @keyframes t-tw { 0%,100%{opacity:.1;transform:scale(1)} 50%{opacity:.9;transform:scale(2)} }
-  .theme-float { position: absolute; pointer-events: none; user-select: none; opacity: 0; will-change: transform, opacity; -webkit-animation: t-rise linear infinite; animation: t-rise linear infinite; }
-  @-webkit-keyframes t-rise { 0%{-webkit-transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{-webkit-transform:translate3d(0,-10vh,0) rotate(360deg);opacity:0} }
-  @keyframes t-rise { 0%{transform:translate3d(0,110vh,0) rotate(0deg);opacity:0} 8%{opacity:.22} 92%{opacity:.22} 100%{transform:translate3d(0,-10vh,0) rotate(360deg);opacity:0} }
+.session-bar{display:flex;gap:12px;background:rgba(80,200,120,0.07);border:1px solid rgba(80,200,120,0.15);border-radius:12px;padding:8px 16px;margin-bottom:10px;justify-content:center;flex-wrap:wrap;}
+.session-bar span{font-size:13px;font-weight:700;color:rgba(255,255,255,0.65);}
+.sb-got{color:#86efac !important;}
+.sb-xp{color:#ffd54f !important;}
 
-  /* ── TOPIC SEARCH BAR ── */
-  .search-wrap { padding: 4px 14px 14px; max-width: 720px; margin: 0 auto; }
-  .search-box { position: relative; }
-  .search-icon { position: absolute; left: 14px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); font-size: 1em; pointer-events: none; line-height: 1; }
-  .search-input {
-    width: 100%; padding: 12px 18px 12px 44px;
-    border-radius: 30px; border: 2px solid rgba(80,200,120,0.3);
-    background: rgba(255,255,255,0.08); color: white;
-    font-size: 0.9em; font-weight: 700; font-family: 'Nunito', sans-serif;
-    outline: none; -webkit-appearance: none; appearance: none;
-    -webkit-transition: border-color 0.2s, box-shadow 0.2s; transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .search-input::placeholder { color: rgba(255,255,255,0.35); font-weight: 600; }
-  .search-input:focus { border-color: rgba(80,200,120,0.65); box-shadow: 0 0 18px rgba(80,200,120,0.22); }
-  .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
-  .no-results { display: none; text-align: center; padding: 28px 14px; color: rgba(255,255,255,0.38); font-weight: 700; font-size: 0.85em; }
+#cardWrapper{position:relative;cursor:pointer;margin-bottom:12px;}
+.card-rated-badge{position:absolute;top:12px;right:14px;font-size:22px;z-index:10;pointer-events:none;}
+.card-inner{position:relative;min-height:300px;}
+.card-inner.flipped .card-face-front{opacity:0;pointer-events:none;}
+.card-inner.flipped .card-face-back{opacity:1;pointer-events:auto;}
+.card-face-front,.card-face-back{border-radius:22px;padding:28px 24px;min-height:300px;display:flex;flex-direction:column;transition:opacity 0.32s ease;width:100%;box-shadow:0 8px 36px rgba(0,0,0,0.45);position:relative;overflow:hidden;}
+.card-face-back{position:absolute;top:0;left:0;opacity:0;pointer-events:none;}
+.card-face-front::after,.card-face-back::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 20%,rgba(255,255,255,0.18) 0%,transparent 60%);pointer-events:none;}
+.card-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:0.6;margin-bottom:5px;}
+.card-session{font-size:10px;opacity:0.4;margin-bottom:10px;}
+.card-emoji-big{font-size:44px;margin:6px 0 14px;line-height:1;}
+#cardQuestion{font-size:18px;font-weight:800;line-height:1.55;white-space:pre-wrap;}
+#cardAnswer{font-size:15px;line-height:1.78;white-space:pre-wrap;flex:1;}
+.flip-hint{font-size:12px;opacity:0.4;margin-top:auto;text-align:center;padding-top:14px;}
+.flip-btn{width:100%;padding:13px;border-radius:14px;border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px;background:linear-gradient(90deg,#2e7d32,#50c878);box-shadow:0 4px 20px rgba(80,200,120,0.4);transition:transform 0.12s,box-shadow 0.12s;}
+.flip-btn:hover{transform:translateY(-2px);box-shadow:0 6px 26px rgba(80,200,120,0.55);}
+
+.rating-wrap{display:none;flex-direction:row;gap:10px;margin-bottom:10px;}
+.rating-wrap.rw-show{display:flex;}
+.btn-got,.btn-hard{flex:1;padding:12px;border-radius:14px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.12s,box-shadow 0.12s;min-height:50px;}
+.btn-got{background:linear-gradient(90deg,#166534,#4ade80);color:#fff;box-shadow:0 4px 16px rgba(74,222,128,0.3);}
+.btn-hard{background:linear-gradient(90deg,#7f1d1d,#f87171);color:#fff;box-shadow:0 4px 16px rgba(248,113,113,0.3);}
+.btn-got:hover,.btn-hard:hover{transform:scale(1.03);}
+
+.nav-area{display:flex;gap:10px;margin-bottom:10px;}
+.nav-btn{flex:1;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8f5e9;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.15s,transform 0.1s;min-height:50px;}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+.nav-btn:not(:disabled):hover{background:rgba(255,255,255,0.14);transform:scale(1.02);}
+.card-progress{text-align:center;font-size:12px;opacity:0.5;margin-bottom:6px;}
+.progress-track{background:rgba(255,255,255,0.1);border-radius:99px;height:5px;margin-bottom:14px;overflow:hidden;}
+.progress-bar{height:100%;border-radius:99px;transition:width 0.35s ease;width:0;}
+
+.quiz-area{display:none;padding:14px;background:rgba(80,200,120,0.07);border:1px solid rgba(80,200,120,0.15);border-radius:16px;margin-bottom:12px;}
+.quiz-area.qa-show{display:block;}
+.quiz-q-box{font-size:14px;font-weight:700;margin-bottom:10px;line-height:1.5;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.quiz-opt{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8f5e9;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;text-align:left;transition:background 0.15s,transform 0.1s;min-height:44px;}
+.quiz-opt:hover{background:rgba(255,255,255,0.15);transform:scale(1.02);}
+.quiz-opt.qo-correct{background:rgba(34,197,94,0.35);border-color:#22c55e;}
+.quiz-opt.qo-wrong{background:rgba(239,68,68,0.35);border-color:#ef4444;}
+
+body.font-sm #cardQuestion{font-size:15px;}body.font-sm #cardAnswer{font-size:13px;}
+body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18px;}
+
+.summary-screen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;justify-content:center;align-items:center;padding:20px;}
+.summary-screen.ss-show{display:flex;}
+#confettiCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.summary-card{position:relative;background:linear-gradient(145deg,#071a0a,#0f2e14);border:1px solid rgba(80,200,120,0.3);border-radius:26px;padding:32px 26px;max-width:380px;width:100%;text-align:center;animation:sumPop 0.42s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 60px rgba(80,200,120,0.2);}
+@keyframes sumPop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.summary-mascot{font-size:68px;display:block;margin-bottom:10px;animation:mascotBounce 0.8s ease;}
+.summary-title{font-size:24px;font-weight:900;margin-bottom:4px;}
+.summary-sub{font-size:13px;opacity:0.6;margin-bottom:18px;}
+.summary-stats{display:flex;gap:10px;margin-bottom:16px;}
+.stat-box{flex:1;background:rgba(255,255,255,0.09);border-radius:14px;padding:14px 6px;}
+.stat-box span{font-size:24px;font-weight:900;display:block;color:#ffd54f;}
+.stat-box label{font-size:10px;opacity:0.6;font-weight:700;text-transform:uppercase;display:block;margin-top:3px;}
+.new-badges-wrap{min-height:10px;margin-bottom:14px;}
+.new-badge-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(249,212,35,0.18);border:1px solid rgba(249,212,35,0.45);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#ffd54f;margin:3px;animation:sumPop 0.4s ease;}
+.summary-btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(90deg,#2e7d32,#50c878);color:#fff;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:8px;box-shadow:0 4px 18px rgba(80,200,120,0.4);transition:transform 0.12s;}
+.summary-btn:hover{transform:translateY(-2px);}
+.summary-btn-sec{background:none;border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.6);border-radius:14px;padding:10px;width:100%;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;}
+
+.levelup-toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) scale(0);background:linear-gradient(135deg,#f9d423,#ff8c00);color:#1a1a2e;border-radius:14px;padding:12px 22px;font-weight:900;font-size:15px;z-index:500;pointer-events:none;opacity:0;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s;white-space:nowrap;}
+.levelup-toast.lt-show{transform:translateX(-50%) scale(1);opacity:1;}
+.badge-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) scale(0);background:rgba(7,26,10,0.97);border:1px solid rgba(249,212,35,0.5);color:#ffd54f;border-radius:14px;padding:10px 20px;font-weight:800;font-size:13px;z-index:500;pointer-events:none;opacity:0;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s;white-space:nowrap;}
+.badge-toast.bt-show{transform:translateX(-50%) scale(1);opacity:1;}
+
+.badges-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:150;justify-content:center;align-items:center;padding:20px;}
+.badges-modal.bm-show{display:flex;}
+.badges-inner{background:linear-gradient(145deg,#071a0a,#0f2e14);border:1px solid rgba(80,200,120,0.2);border-radius:24px;padding:26px;max-width:420px;width:100%;max-height:84vh;overflow-y:auto;animation:sumPop 0.3s ease;}
+.badges-inner h3{font-size:20px;font-weight:900;text-align:center;margin-bottom:16px;}
+.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.badge-card{border-radius:14px;padding:14px 10px;text-align:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);}
+.badge-card.earned{background:rgba(249,212,35,0.12);border-color:rgba(249,212,35,0.35);}
+.badge-card.locked{opacity:0.36;filter:grayscale(1);}
+.badge-icon{font-size:28px;margin-bottom:6px;}
+.badge-name{font-size:12px;font-weight:800;}
+.badge-desc{font-size:10px;opacity:0.6;margin-top:3px;line-height:1.3;}
+.close-modal-btn{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.22);background:none;color:rgba(255,255,255,0.65);font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+
+@keyframes slideInRight{from{transform:translateX(36px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes slideInLeft{from{transform:translateX(-36px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.slide-in-right{animation:slideInRight 0.28s ease forwards;}
+.slide-in-left{animation:slideInLeft 0.28s ease forwards;}
+
+@media(max-width:480px){
+  .topic-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .topic-tile{padding:18px 10px 14px;}
+  .tile-emoji{font-size:28px;}
+  .tile-name{font-size:11px;}
+  .card-face-front,.card-face-back{padding:20px 16px;min-height:260px;}
+  #cardQuestion{font-size:16px;}
+  .nav-btn,.flip-btn,.btn-got,.btn-hard{min-height:52px;font-size:15px;}
+  .stats-row{gap:6px;}
+  .stat-pill .stat-val{font-size:17px;}
+  .mascot-emoji{font-size:50px;}
+  .summary-card{padding:24px 16px;}
+  .stat-box span{font-size:20px;}
+}
 </style>
 </head>
 <body>
-<div id="themeBg" class="theme-bg"></div>
+<canvas id="leafCanvas"></canvas>
+<div class="levelup-toast" id="levelupToast"></div>
+<div class="badge-toast" id="badgeToast"></div>
+<button class="badges-fab" id="badgesFab" onclick="showBadges()">🏅</button>
 
-<!-- ═══ TOPIC VIEW ═══ -->
-<div id="topicView">
-  <div class="page-header">
-    <div>
-      <div class="header-title">📚 English Flashcards</div>
-      <div class="header-sub">Grammar School Prep · Pillai Tutors</div>
-    </div>
-    <div class="streak-badge" id="streakBadge" style="display:none"></div>
-    <a class="home-link" href="index.html">🏠 Home</a>
+<div class="page topic-view" id="topicView">
+  <div class="hero-header">
+    <span class="hero-badge">📚</span>
+    <h1 class="hero-title">English Flashcards</h1>
+    <p class="hero-sub">✨ Enchanted Library · Prisha's 11+ Prep</p>
+    <div class="streak-badge" id="streakBadge"></div>
   </div>
-  <div class="topic-intro">
-    <h2>Choose a Topic</h2>
-    <p>Tap a topic tile to start practising</p>
+  <div class="xp-bar-wrap">
+    <span class="level-badge" id="levelBadge">🌱 Seedling</span>
+    <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
+    <span class="xp-label" id="xpLabel">0 XP</span>
   </div>
-  <div class="search-wrap">
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input class="search-input" id="searchInput" type="search"
-             placeholder="Search topics e.g. verbs, figurative…" autocomplete="off" autocorrect="off"
-             oninput="handleSearch(this.value)"
-             onkeydown="if(event.key==='Escape'){this.value='';handleSearch('')}">
-    </div>
+  <div class="stats-row">
+    <div class="stat-pill"><span class="stat-val" id="statTotalCards">0</span><span class="stat-lbl">Rated</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statMastered">0</span><span class="stat-lbl">Mastered</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statXPTotal">0</span><span class="stat-lbl">Total XP</span></div>
   </div>
-  <div class="no-results" id="noResults">🤔 No topics match — try a different word</div>
+  <div class="mascot-wrap">
+    <span class="mascot-emoji" id="mascotEmoji">🦉</span>
+    <div class="mascot-bubble" id="mascotBubble">Welcome to the Enchanted Library, young scholar! ✨</div>
+  </div>
+  <div class="focus-section" id="focusSection">
+    <div class="focus-title">⚡ Focus Areas — tap to practise</div>
+    <div class="weak-topics" id="weakTopicsWrap"></div>
+  </div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search topics or questions…" oninput="handleSearch(this.value)" id="searchInput">
+  </div>
   <div class="topic-grid" id="topicGrid"></div>
+  <p class="no-results" id="noResults">No topics match — try a different search!</p>
+  <a href="index.html" class="home-link">🏠 Back to Home</a>
 </div>
 
-<!-- ═══ CARD VIEW ═══ -->
-<div id="cardView">
+<div class="page card-view" id="cardView">
   <div class="page-header">
-    <button class="back-btn" onclick="backToTopics()" title="Back to topics">&#8592;</button>
-    <div>
-      <div class="header-title" id="cvTitle"></div>
-      <div class="header-sub" id="cvSub"></div>
+    <button class="back-btn" onclick="goBackToTopics()">← Back</button>
+    <div class="page-header-text">
+      <h2 id="cvTitle"></h2>
+      <p id="cvSub"></p>
     </div>
   </div>
   <div class="cv-toolbar">
-    <button class="font-btn" id="fontSm" onclick="setFont('sm')">A-</button>
-    <button class="font-btn fb-active" id="fontMd" onclick="setFont('md')">A</button>
-    <button class="font-btn" id="fontLg" onclick="setFont('lg')">A+</button>
+    <button class="font-btn" onclick="setFont('sm')" id="fbSm">A-</button>
+    <button class="font-btn fb-active" onclick="setFont('md')" id="fbMd">A</button>
+    <button class="font-btn" onclick="setFont('lg')" id="fbLg">A+</button>
     <div class="toolbar-spacer"></div>
     <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz</button>
     <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-    <button class="shuffle-header-btn" onclick="shuffleCards()">🔀</button>
+    <button class="shuffle-btn" onclick="shuffleCards()">🔀</button>
   </div>
-  <div class="card-view-inner">
-    <div class="card-progress" id="cardProgress"></div>
-    <div class="card-wrapper" id="cardWrapper" onclick="flipCard()">
-      <div class="card-rated-badge" id="cardRatedBadge"></div>
-      <div class="card-inner" id="cardInner">
-        <div class="card-face" id="cardFront">
-          <div class="card-tag" id="frontTag"></div>
-          <div class="card-session-lbl" id="frontSession"></div>
-          <div class="card-big-emoji" id="cardEmoji"></div>
-          <div class="card-q-text" id="cardQuestion"></div>
-          <div class="card-hint-lbl">👆 Tap to reveal answer</div>
-        </div>
-        <div class="card-back-face" id="cardBack">
-          <div class="card-tag" id="backTag"></div>
-          <div class="card-session-lbl" id="backSession"></div>
-          <div class="answer-hdr">✨ Answer</div>
-          <div class="card-a-text" id="cardAnswer"></div>
-          <div class="card-hint-lbl">👆 Tap to see question</div>
-        </div>
+  <div class="session-bar">
+    <span>🃏 <span id="sbCards">0</span> seen</span>
+    <span class="sb-got">✅ <span id="sbGot">0</span> got it</span>
+    <span class="sb-xp">⚡ +<span id="sbXP">0</span> XP</span>
+  </div>
+  <div id="cardWrapper" onclick="flipCard()">
+    <div class="card-rated-badge" id="cardRatedBadge"></div>
+    <div class="card-inner" id="cardInner">
+      <div class="card-face-front" id="cardFront">
+        <div class="card-tag" id="frontTag"></div>
+        <div class="card-session" id="frontSession"></div>
+        <div class="card-emoji-big" id="cardEmoji"></div>
+        <div id="cardQuestion"></div>
+        <div class="flip-hint">Tap to reveal answer ✨</div>
+      </div>
+      <div class="card-face-back" id="cardBack">
+        <div class="card-tag" id="backTag"></div>
+        <div class="card-session" id="backSession"></div>
+        <div id="cardAnswer"></div>
       </div>
     </div>
-    <div class="nav-buttons">
-      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
-      <button class="action-btn flip-btn" id="flipBtn" onclick="flipCard()">Flip Card</button>
-      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
+  </div>
+  <button class="flip-btn" id="flipBtn" onclick="flipCard()">Tap to Flip 🦉</button>
+  <div class="rating-wrap" id="ratingWrap">
+    <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
+    <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
+  </div>
+  <div class="quiz-area" id="quizArea">
+    <div class="quiz-q-box" id="quizQuestion"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+  </div>
+  <div class="card-progress" id="cardProgress"></div>
+  <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="nav-area">
+    <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Previous</button>
+    <button class="nav-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<div class="summary-screen" id="summaryScreen">
+  <canvas id="confettiCanvas"></canvas>
+  <div class="summary-card">
+    <span class="summary-mascot" id="summaryMascot">🦉</span>
+    <div class="summary-title" id="summaryTitle">Chapter Complete!</div>
+    <div class="summary-sub" id="summarySub">You're a literary legend! 📚✨</div>
+    <div class="summary-stats">
+      <div class="stat-box"><span id="statSeen">0</span><label>Seen</label></div>
+      <div class="stat-box"><span id="statGot">0</span><label>Got It!</label></div>
+      <div class="stat-box"><span id="statXP">+0</span><label>XP</label></div>
     </div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="rating-wrap" id="ratingWrap">
-      <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
-      <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
-    </div>
-    <div class="quiz-area" id="quizArea">
-      <div class="quiz-q-box" id="quizQuestion"></div>
-      <div class="quiz-opts" id="quizOpts"></div>
-    </div>
+    <div class="new-badges-wrap" id="newBadgesWrap"></div>
+    <button class="summary-btn" onclick="closeSummary()">Keep Reading! 📖</button>
+    <button class="summary-btn-sec" onclick="closeSummaryAndBack()">Back to Topics</button>
+  </div>
+</div>
+
+<div class="badges-modal" id="badgesModal" onclick="if(event.target===this)hideBadges()">
+  <div class="badges-inner">
+    <h3>🏅 Your Badges</h3>
+    <div class="badges-grid" id="badgesGrid"></div>
+    <button class="close-modal-btn" onclick="hideBadges()">Close</button>
   </div>
 </div>
 
 <script>
-const TOPIC_META = {
-  "Nouns":                 { emoji:"🏷️", g1:"#1565c0", g2:"#1e88e5", d1:"#0d47a1", d2:"#1565c0" },
-  "Pronouns":              { emoji:"👤", g1:"#00838f", g2:"#00acc1", d1:"#006064", d2:"#00838f" },
-  "Adjectives":            { emoji:"🎨", g1:"#c62828", g2:"#e53935", d1:"#b71c1c", d2:"#c62828" },
-  "Verbs & Tenses":        { emoji:"⚡", g1:"#e65100", g2:"#f57c00", d1:"#bf360c", d2:"#e65100" },
-  "Figurative Language":   { emoji:"🌟", g1:"#7b2d8b", g2:"#9c27b0", d1:"#4a148c", d2:"#7b2d8b" },
-  "Prefixes & Suffixes":   { emoji:"🔤", g1:"#2e7d32", g2:"#388e3c", d1:"#1b5e20", d2:"#2e7d32" },
-  "Plurals & Spelling":    { emoji:"✏️", g1:"#4527a0", g2:"#5e35b1", d1:"#311b92", d2:"#4527a0" },
-  "Clauses":               { emoji:"🔗", g1:"#00695c", g2:"#00897b", d1:"#004d40", d2:"#00695c" },
-  "Adverbials":            { emoji:"📍", g1:"#f57f17", g2:"#f9a825", d1:"#e65100", d2:"#f57f17" },
-  "Punctuation":           { emoji:"❗", g1:"#ad1457", g2:"#d81b60", d1:"#880e4f", d2:"#ad1457" },
-  "Prepositions":          { emoji:"📌", g1:"#5d4037", g2:"#6d4c41", d1:"#3e2723", d2:"#5d4037" },
-  "Homophones":            { emoji:"👯", g1:"#558b2f", g2:"#7cb342", d1:"#33691e", d2:"#558b2f" },
-  "Determiners":           { emoji:"📋", g1:"#283593", g2:"#3949ab", d1:"#1a237e", d2:"#283593" },
-  "Text Types":            { emoji:"📝", g1:"#bf360c", g2:"#e64a19", d1:"#8d1f00", d2:"#bf360c" },
-  "Reading Comprehension": { emoji:"🔎", g1:"#37474f", g2:"#546e7a", d1:"#263238", d2:"#37474f" },
-  "Paragraphs & Cohesion": { emoji:"🧩", g1:"#6a1b9a", g2:"#8e24aa", d1:"#4a148c", d2:"#6a1b9a" },
-  "Grammar Rules":         { emoji:"📚", g1:"#004d40", g2:"#00695c", d1:"#002b27", d2:"#004d40" },
+var isQuizMode=false,soundMuted=false,sessionSeen={},isSwiping=false,_confAnim=null,_audioCtx=null;
+var sessionXP=0,sessionGot=0,sessionCards=0,newlyEarnedBadges=[],sessionQuizCorrect=0;
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function _getAC(){if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();return _audioCtx;}
+function _tone(f,dur,type,vol){try{var ac=_getAC(),o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=type||'sine';o.frequency.setValueAtTime(f,ac.currentTime);g.gain.setValueAtTime(vol||0.18,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);o.start();o.stop(ac.currentTime+dur);}catch(e){}}
+function playFlip(){if(soundMuted)return;_tone(440,0.08,'sine',0.12);setTimeout(function(){_tone(520,0.08,'sine',0.10);},60);}
+function playGot(){if(soundMuted)return;[523,659,784].forEach(function(f,i){setTimeout(function(){_tone(f,0.15,'sine',0.15);},i*80);});}
+function playHard(){if(soundMuted)return;_tone(330,0.2,'triangle',0.12);}
+function playCelebrate(){if(soundMuted)return;[523,659,784,1047].forEach(function(f,i){setTimeout(function(){_tone(f,0.25,'sine',0.18);},i*100);});}
+function initFont(){_applyFont(lsGet('prisha_font','md'));}
+function setFont(s){lsSet('prisha_font',s);_applyFont(s);}
+function _applyFont(s){['sm','md','lg'].forEach(function(c){document.body.classList.remove('font-'+c);var id='fb'+c.charAt(0).toUpperCase()+c.slice(1);var b=document.getElementById(id);if(b)b.classList.remove('fb-active');});document.body.classList.add('font-'+s);var btn=document.getElementById('fb'+s.charAt(0).toUpperCase()+s.slice(1));if(btn)btn.classList.add('fb-active');}
+function initMute(){soundMuted=lsGet('prisha_mute',false);_updMute();}
+function toggleMute(){soundMuted=!soundMuted;lsSet('prisha_mute',soundMuted);_updMute();}
+function _updMute(){var b=document.getElementById('muteBtn');if(b)b.textContent=soundMuted?'🔇':'🔊';}
+function _today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function updateStreak(){var s=lsGet('prisha_streak',{day:'',count:0}),today=_today();if(s.day===today){_showStreak(s.count);return;}var yest=new Date();yest.setDate(yest.getDate()-1);var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();var nc=s.day===ys?s.count+1:1;s={day:today,count:nc};lsSet('prisha_streak',s);_showStreak(nc);if(nc>=3)checkBadge('streak3');if(nc>=7)checkBadge('streak7');}
+function _showStreak(n){var b=document.getElementById('streakBadge');if(!b)return;if(n>0){b.textContent='🔥 '+n+' day streak';b.style.display='flex';}else{b.style.display='none';}}
+function _ratings(){return lsGet('prisha_ratings',{});}
+function _key(t,q){return t+'||'+q;}
+function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;lsSet('prisha_ratings',r);}
+function getCardRating(t,q){return _ratings()[_key(t,q)]||null;}
+function showRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.add('rw-show');}
+function hideRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.remove('rw-show');}
+function rateCard(val){
+  if(!filtered||!filtered.length)return;
+  var card=filtered[current];saveRating(card.topic,card.q,val);updateRatedBadge();
+  if(val==='got'){playGot();sessionGot++;sessionXP+=10;sessionCards++;addXP(10);var totalGot=Object.values(_ratings()).filter(function(v){return v==='got';}).length;if(sessionGot>=5)checkBadge('got5');if(totalGot>=20)checkBadge('cards20got');mascotSay(_pick(MASCOT_GOT),true);}
+  else{playHard();sessionXP+=3;sessionCards++;addXP(3);mascotSay(_pick(MASCOT_HARD),false);}
+  var totalRated=Object.keys(_ratings()).length;if(totalRated>=50)checkBadge('cards50');
+  updateSessionBar();hideRatingBtns();
+}
+function updateRatedBadge(){var b=document.getElementById('cardRatedBadge');if(!b||!filtered||!filtered.length)return;var r=getCardRating(filtered[current].topic,filtered[current].q);b.textContent=r==='got'?'✅':r==='hard'?'😅':'';}
+function getTrickyCards(){var r=_ratings(),out=[];if(typeof ALL_CARDS!=='undefined'){ALL_CARDS.forEach(function(c){if(r[_key(c.topic,c.q)]==='hard')out.push(c);});}return out;}
+var XP_LEVELS=[{name:'🌱 Seedling',min:0,max:149},{name:'🔭 Explorer',min:150,max:399},{name:'📖 Scholar',min:400,max:749},{name:'⭐ Achiever',min:750,max:1199},{name:'🏆 Champion',min:1200,max:1999},{name:'👑 Legend',min:2000,max:Infinity}];
+function getLevelIdx(xp){for(var i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS[i].min)return i;}return 0;}
+function addXP(amt){var xp=lsGet('prisha_xp',0),oldLvl=getLevelIdx(xp);xp+=amt;lsSet('prisha_xp',xp);var newLvl=getLevelIdx(xp);if(newLvl>oldLvl){showLevelUpToast(XP_LEVELS[newLvl].name);if(newLvl>=3)checkBadge('level_scholar');if(newLvl>=4)checkBadge('level_champion');}updateXPBar();}
+function updateXPBar(){var xp=lsGet('prisha_xp',0),li=getLevelIdx(xp),lvl=XP_LEVELS[li];var pct=li===XP_LEVELS.length-1?100:Math.round((xp-lvl.min)/(lvl.max-lvl.min)*100);var f=document.getElementById('xpFill');if(f)f.style.width=pct+'%';var l=document.getElementById('xpLabel');if(l)l.textContent=xp+' XP';var b=document.getElementById('levelBadge');if(b)b.textContent=lvl.name;}
+function showLevelUpToast(name){var t=document.getElementById('levelupToast');if(!t)return;t.textContent='🎉 Level Up! '+name;t.classList.add('lt-show');setTimeout(function(){t.classList.remove('lt-show');},2800);}
+function updateStatsRow(){var r=_ratings(),total=Object.keys(r).length,mastered=Object.values(r).filter(function(v){return v==='got';}).length,xp=lsGet('prisha_xp',0);var e;e=document.getElementById('statTotalCards');if(e)e.textContent=total;e=document.getElementById('statMastered');if(e)e.textContent=mastered;e=document.getElementById('statXPTotal');if(e)e.textContent=xp;}
+function updateSessionBar(){var total=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);var e;e=document.getElementById('sbCards');if(e)e.textContent=total;e=document.getElementById('sbGot');if(e)e.textContent=sessionGot;e=document.getElementById('sbXP');if(e)e.textContent=sessionXP;}
+var BADGES=[{id:'first_flip',icon:'📖',name:'First Page',desc:'Flip your first card'},{id:'got5',icon:'✅',name:'Quick Scholar',desc:'5 Got it! in one session'},{id:'streak3',icon:'🔥',name:'Streak Starter',desc:'Study 3 days in a row'},{id:'streak7',icon:'💫',name:'Streak Master',desc:'Study 7 days in a row'},{id:'topic_ace',icon:'🎯',name:'Topic Ace',desc:'Finish a topic with 80%+ Got it!'},{id:'five_topics',icon:'🌟',name:'Explorer',desc:'Complete 5 different topics'},{id:'cards50',icon:'📚',name:'Bookworm',desc:'Have 50 rated cards'},{id:'cards20got',icon:'💪',name:'Word Master',desc:'Master 20 cards'},{id:'quiz10',icon:'🧠',name:'Quiz Whiz',desc:'Ace 10 quiz questions'},{id:'level_scholar',icon:'⭐',name:'Scholar',desc:'Reach Scholar level'},{id:'level_champion',icon:'🏆',name:'Champion',desc:'Reach Champion level'},];
+function checkBadge(id){var earned=lsGet('prisha_badges',[]);if(earned.indexOf(id)===-1){earned.push(id);lsSet('prisha_badges',earned);newlyEarnedBadges.push(id);showBadgeToast(id);}}
+function showBadgeToast(id){var b=BADGES.find(function(x){return x.id===id;});if(!b)return;var t=document.getElementById('badgeToast');if(!t)return;t.textContent=b.icon+' Badge unlocked: '+b.name+'!';t.classList.add('bt-show');setTimeout(function(){t.classList.remove('bt-show');},3000);}
+function showBadges(){var earned=lsGet('prisha_badges',[]),grid=document.getElementById('badgesGrid');if(!grid)return;grid.innerHTML='';BADGES.forEach(function(b){var isE=earned.indexOf(b.id)!==-1;var c=document.createElement('div');c.className='badge-card '+(isE?'earned':'locked');c.innerHTML='<div class="badge-icon">'+b.icon+'</div><div class="badge-name">'+b.name+'</div><div class="badge-desc">'+b.desc+'</div>';grid.appendChild(c);});document.getElementById('badgesModal').classList.add('bm-show');}
+function hideBadges(){document.getElementById('badgesModal').classList.remove('bm-show');}
+var MASCOT_GOT=['Splendid! Your vocabulary blooms! 🌸','Brilliant! A true wordsmith! ✍️','Magnificent! The library applauds! 📖','Eloquently done! ✨','The owl is impressed! 🦉'];
+var MASCOT_HARD=['Every great author once struggled! 💪','Wisdom grows with practice! 🌟','The owl believes in you! 🦉','Keep turning the pages! 📚'];
+var MASCOT_START=['Open the book and let\'s begin! 📖','The enchanted library awaits! ✨','Wisdom begins with the first word! 🦉'];
+function _pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function mascotSay(msg,happy){var bubble=document.getElementById('mascotBubble'),em=document.getElementById('mascotEmoji');if(bubble)bubble.textContent=msg;if(em&&happy){em.classList.remove('mascot-happy');void em.offsetWidth;em.classList.add('mascot-happy');setTimeout(function(){em.classList.remove('mascot-happy');},600);}}
+function trackCardSeen(topic,q){if(!sessionSeen[topic])sessionSeen[topic]={};sessionSeen[topic][q]=true;}
+function refreshTileProgress(){document.querySelectorAll('.topic-tile:not(.all-tile):not(.tricky-tile)').forEach(function(tile){var ne=tile.querySelector('.tile-name');if(!ne)return;var topic=ne.textContent.trim(),seen=sessionSeen[topic]?Object.keys(sessionSeen[topic]).length:0,total=typeof ALL_CARDS!=='undefined'?ALL_CARDS.filter(function(c){return c.topic===topic;}).length:0;var pp=tile.querySelector('.tile-progress');if(!pp){pp=document.createElement('div');pp.className='tile-progress';tile.appendChild(pp);}pp.textContent=seen>0?seen+'/'+total+' seen':'';});}
+function updateProgressSection(){var r=_ratings(),topicHard={};if(typeof ALL_CARDS!=='undefined'){ALL_CARDS.forEach(function(c){if(!topicHard[c.topic])topicHard[c.topic]=0;if(r[_key(c.topic,c.q)]==='hard')topicHard[c.topic]++;});}var weak=Object.keys(topicHard).filter(function(t){return topicHard[t]>0;}).sort(function(a,b){return topicHard[b]-topicHard[a];}).slice(0,5);var fs=document.getElementById('focusSection'),wrap=document.getElementById('weakTopicsWrap');if(!fs||!wrap)return;if(weak.length===0){fs.style.display='none';return;}fs.style.display='block';wrap.innerHTML='';weak.forEach(function(t){var meta=typeof TOPIC_META!=='undefined'?(TOPIC_META[t]||{emoji:'📚'}):{emoji:'📚'};var chip=document.createElement('span');chip.className='weak-chip';chip.textContent=meta.emoji+' '+t+' ('+topicHard[t]+')';chip.onclick=function(){enterTopic(t);};wrap.appendChild(chip);});}
+function toggleQuizMode(){isQuizMode=!isQuizMode;var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}}
+function renderQuiz(){if(!filtered||!filtered.length)return;var card=filtered[current],correct=card.q;var pool=filtered.filter(function(c){return c.q!==correct;}).sort(function(){return Math.random()-0.5;}).slice(0,3).map(function(c){return c.q;});var opts=[correct].concat(pool).sort(function(){return Math.random()-0.5;});var qb=document.getElementById('quizQuestion');if(qb)qb.textContent='Which question matches this answer?\n'+card.a.substring(0,80)+'…';var ob=document.getElementById('quizOpts');if(!ob)return;ob.innerHTML='';opts.forEach(function(o){var btn=document.createElement('button');btn.className='quiz-opt';btn.textContent=o.length>60?o.substring(0,57)+'…':o;btn.onclick=function(){answerQuiz(o,correct,ob);};ob.appendChild(btn);});}
+function answerQuiz(chosen,correct,container){var btns=container.querySelectorAll('.quiz-opt');btns.forEach(function(b){b.onclick=null;var t=b.textContent,c=correct.length>60?correct.substring(0,57)+'…':correct,ch=chosen.length>60?chosen.substring(0,57)+'…':chosen;if(t===c)b.classList.add('qo-correct');else if(t===ch)b.classList.add('qo-wrong');});if(chosen===correct){playGot();sessionQuizCorrect++;var tqc=lsGet('prisha_quiz_correct',0)+1;lsSet('prisha_quiz_correct',tqc);if(tqc>=10)checkBadge('quiz10');}else playHard();}
+function showSessionSummary(){playCelebrate();_startConf();var totalSeen=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);if(filtered&&filtered.length){var gotCount=filtered.filter(function(c){return getCardRating(c.topic,c.q)==='got';}).length;if(gotCount/filtered.length>=0.8)checkBadge('topic_ace');}if(filtered&&filtered.length&&filtered[0].topic){var ct=lsGet('prisha_completed_topics',[]),tn=filtered[0].topic;if(ct.indexOf(tn)===-1){ct.push(tn);lsSet('prisha_completed_topics',ct);if(ct.length>=5)checkBadge('five_topics');}}addXP(50);var xpEarned=sessionXP+50;var e;e=document.getElementById('statSeen');if(e)e.textContent=totalSeen;e=document.getElementById('statGot');if(e)e.textContent=sessionGot;e=document.getElementById('statXP');if(e)e.textContent='+'+xpEarned+' XP';var titles=['Chapter Complete! 📖','Topic Mastered! 🌟','Brilliant Work! 🏆','Eloquently Done! ✍️','The Library Cheers! 📚'];e=document.getElementById('summaryTitle');if(e)e.textContent=titles[Math.floor(Math.random()*titles.length)];var nb=document.getElementById('newBadgesWrap');if(nb){nb.innerHTML='';newlyEarnedBadges.forEach(function(id){var b=BADGES.find(function(x){return x.id===id;});if(b){var chip=document.createElement('div');chip.className='new-badge-chip';chip.textContent=b.icon+' '+b.name;nb.appendChild(chip);}});}newlyEarnedBadges=[];sessionXP=0;sessionGot=0;sessionCards=0;sessionQuizCorrect=0;document.getElementById('summaryScreen').classList.add('ss-show');}
+function closeSummary(){_stopConf();document.getElementById('summaryScreen').classList.remove('ss-show');}
+function closeSummaryAndBack(){closeSummary();goBackToTopics();}
+function _startConf(){var cv=document.getElementById('confettiCanvas');if(!cv)return;var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;var p=[];for(var i=0;i<130;i++)p.push({x:Math.random()*cv.width,y:Math.random()*-cv.height,vx:(Math.random()-0.5)*4.5,vy:Math.random()*4+2,color:'hsl('+(Math.random()*360)+',80%,60%)',size:Math.random()*8+4,angle:Math.random()*Math.PI*2,spin:(Math.random()-0.5)*0.2});function step(){ctx.clearRect(0,0,cv.width,cv.height);p.forEach(function(pt){ctx.save();ctx.translate(pt.x,pt.y);ctx.rotate(pt.angle);ctx.fillStyle=pt.color;ctx.fillRect(-pt.size/2,-pt.size/2,pt.size,pt.size);ctx.restore();pt.x+=pt.vx;pt.y+=pt.vy;pt.angle+=pt.spin;if(pt.y>cv.height)pt.y=-20;});_confAnim=requestAnimationFrame(step);}step();}
+function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=null;}var cv=document.getElementById('confettiCanvas');if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}}
+(function(){var sx=0,sy=0,th=50;window.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
+initFont();initMute();updateStreak();
+</script>
+<script>
+const TOPIC_META={
+  "Parts of Speech":       {emoji:"🏷️",g1:"#1b5e20",g2:"#2e7d32",d1:"#0a3d12",d2:"#1b5e20"},
+  "Punctuation":           {emoji:"✍️",g1:"#004d40",g2:"#00695c",d1:"#002b27",d2:"#004d40"},
+  "Sentence Types":        {emoji:"💬",g1:"#1a237e",g2:"#283593",d1:"#0d1257",d2:"#1a237e"},
+  "Figurative Language":   {emoji:"🎨",g1:"#880e4f",g2:"#ad1457",d1:"#560027",d2:"#880e4f"},
+  "Vocabulary":            {emoji:"📖",g1:"#4a148c",g2:"#6a1b9a",d1:"#2d0057",d2:"#4a148c"},
+  "Prefixes & Suffixes":   {emoji:"🔤",g1:"#e65100",g2:"#f57c00",d1:"#bf360c",d2:"#e65100"},
+  "Synonyms & Antonyms":   {emoji:"🔁",g1:"#006064",g2:"#00838f",d1:"#003b3f",d2:"#006064"},
+  "Comprehension Skills":  {emoji:"🔎",g1:"#33691e",g2:"#558b2f",d1:"#1b3300",d2:"#33691e"},
+  "Homophones":            {emoji:"👂",g1:"#bf360c",g2:"#e64a19",d1:"#8d1f00",d2:"#bf360c"},
+  "Spelling Rules":        {emoji:"✏️",g1:"#283593",g2:"#3949ab",d1:"#1a237e",d2:"#283593"},
+  "Word Classes":          {emoji:"📝",g1:"#37474f",g2:"#546e7a",d1:"#263238",d2:"#37474f"},
+  "Connectives":           {emoji:"🔗",g1:"#5d4037",g2:"#6d4c41",d1:"#3e2723",d2:"#5d4037"},
+  "Persuasive Writing":    {emoji:"🗣️",g1:"#c62828",g2:"#e53935",d1:"#b71c1c",d2:"#c62828"},
+  "Narrative Writing":     {emoji:"📜",g1:"#2e7d32",g2:"#388e3c",d1:"#1b5e20",d2:"#2e7d32"},
+  "Poetry":                {emoji:"🌸",g1:"#ad1457",g2:"#d81b60",d1:"#880e4f",d2:"#ad1457"},
+  "Grammar Rules":         {emoji:"📐",g1:"#0277bd",g2:"#0288d1",d1:"#01579b",d2:"#0277bd"},
+  "Cloze & Word Problems": {emoji:"🧩",g1:"#558b2f",g2:"#7cb342",d1:"#33691e",d2:"#558b2f"},
 };
-
-const FUN_EMOJIS = ["🦄","🐉","🦊","🐸","🦁","🐧","🦋","🐬","🦖","🐙","🌈","⭐","🚀","🌺","🎈","🍦","🎮","🦜","🐣","🌻","🎸","🏆","🎭","🦩","🐳"];
-
-const ALL_CARDS = [
-  // ── NOUNS ──────────────────────────────────────────────────────────────────
-  { topic:"Nouns", session:"Lessons 1F, 2F · Rev 1, 3", q:"What is a noun?", a:"A word that names a person, place, animal, or thing.\n\nExamples: teacher, London, cat, happiness" },
-  { topic:"Nouns", session:"Lessons 1F, 2F · Rev 1, 3", q:"What is a COMMON noun?", a:"A noun that names any general person, place, or thing — not a specific one.\n\nExamples: dog, city, book, girl" },
-  { topic:"Nouns", session:"Lessons 1F, 2F · Rev 1, 3", q:"What is a PROPER noun?", a:"A noun that names a specific person, place, day, or title. Always starts with a CAPITAL letter.\n\nExamples: London, Harry, Monday, River Thames" },
-  { topic:"Nouns", session:"Rev 1, 3 · Lesson 1F", q:"What is an ABSTRACT noun?", a:"A noun that names a feeling, idea, quality, or concept you cannot touch or see.\n\nExamples: happiness, courage, love, freedom, justice" },
-  { topic:"Nouns", session:"Rev 1, 3 · Lesson 2F", q:"What is a COLLECTIVE noun?", a:"A noun that names a group of people, animals, or things.\n\nExamples:\n• a flock of birds\n• a pack of wolves\n• a swarm of bees\n• a team of players" },
-  { topic:"Nouns", session:"Lesson 2F", q:"What is a COMPOUND noun?", a:"A noun made from two or more words combined.\n\nExamples: football, bedroom, sunflower, raincoat, toothbrush" },
-  { topic:"Nouns", session:"Revision 37", q:"Give the feminine form of: king, actor, waiter, hero, duke", a:"king → queen\nactor → actress\nwaiter → waitress\nhero → heroine\nduke → duchess" },
-  { topic:"Nouns", session:"Revision", q:"TRICKY: Is 'darkness' a common, proper, abstract, or collective noun?", a:"ABSTRACT noun — it names a concept or quality you cannot see or touch.\n\n'The darkness swallowed the path.' → abstract\n\nMore tricky examples:\nSILENCE · JUSTICE · HOPE · MISERY · PRIDE\n\nThese cannot be held, but they can be felt!" },
-  // ── PRONOUNS ───────────────────────────────────────────────────────────────
-  { topic:"Pronouns", session:"Lesson 3F · Rev 2", q:"What is a PRONOUN?", a:"A word that replaces a noun to avoid repetition.\n\nExamples: he, she, it, they, we, I, you, me, us, them" },
-  { topic:"Pronouns", session:"Lesson 3F", q:"What are PERSONAL pronouns?", a:"Pronouns that refer to specific people or things.\n\nSubject: I, you, he, she, it, we, they\nObject: me, you, him, her, it, us, them\n\nExample: Tom dropped his bag → He dropped it." },
-  { topic:"Pronouns", session:"Lesson 15F · 21F", q:"What is a RELATIVE pronoun?", a:"A pronoun that introduces a relative clause.\n\nWords: who, which, that, whose, whom\n\nExample: The girl WHO won the race is my friend." },
-  { topic:"Pronouns", session:"Lesson 3F", q:"What is POINT OF VIEW? What pronouns signal it?", a:"1st person: narrator in the story → I, we, me, us\n2nd person: reader addressed → you\n3rd person: narrator outside story → he, she, they, it\n\nTip: stay consistent throughout!" },
-  // ── ADJECTIVES ─────────────────────────────────────────────────────────────
-  { topic:"Adjectives", session:"Lesson 4F · 7 22", q:"What is an ADJECTIVE?", a:"A word that describes or modifies a noun or pronoun.\n\nExamples: tall, blue, happy, enormous, ancient, delightful\n\nTip: Replace boring adjectives with adventurous ones!" },
-  { topic:"Adjectives", session:"Lesson 4F · 7 22", q:"What is the COMPARATIVE form of an adjective?", a:"Used to compare TWO things. Add -er or use 'more'.\n\nshort → shorter\ntall → taller\nbeautiful → more beautiful\ngood → better (irregular)\nbad → worse (irregular)" },
-  { topic:"Adjectives", session:"Lesson 4F · 7 22", q:"What is the SUPERLATIVE form of an adjective?", a:"Used to compare THREE or more things. Add -est or use 'most'.\n\nshort → shortest\ntall → tallest\nbeautiful → most beautiful\ngood → best\nbad → worst" },
-  { topic:"Adjectives", session:"Lesson 17F", q:"What are SENSORY adjectives?", a:"Adjectives that describe what something looks, sounds, smells, tastes, or feels like.\n\nSight: gleaming, shadowy\nSound: thunderous, hushed\nSmell: musty, fragrant\nTaste: bitter, tangy\nTouch: rough, silky" },
-  { topic:"Adjectives", session:"Lesson 7 22", q:"Replace these weak adjectives: nice, big, sad, scared, happy", a:"nice → delightful, charming, pleasant\nbig → enormous, colossal, towering\nsad → devastated, heartbroken, miserable\nscared → terrified, petrified, alarmed\nhappy → ecstatic, overjoyed, elated" },
-  // ── VERBS AND TENSES ───────────────────────────────────────────────────────
-  { topic:"Verbs & Tenses", session:"Lesson 5 · 8F · Christmas", q:"What is a VERB?", a:"A word that shows an action or a state of being.\n\nAction verbs: run, jump, shout, write\nBeing verbs: is, are, was, were, seem, appear" },
-  { topic:"Verbs & Tenses", session:"Lesson 5 · 8F", q:"What are the three main TENSES?", a:"PAST – already happened:\n  She ran to school.\n\nPRESENT – happening now:\n  She runs to school.\n\nFUTURE – will happen:\n  She will run to school." },
-  { topic:"Verbs & Tenses", session:"Lesson 5 · 8F", q:"What is the PRESENT PROGRESSIVE tense?", a:"Describes an action happening right NOW.\nFormed with: is/are + verb + -ing\n\nShe is running.\nThey are playing.\n\nSingular → is · Plural → are" },
-  { topic:"Verbs & Tenses", session:"Lesson 5 · 8F", q:"What is the PAST PROGRESSIVE tense?", a:"Describes an action ongoing at a moment in the past.\nFormed with: was/were + verb + -ing\n\nHe was reading when the bell rang.\nThey were sleeping all morning." },
-  { topic:"Verbs & Tenses", session:"Lesson 5 · 8F", q:"What is the PRESENT PERFECT tense?", a:"Actions that happened at an unspecified time before now.\nFormed with: has/have + past participle\n\nShe has eaten her lunch.\nI have visited Paris.\n\nClue words: already, just, yet, ever, never" },
-  { topic:"Verbs & Tenses", session:"Lesson 8F · Rev 41", q:"What is grammatical consistency in tense?", a:"Keeping the same tense throughout your writing.\n\n✗ She walked into the room and sits down.\n✓ She walked into the room and sat down." },
-  { topic:"Verbs & Tenses", session:"Revision", q:"What is the PASSIVE VOICE? How do you identify it?", a:"ACTIVE: the subject DOES the action.\n  'The dog bit the boy.'\n\nPASSIVE: the subject RECEIVES the action.\n  'The boy was bitten by the dog.'\n\nHow to spot passive:\nForm of 'to be' + past participle\n(was bitten, is eaten, were told)\n\nUsed in: reports, formal writing, newspaper articles." },
-  // ── FIGURATIVE LANGUAGE ────────────────────────────────────────────────────
-  { topic:"Figurative Language", session:"Lesson 17F", q:"What does HAMOPS stand for?", a:"HAMOPS is the memory trick for ALL 6 figurative language techniques:\n\nH – Hyperbole\nA – Alliteration\nM – Metaphor\nO – Onomatopoeia\nP – Personification\nS – Simile\n\n💡 Spot one of these in a text? Name it AND explain its effect on the reader for full marks!" },
-  { topic:"Figurative Language", session:"Lesson 6 · 17F", q:"What is a SIMILE?", a:"A comparison between two things using 'like' or 'as'.\n\nShe was as brave as a lion.\nThe stars sparkled like diamonds.\nHe ran like the wind." },
-  { topic:"Figurative Language", session:"Lesson 6 · 17F", q:"What is a METAPHOR?", a:"Saying one thing IS another — without 'like' or 'as'.\n\nThe classroom was a zoo.\nLife is a rollercoaster.\nHer eyes were diamonds.\n\nMetaphor = a direct comparison." },
-  { topic:"Figurative Language", session:"Lesson 17F", q:"What is ONOMATOPOEIA?", a:"A word that sounds like the thing it describes.\n\nExamples: buzz, crash, sizzle, bang, hiss, squelch, whoosh, clatter\n\nCreates sound effects in your writing!" },
-  { topic:"Figurative Language", session:"Lesson 6 · 17F", q:"What is PERSONIFICATION?", a:"Giving human feelings or actions to an object or idea.\n\nThe wind whispered through the trees.\nThe sun smiled down on us.\nOpportunity knocked on his door." },
-  { topic:"Figurative Language", session:"Lesson 17F", q:"What is ALLITERATION?", a:"Repeating the same consonant sound at the start of nearby words.\n\nSilent, slithering snakes.\nPeter Piper picked a peck of pickled peppers.\n\nEffect: creates rhythm and emphasis." },
-  { topic:"Figurative Language", session:"Lesson 17F", q:"What is HYPERBOLE?", a:"Deliberate exaggeration for emphasis or effect — NOT meant literally!\n\n'I've told you a million times!'\n'I'm so hungry I could eat a horse!'\n'My bag weighs a tonne.'\n\nEffect: adds drama, humour, or emphasis.\n\nExam tip: name it AND explain the effect on the reader!" },
-  { topic:"Figurative Language", session:"Lesson 17F", q:"What is PATHETIC FALLACY?", a:"Using weather or nature to reflect a character's MOOD or the ATMOSPHERE of a scene.\n\n'The thunder growled angrily as she stormed out.'\n'Gentle sunlight warmed their joyful laughter.'\n'Dark clouds gathered as the news broke.'\n\nEffect: creates atmosphere and mirrors emotions.\nIt's a type of personification — name BOTH for full marks!" },
-  // ── PREFIXES AND SUFFIXES ──────────────────────────────────────────────────
-  { topic:"Prefixes & Suffixes", session:"Lesson 10F", q:"What do these prefixes mean?\nun–, re–, mis–, dis–, pre–, over–", a:"un– = not / opposite (unhappy, unusual)\nre– = again / back (redo, return)\nmis– = wrongly (mistake, misread)\ndis– = not / opposite (disagree, dislike)\npre– = before (preview, prepare)\nover– = too much (overcooked, overdue)" },
-  { topic:"Prefixes & Suffixes", session:"Lesson 10F", q:"What do these prefixes mean?\nsub–, inter–, super–, auto–, bi–, anti–", a:"sub– = under (submarine, subway)\ninter– = between (international)\nsuper– = above/beyond (supernatural)\nauto– = self (autobiography)\nbi– = two (bicycle, bilingual)\nanti– = against (antibiotic)" },
-  { topic:"Prefixes & Suffixes", session:"Lesson 10F · 11F", q:"What do these suffixes mean?\n–ful, –less, –ness, –tion, –ly, –er, –ment", a:"–ful = full of (joyful, careful)\n–less = without (hopeless, careless)\n–ness = state of being (happiness)\n–tion = noun from verb (celebration)\n–ly = makes adverbs (quickly)\n–er = one who does (teacher)\n–ment = act of (enjoyment)" },
-  // ── PLURALS ────────────────────────────────────────────────────────────────
-  { topic:"Plurals & Spelling", session:"Lesson 11F · 19F", q:"What are the rules for making nouns PLURAL?", a:"• Most nouns: add –s (cat→cats)\n• Ends –s, –sh, –ch, –x, –z: add –es (church→churches)\n• Consonant + y: change y to i + es (city→cities)\n• Vowel + y: add –s (monkey→monkeys)\n• Irregular: child→children, mouse→mice, person→people" },
-  { topic:"Plurals & Spelling", session:"Lesson 11F", q:"What are some tricky IRREGULAR plurals?", a:"child → children\nmouse → mice\ngoose → geese\ntooth → teeth\nfoot → feet\nman → men · woman → women\nleaf → leaves · half → halves\ncactus → cacti" },
-  // ── CLAUSES ────────────────────────────────────────────────────────────────
-  { topic:"Clauses", session:"Lesson 15F · 21F", q:"What is a MAIN CLAUSE?", a:"A clause that makes complete sense ON ITS OWN.\nIt has a subject and a verb.\n\nThe dog barked.\nShe opened the door.\nLightning struck the tree." },
-  { topic:"Clauses", session:"Lesson 15F · 21F", q:"What is a SUBORDINATE CLAUSE?", a:"A clause that CANNOT stand alone — it depends on the main clause.\n\nbecause it was hungry\nwhen the storm ended\nalthough she was tired\n\nJoined by: because, when, although, while, if, unless, since, after, before" },
-  { topic:"Clauses", session:"Lesson 15F", q:"What is a RELATIVE CLAUSE?", a:"Gives more information about a noun. Introduced by a relative pronoun.\n\nThe book that I lost was new.\nThe girl who won the prize smiled.\nMy house, which is old, needs repairs." },
-  { topic:"Clauses", session:"Lesson 15F", q:"WHO vs WHICH vs THAT in relative clauses?", a:"WHO → refers to people\n  The teacher who taught me was kind.\n\nWHICH → things, adds non-essential info (use commas)\n  The car, which was red, sped away.\n\nTHAT → things, essential info (no commas)\n  The book that I borrowed was lost." },
-  { topic:"Clauses", session:"Lesson 15F", q:"What is an EMBEDDED CLAUSE? Give an example.", a:"A subordinate clause placed INSIDE the main clause — between the subject and its verb.\n\n'The girl, who had been waiting for hours, finally smiled.'\n'The teacher, despite being exhausted, marked every book.'\n\nTest: remove the embedded clause:\n→ 'The girl finally smiled.' ✓ Still makes sense!\n\nAlways separated by COMMAS on both sides." },
-  // ── ADVERBIALS ─────────────────────────────────────────────────────────────
-  { topic:"Adverbials", session:"Lesson 16F · 29F · 30F", q:"What is an ADVERBIAL?", a:"A word, phrase, or clause that tells you MORE about a verb — when, where, how, or why something happens.\n\nTime: in the morning, yesterday\nPlace: in the garden, behind the tree\nManner: quickly, with great care" },
-  { topic:"Adverbials", session:"Lesson 16F · 29F", q:"What is a FRONTED ADVERBIAL?", a:"An adverbial placed at the START of a sentence — always followed by a COMMA.\n\nEarly the next morning, the explorers set off.\nWith a heavy heart, she said goodbye.\nBefore the match, the team warmed up." },
-  { topic:"Adverbials", session:"Lesson 29F · 30F", q:"Give examples of adverbial phrases for TIME, PLACE, and MANNER", a:"TIME:\nIn the morning · Later that day · Eventually · By nightfall\n\nPLACE:\nIn the enchanted forest · Beyond the mountains\n\nMANNER:\nWith great care · As quietly as a mouse" },
-  // ── PUNCTUATION ────────────────────────────────────────────────────────────
-  { topic:"Punctuation", session:"Lesson 9F · 20F", q:"APOSTROPHE for POSSESSION — the rules", a:"Singular owner → add 's\n  the dog's bone · the girl's bag\n\nPlural owner ending in s → add '\n  the dogs' bones · the teachers' meeting\n\nIrregular plural → add 's\n  the children's playground" },
-  { topic:"Punctuation", session:"Lesson 9F", q:"APOSTROPHE for CONTRACTION — give examples", a:"do not → don't\nI am → I'm\nthey are → they're\nit is → it's\nyou are → you're\ncannot → can't\nwould not → wouldn't" },
-  { topic:"Punctuation", session:"Lesson 20F", q:"How do you punctuate DIRECT SPEECH?", a:"1. Put spoken words inside \" \"\n2. Start speech with a capital letter\n3. Punctuate INSIDE the closing \"\n4. New speaker = new paragraph\n\n\"I am ready,\" said Tom.\n\"Are you sure?\" she asked.\n\"Let's go!\" he shouted." },
-  { topic:"Punctuation", session:"Lesson 9F · 22F · 23F", q:"When do you use a SEMICOLON?", a:"1. To join two closely related independent clauses:\n   It was raining; we stayed inside.\n\n2. To separate list items that already have commas:\n   Paris, France; Rome, Italy; Berlin, Germany." },
-  { topic:"Punctuation", session:"Lesson 23F", q:"When do you use a COLON?", a:"1. To introduce a LIST:\n   I need three things: a pen, a ruler, and paper.\n\n2. To introduce an EXPLANATION:\n   There was only one problem: it was locked.\n\n3. To introduce a QUOTATION:\n   She remembered: 'Work hard and be kind.'" },
-  { topic:"Punctuation", session:"Lesson 20F · 21F", q:"Give 4 uses of COMMAS", a:"1. After a fronted adverbial:\n   In the morning, she woke early.\n\n2. To separate list items:\n   apples, oranges, and pears.\n\n3. Around extra information (parenthesis):\n   My dog, a golden retriever, loves walks.\n\n4. Before a coordinating conjunction:\n   It was cold, but she didn't wear a coat." },
-  { topic:"Punctuation", session:"Lesson 20F", q:"its/it's · your/you're · their/they're", a:"ITS = belonging to it → The cat hurt its paw.\nIT'S = it is/it has → It's raining.\n\nYOUR = belonging to you → Is this your book?\nYOU'RE = you are → You're amazing!\n\nTHEIR = belonging to them → Their house is big.\nTHEY'RE = they are → They're playing outside." },
-  { topic:"Punctuation", session:"Lesson 23F", q:"When do you use DASHES and BRACKETS?\nWhat is parenthesis?", a:"PARENTHESIS = extra information inside a sentence.\nThree ways to mark it:\n\nCOMMAS (softest): The castle, built in 1066, still stands.\nBRACKETS (factual): The castle (built in 1066) still stands.\nDASHES (dramatic): The castle — ancient and crumbling — still stands.\n\nRemove the parenthesis → sentence still works!\nDashes = most dramatic effect." },
-  // ── PREPOSITIONS ───────────────────────────────────────────────────────────
-  { topic:"Prepositions", session:"Lesson 24F · Rev 34", q:"What is a PREPOSITION?", a:"A word that shows the RELATIONSHIP between a noun/pronoun and other words — usually showing position, direction, or time.\n\nExamples: in, on, under, beside, between, behind, above, below, near, through, across" },
-  { topic:"Prepositions", session:"Lesson 24F · Rev 34", q:"Prepositions of PLACE, TIME, and DIRECTION", a:"PLACE: in, on, under, beside, between, behind, above, below, near, opposite\n\nTIME: at, on, in, before, after, during, since, for, until, by\n\nDIRECTION: to, towards, into, through, across, along, up, down" },
-  { topic:"Prepositions", session:"Revision 34", q:"What is a PREPOSITIONAL PHRASE?", a:"A phrase that starts with a preposition.\n\nunder the ancient oak tree\nbeside the rushing river\nduring the long summer holiday\ntowards the glowing horizon\n\nThese can be used as fronted adverbials!" },
-  // ── HOMOPHONES ─────────────────────────────────────────────────────────────
-  { topic:"Homophones", session:"Lesson 25F", q:"What is a HOMOPHONE?", a:"A word that SOUNDS THE SAME as another but has a different spelling and meaning.\n\nthere / their / they're\nto / too / two\nyour / you're · its / it's\nright / write · hear / here" },
-  { topic:"Homophones", session:"Lesson 25F", q:"there / their / they're", a:"THERE = a place\n  The keys are over there.\n  (contains 'here' — think of place!)\n\nTHEIR = belonging to them\n  That is their house.\n\nTHEY'RE = they are\n  They're coming to dinner." },
-  { topic:"Homophones", session:"Lesson 25F", q:"to / too / two", a:"TO = direction or infinitive\n  She went to the shops.\n  She wants to sing.\n\nTOO = also or excessively\n  I want to come too.\n  It's too hot.\n  (extra 'o' = extra/also!)\n\nTWO = the number 2" },
-  { topic:"Homophones", session:"Lesson 25F", q:"affect/effect · accept/except · allowed/aloud", a:"affect (verb) = to influence → The rain affected the game.\neffect (noun) = the result → The effect was dramatic.\n\naccept = to receive willingly\nexcept = not including → Everyone except Tom.\n\nallowed = permitted\naloud = out loud → Read it aloud." },
-  // ── DETERMINERS ────────────────────────────────────────────────────────────
-  { topic:"Determiners", session:"Lesson 29F", q:"What is a DETERMINER?", a:"A word placed BEFORE a noun to show which one or how many.\n\nArticles: the, a, an\nDemonstratives: this, that, these, those\nPossessives: my, your, his, her, our, their\nQuantifiers: some, many, few, each, every, several" },
-  { topic:"Determiners", session:"Lesson 29F", q:"When do you use 'A' vs 'AN'?", a:"A → before a CONSONANT sound\n  a cat · a uniform ('yoo' sound) · a European\n\nAN → before a VOWEL sound\n  an apple · an hour (silent 'h') · an honest man\n\nKey: it's about the SOUND, not the letter!" },
-  // ── TEXT TYPES ─────────────────────────────────────────────────────────────
-  { topic:"Text Types", session:"Lesson 26F", q:"What does MAADFOREST stand for?", a:"MAADFOREST is the memory trick for persuasive writing techniques:\n\nM – Modal verbs (must, should, could, would)\nA – Alliteration\nA – Anecdote (a short personal story)\nD – Direct address (you, your, we, our)\nF – Facts\nO – Opinions\nR – Rhetorical questions\nE – Emotive language\nS – Statistics\nT – Triples (rule of three)\n\n💡 Use MAADFOREST to pack your persuasive writing with powerful techniques!" },
-  { topic:"Text Types", session:"Lesson 26F", q:"MAADFOREST: give an example of each technique", a:"M – Modal: 'You must act now.'\nA – Alliteration: 'Powerful, passionate people'\nA – Anecdote: 'When I was young, I saw this firsthand…'\nD – Direct address: 'Think about your future.'\nF – Fact: 'Over 1 million children are affected.'\nO – Opinion: 'In my view, this is unacceptable.'\nR – Rhetorical Q: 'Wouldn't you want change?'\nE – Emotive: 'Innocent children are suffering.'\nS – Statistic: '8 out of 10 experts agree.'\nT – Triples: 'Unfair, unjust, unacceptable.'" },
-  { topic:"Text Types", session:"Rev 36 · Lesson 26F", q:"Features of PERSUASIVE WRITING", a:"• First person (I believe, In my opinion)\n• Rhetorical questions (Wouldn't you agree?)\n• Facts and statistics\n• Emotive language\n• Rule of three (unfair, unjust, unacceptable)\n• Counter-argument + rebuttal\n• Connectives: therefore, furthermore, consequently" },
-  { topic:"Text Types", session:"Revision 36", q:"Features of a NON-CHRONOLOGICAL REPORT", a:"• Present tense · Factual and impersonal\n• Subheadings and paragraphs\n• Technical vocabulary\n• Third person (he, she, it, they)\n• NOT in time order\n• Facts, comparisons, and examples" },
-  { topic:"Text Types", session:"Revision 36", q:"Features of INSTRUCTIONS", a:"• Imperative (command) verbs: Boil the water.\n• Numbered steps\n• Sequence adverbials: First, Then, Next, Finally\n• Clear, precise language\n• Second person (you)\n• Materials list at start" },
-  { topic:"Text Types", session:"Revision 36", q:"Features of NARRATIVE (Fiction) writing", a:"• Characters and setting established early\n• A problem / conflict to resolve\n• Descriptive language (figurative, adjectives)\n• Dialogue in inverted commas\n• Usually past tense · First or third person\n• Strong opening and satisfying ending" },
-  { topic:"Text Types", session:"Revision", q:"Structure of an ARGUMENT or DISCUSSION essay", a:"Introduction: introduce the issue clearly.\n\nPoint 1: strongest argument + evidence or example.\n\nPoint 2: second argument + evidence.\n\nCounter-argument: 'Some people argue that...' then REBUTTAL.\n\nConclusion: summarise + clear final viewpoint.\n\nKey connectives:\nFurthermore · However · Consequently\nNevertheless · In conclusion · To sum up" },
-  // ── READING COMPREHENSION ──────────────────────────────────────────────────
-  { topic:"Reading Comprehension", session:"Lesson 14F · Rev 35, 40", q:"What does INFERENCE mean in reading?", a:"Working out something SUGGESTED — not directly stated — using clues in the text.\n\nQuestion clues: 'What do you think…?', 'How do you know…?'\n\nMethod: Point → Quote → Explain" },
-  { topic:"Reading Comprehension", session:"Revision 40", q:"What is the P-Q-E method?", a:"P = POINT: State your answer clearly.\n\nQ = QUOTE: Use evidence from the text.\n\nE = EXPLAIN: Explain why this evidence supports your point.\n\nExample:\nP: The character is nervous.\nQ: She 'twisted her hands together'.\nE: This suggests anxiety and worry." },
-  { topic:"Reading Comprehension", session:"Revision 40", q:"RETRIEVAL vs INFERENCE — how do you tell the difference?", a:"RETRIEVAL = find the answer IN the text.\nClue words: 'According to the text...', 'Find ONE word that means...', 'What does the author say about...'\nStrategy: scan and locate.\n\nINFERENCE = read BETWEEN the lines.\nClue words: 'What do you think...', 'How do you know...', 'Explain why...'\nStrategy: use P–Q–E\n\nDifferent question → different method!" },
-  // ── PARAGRAPHS AND COHESION ────────────────────────────────────────────────
-  { topic:"Paragraphs & Cohesion", session:"Lesson 30F · Rev 40", q:"COHESIVE DEVICES for linking paragraphs", a:"Adding: Furthermore, In addition, Moreover, Also\n\nContrasting: However, On the other hand, In contrast, Nevertheless\n\nCause & effect: As a result, Therefore, Consequently\n\nTime: Meanwhile, Subsequently, Eventually\n\nSummarising: In conclusion, To sum up, Overall" },
-  // ── GRAMMAR RULES ──────────────────────────────────────────────────────────
-  { topic:"Grammar Rules", session:"Revision 41", q:"What is SUBJECT-VERB AGREEMENT?", a:"The verb must MATCH the subject in number.\n\nSingular subject → singular verb:\n  The dog runs fast. · She is happy.\n\nPlural subject → plural verb:\n  The dogs run fast. · They are happy." },
-  { topic:"Grammar Rules", session:"Revision", q:"What are the 4 SENTENCE TYPES? Give one example of each.", a:"STATEMENT: gives information.\n  'The sun rises in the east.'\n\nQUESTION: asks something. Ends with ?\n  'Where does the sun rise?'\n\nCOMMAND: gives an instruction. Starts with a verb.\n  'Look at the sunrise.'\n\nEXCLAMATION: strong feeling. Must start with What/How and contain a verb.\n  'What a beautiful sunrise it is!' ✓\n\nAll 4 appear in 11+ exams!" },
+const FUN_EMOJIS=["🦄","🐉","🦊","🐸","🦁","🐧","🦋","🐬","🦖","🐙","🌈","⭐","🚀","🌺","🎈","🍦","🎮","🦜","🐣","🌻","🎸","🏆","🎭","🦩","🐳"];
+const ALL_CARDS=[
+  {topic:"Parts of Speech",session:"Lesson 1",q:"What are the 8 main parts of speech?",a:"NOUN: naming word (book, London, happiness)\nPRONOUN: replaces a noun (she, it, they)\nVERB: action or state (run, is, seem)\nADJECTIVE: describes a noun (bright, tiny)\nADVERB: modifies verb/adj (quickly, very)\nPREPOSITION: links nouns (in, on, under)\nCONJUNCTION: joins clauses (and, but, because)\nDETERMINER: before a noun (the, a, some)"},
+  {topic:"Parts of Speech",session:"Lesson 1",q:"What are the types of NOUNS?",a:"PROPER: specific name, CAPITALISED → London, Tuesday\nCOMMON: general name → city, day\nCOLLECTIVE: group noun → a flock of birds, a class of pupils\nABSTRACT: idea/feeling → love, freedom, courage\nCONCRETE: can be touched → table, rain"},
+  {topic:"Parts of Speech",session:"Lesson 1",q:"What are PERSONAL, POSSESSIVE, and RELATIVE PRONOUNS?",a:"PERSONAL: I, you, he, she, it, we, they\nPOSSESSIVE: mine, yours, his, hers, ours, theirs\nRELATIVE: who, which, that (link clauses)\n\nExample: The girl who won the prize is my friend.\n'who' is a relative pronoun linking two clauses."},
+  {topic:"Parts of Speech",session:"Lesson 2",q:"What are TRANSITIVE and INTRANSITIVE verbs?",a:"TRANSITIVE: needs an object → She kicked the ball.\n('ball' is the object)\n\nINTRANSITIVE: no object needed → He laughed.\n\nAUXILIARY verbs help main verbs:\nhave, be, do, can, will, should, might"},
+  {topic:"Parts of Speech",session:"Lesson 2",q:"What are COMPARATIVE and SUPERLATIVE adjectives?",a:"COMPARATIVE: compares 2 things → add -er or 'more'\nbright → brighter · beautiful → more beautiful\n\nSUPERLATIVE: compares 3+ things → add -est or 'most'\nbright → brightest · beautiful → most beautiful\n\nIRREGULAR: good → better → best  ·  bad → worse → worst"},
+  {topic:"Punctuation",session:"Lesson 3",q:"When do you use a COMMA?",a:"1. Separate items in a list:\nI bought apples, oranges, and bananas.\n\n2. After fronted adverbials:\nQuickly, she ran outside.\n\n3. Around parenthetical clauses:\nMy cat, who is very old, sleeps all day.\n\n4. Before coordinating conjunctions:\nI wanted to go, but it was raining."},
+  {topic:"Punctuation",session:"Lesson 3",q:"When do you use a SEMI-COLON and a COLON?",a:"SEMI-COLON: links two related main clauses WITHOUT a conjunction.\nShe was tired; she had been working all day.\n\nCOLON: introduces a list, quote, or explanation.\nYou need three things: patience, practice, and passion.\n\nSemi-colon = almost a full stop but they're connected."},
+  {topic:"Punctuation",session:"Lesson 3",q:"How do APOSTROPHES work?",a:"POSSESSION:\n• Singular: the girl's bag (one girl)\n• Plural (s-ending): the girls' bags (many girls)\n• Irregular plural: the children's teacher\n\nCONTRACTION:\n• don't = do not  ·  it's = it is\n• I've = I have  ·  they're = they are\n\nits (possession) ≠ it's (it is) — NO apostrophe for possessive 'its'!"},
+  {topic:"Punctuation",session:"Lesson 4",q:"What are SPEECH MARKS rules?",a:"Put speech marks AROUND spoken words only.\n→ \"Come here,\" she whispered, \"right now.\"\n\nRules:\n1. New speaker = new paragraph\n2. Punctuation goes INSIDE the speech marks\n3. Reporting clause separated by comma\n4. Inverted comma opens and closes the speech"},
+  {topic:"Sentence Types",session:"Lesson 5",q:"What are the 4 types of sentences?",a:"STATEMENT: gives information → The sky is blue.\nQUESTION: asks something → Is the sky blue?\nCOMMAND: gives an order → Sit down!\nEXCLAMATION: shows strong feeling → What a beautiful sky!\n\n(Commands and exclamations can share !)"},
+  {topic:"Sentence Types",session:"Lesson 5",q:"What is a SIMPLE, COMPOUND, and COMPLEX sentence?",a:"SIMPLE: one main clause → The dog barked.\n\nCOMPOUND: two main clauses joined by FANBOYS:\nThe dog barked and the cat hissed.\n\nCOMPLEX: main clause + subordinate clause:\nAlthough it was dark, the dog barked loudly.\n\n(FANBOYS = For, And, Nor, But, Or, Yet, So)"},
+  {topic:"Sentence Types",session:"Lesson 5",q:"What is a SUBORDINATE CLAUSE?",a:"A subordinate clause CANNOT stand alone — it depends on the main clause.\n\nExample: Because she was late, she missed the bus.\n'Because she was late' = subordinate clause\n'she missed the bus' = main clause\n\nSubordinating conjunctions: because, although, while, when, since, unless, if, until"},
+  {topic:"Figurative Language",session:"Lesson 6",q:"What is a SIMILE? Give 3 examples.",a:"A simile DIRECTLY COMPARES two things using 'like' or 'as'.\n\nExamples:\n• The storm roared like an angry lion.\n• She was as quick as a flash of lightning.\n• His voice was like velvet in the dark.\n\nSimile = SIMILAR → uses like/as"},
+  {topic:"Figurative Language",session:"Lesson 6",q:"What is METAPHOR? What is PERSONIFICATION?",a:"METAPHOR: says something IS something else (no like/as).\n→ The classroom was a battlefield.\n→ Life is a rollercoaster.\n\nPERSONIFICATION: gives human qualities to non-human things.\n→ The wind whispered through the trees.\n→ The sun smiled down on the garden.\n\nEffect: both make writing vivid and create powerful images."},
+  {topic:"Figurative Language",session:"Lesson 6",q:"What is ALLITERATION, ONOMATOPOEIA, and HYPERBOLE?",a:"ALLITERATION: repeated first sound → Peter Piper picked...\nEffect: rhythm, memorability\n\nONOMATOPOEIA: words that SOUND like what they mean:\nbuzz, crash, sizzle, whisper, thud\nEffect: sensory, immersive\n\nHYPERBOLE: deliberate exaggeration:\n→ I've told you a million times!\nEffect: emphasis, humour"},
+  {topic:"Vocabulary",session:"Lesson 7",q:"What is a SYNONYM? Give 3 for 'said' and 3 for 'walked'.",a:"A synonym is a word with SIMILAR meaning.\n\n'Said' synonyms: whispered, exclaimed, muttered, replied, announced, declared\n\n'Walked' synonyms: marched, crept, strolled, trudged, strode, shuffled\n\nUsing varied vocabulary makes writing more interesting!"},
+  {topic:"Vocabulary",session:"Lesson 7",q:"What does each prefix mean?\nUn- · Re- · Pre- · Mis- · Anti- · Sub-",a:"un- = not → unhappy, unfair\nre- = again → rewrite, rebuild\npre- = before → preview, prehistoric\nmis- = wrongly → misunderstand, mislead\nanti- = against → anticlockwise, antisocial\nsub- = under/below → submarine, subway"},
+  {topic:"Prefixes & Suffixes",session:"Lesson 8",q:"Common SUFFIXES — what do these mean?",a:"-ful = full of → joyful, careful\n-less = without → careless, hopeless\n-ness = state of → happiness, darkness\n-tion/-sion = action/state → attraction, decision\n-er/-or = person who does → teacher, doctor\n-able/-ible = can be done → breakable, visible\n-ment = action/result → enjoyment, movement"},
+  {topic:"Prefixes & Suffixes",session:"Lesson 8",q:"SPELLING CHANGES when adding suffixes",a:"Drop the 'e' before a vowel suffix:\nbrave → braving (drop e before -ing)\nbrave → bravely (keep e before consonant suffix)\n\nDouble the consonant (short vowel + single consonant):\nrun → running · swim → swimming · stop → stopped\n\nChange y to i (y after consonant):\nhappy → happiness · carry → carried"},
+  {topic:"Synonyms & Antonyms",session:"Lesson 9",q:"What is an ANTONYM? Give antonyms for:\nbrave · ancient · enormous · victory",a:"An antonym is a word with OPPOSITE meaning.\n\nbrave ↔ cowardly\nancient ↔ modern/contemporary\nenormous ↔ tiny/miniature\nvictory ↔ defeat\n\nAlso: generous ↔ selfish · transparent ↔ opaque · expand ↔ contract"},
+  {topic:"Synonyms & Antonyms",session:"Lesson 9",q:"Upgrade these WEAK words with stronger synonyms:\ngood · bad · big · small · said · went",a:"good → excellent, superb, outstanding, remarkable\nbad → dreadful, appalling, atrocious, dire\nbig → enormous, vast, colossal, immense\nsmall → minute, tiny, microscopic, petite\nsaid → exclaimed, muttered, whispered, declared\nwent → strode, marched, crept, trudged, scrambled"},
+  {topic:"Comprehension Skills",session:"Lesson 10",q:"What does INFERENCE mean? How do you infer?",a:"INFERENCE = reading between the lines — finding meaning NOT stated.\n\nMethod: POINT → EVIDENCE → EXPLAIN\n→ I think... because the text says '...' which suggests...\n\nExample: 'Her hands trembled as she opened the letter.'\nInference: she was nervous/anxious (not stated explicitly)"},
+  {topic:"Comprehension Skills",session:"Lesson 10",q:"What is the difference between SKIMMING and SCANNING?",a:"SKIMMING: reading quickly to get the GENERAL IDEA\n→ read first & last sentences of each paragraph\n→ look at headings, subheadings\n\nSCANNING: reading quickly to find a SPECIFIC piece of information\n→ run your eye over text looking for key words\n→ like using Ctrl+F\n\nUse both in timed comprehension exams!"},
+  {topic:"Comprehension Skills",session:"Lesson 10",q:"What are RETRIEVAL questions and how do you answer them?",a:"RETRIEVAL = finding information directly stated in the text.\n\nIdentify the key word → scan for it → quote or paraphrase.\n\nFormat: 'According to the text...' or 'The author states...'\n\nDo NOT add your own opinion — just find and report what's there.\n\nMarks = clear, concise evidence from the text."},
+  {topic:"Homophones",session:"Lesson 11",q:"Tricky HOMOPHONES — what is the difference?",a:"there/their/they're:\n• there = place (over there)\n• their = belonging to them\n• they're = they are\n\nyour/you're: your = belonging to you · you're = you are\nits/it's: its = belonging to it · it's = it is\nto/too/two: to = direction · too = also/very · two = number"},
+  {topic:"Homophones",session:"Lesson 11",q:"More HOMOPHONES to know:",a:"affect/effect: affect = verb (to influence) · effect = noun (the result)\naccept/except: accept = receive · except = not including\npractice/practise: practice = noun · practise = verb (UK)\nprincipal/principle: principal = head teacher · principle = rule/belief\nstationary/stationery: stationary = still · stationery = paper/pens"},
+  {topic:"Spelling Rules",session:"Lesson 12",q:"The 'i before e' rule — and its exceptions",a:"'i before e except after c — when the sound is ee'\n\nBELIEVE, ACHIEVE, PIECE, FIELD → ie (no c)\nRECEIVE, CEILING, DECEIT → ei (after c)\n\nEXCEPTIONS (ei not after c):\nWEIGH, EIGHT, NEIGHBOUR, VEIL, THEIR, FOREIGN\n\nTip: weird, either, neither break the rule entirely!"},
+  {topic:"Spelling Rules",session:"Lesson 12",q:"Silent letters — which letters are silent?",a:"SILENT K: knife, know, knight, kneel, knot\nSILENT W: write, wrong, wrist, wrap, wreck\nSILENT B: thumb, lamb, bomb, debt, subtle\nSILENT G: gnome, gnaw, sign, foreign, design\nSILENT H: honest, hour, heir, ghost, rhyme\nSILENT T: castle, listen, whistle, fasten, Christmas"},
+  {topic:"Word Classes",session:"Lesson 13",q:"What is an ADVERB and how does it work?",a:"An adverb modifies a VERB, ADJECTIVE, or another ADVERB.\n\nModifying VERB: She ran quickly.\nModifying ADJECTIVE: The film was extremely boring.\nModifying ADVERB: He spoke very softly.\n\nTypes:\nManner: quickly, angrily, carefully\nTime: yesterday, soon, always\nPlace: here, nearby, everywhere\nDegree: very, quite, almost"},
+  {topic:"Word Classes",session:"Lesson 13",q:"What is a DETERMINER?",a:"A determiner comes BEFORE a noun and introduces it.\n\nARTICLES: a, an, the\nDEMONSTRATIVE: this, that, these, those\nPOSSESSIVE: my, your, his, her, its, our, their\nQUANTIFIERS: some, many, few, each, every, both\nNUMERALS: one, two, first, second\n\nExample: 'The three little pigs' → the=article, three=numeral"},
+  {topic:"Connectives",session:"Lesson 14",q:"Types of CONNECTIVES — coordinating vs subordinating",a:"COORDINATING (FANBOYS) — join equal clauses:\nFor, And, Nor, But, Or, Yet, So\n\nSUBORDINATING — introduce a dependent clause:\nbecause, although, while, when, since, unless, if, until\n\nADVERBIAL CONNECTIVES — link ideas across sentences:\nHowever, Furthermore, Therefore, Nevertheless, Meanwhile"},
+  {topic:"Connectives",session:"Lesson 14",q:"Give a connective for each purpose:\nContrast · Addition · Cause & Effect · Time · Example",a:"CONTRAST: however, although, nevertheless, on the other hand\n\nADDITION: furthermore, moreover, in addition, additionally\n\nCAUSE & EFFECT: therefore, consequently, as a result, hence\n\nTIME: meanwhile, subsequently, eventually, previously, finally\n\nEXAMPLE: for instance, for example, such as, namely"},
+  {topic:"Persuasive Writing",session:"Lesson 15",q:"What are the PERSUASIVE TECHNIQUES (AFOREST)?",a:"A – Alliteration\nF – Facts and figures\nO – Opinion stated as fact\nR – Rhetorical questions\nE – Emotive language\nS – Statistics\nT – Triples / Rule of Three\n\nExample of a triple: It is bold, brilliant, and absolutely essential."},
+  {topic:"Persuasive Writing",session:"Lesson 15",q:"Structure of a PERSUASIVE essay or letter",a:"INTRODUCTION: state your position — hook the reader!\n\nBODY PARAGRAPHS (use PEEL):\nP – Point\nE – Evidence / Example\nE – Explain / Elaborate\nL – Link back to the argument\n\nCONCLUSION: restate view, summarise, call to action.\n\nTone: formal, confident, convincing."},
+  {topic:"Narrative Writing",session:"Lesson 16",q:"What is SHOW DON'T TELL? Give an example.",a:"TELLING: She was scared.\nSHOWING: Her breath came in short gasps; she pressed herself against the cold wall, ears straining for any sound.\n\nShow emotions through:\n• Physical reactions\n• Inner thoughts\n• Dialogue\n• Specific sensory details\n\nShowing draws the reader IN."},
+  {topic:"Narrative Writing",session:"Lesson 16",q:"What is the STRUCTURE of a good narrative?",a:"OPENING: hook the reader — start in action, dialogue, or striking description.\n\nBUILD UP: introduce character, setting, conflict.\n\nPROBLEM/CLIMAX: the main challenge or turning point.\n\nRESOLUTION: how it's solved.\n\nENDING: satisfying conclusion — may echo the opening.\n\nTip: plan with a PLOT MOUNTAIN before writing!"},
+  {topic:"Poetry",session:"Lesson 17",q:"Key POETRY techniques — what do these mean?",a:"RHYME SCHEME: pattern of rhyming lines (ABAB, AABB...)\nRHYTHM: the beat/flow of syllables\nSTANZA: a 'verse' or group of lines\nMETRE: fixed rhythmic pattern\nREFRAIN: a line/stanza repeated throughout\nENJAMBMENT: sentence runs from one line to next\nCESURA: a pause mid-line (often shown by punctuation)"},
+  {topic:"Poetry",session:"Lesson 17",q:"What is IMAGERY in poetry? Types to know.",a:"Imagery = language that creates pictures in the mind.\n\nVISUAL: The moon was a ghostly galleon tossed upon cloudy seas.\nAUDITORY: The bees hummed lazily in the heavy afternoon air.\nTACTILE: Her skin prickled like pins and needles.\nOLFACTORY: The salty sea air stung his nostrils.\nGUSTATORY: The hot chocolate was thick and sweet as a hug."},
+  {topic:"Grammar Rules",session:"Lesson 18",q:"ACTIVE vs PASSIVE VOICE — what is the difference?",a:"ACTIVE: Subject does the action → The dog chased the cat.\nPASSIVE: Subject receives the action → The cat was chased by the dog.\n\nTo make passive: use 'to be' + past participle + (by + agent)\n\nWhen to use passive:\n• To hide who did it: A window was broken.\n• Formal/scientific writing"},
+  {topic:"Grammar Rules",session:"Lesson 18",q:"TENSE — past, present, future. What are the PERFECT tenses?",a:"SIMPLE: I walked · I walk · I will walk\nCONTINUOUS: I was walking · I am walking · I will be walking\n\nPERFECT tenses:\n→ PAST PERFECT: I had walked (before another past event)\n→ PRESENT PERFECT: I have walked (started in past, still relevant)\n→ FUTURE PERFECT: I will have walked (done before a future point)"},
+  {topic:"Grammar Rules",session:"Lesson 18",q:"What is a FRONTED ADVERBIAL? Give 3 examples.",a:"A fronted adverbial is placed at the START of a sentence to say when, where, or how something happened.\n\nMust be followed by a COMMA.\n\nExamples:\n• Slowly, she crept towards the door.\n• In the dark of the night, a wolf howled.\n• After the long journey, they finally arrived.\n\nEffect: varies sentence structure, adds drama."},
+  {topic:"Cloze & Word Problems",session:"Lesson 19",q:"What is a CLOZE test and how should you approach it?",a:"A cloze test has gaps to fill with appropriate words.\n\nStrategy:\n1. Read the WHOLE text first for context\n2. Identify the word CLASS needed (noun, verb, adj...)\n3. Check grammar: singular/plural, tense\n4. Re-read with your word — does it make sense?\n5. Never leave blanks\n\nTop tip: words BEFORE and AFTER the gap are huge clues!"},
+  {topic:"Cloze & Word Problems",session:"Lesson 19",q:"11+ WORD PROBLEM types — what to watch for",a:"DEFINITION: 'Which word means the same as...' → find synonym\nODD ONE OUT: 'Which word does NOT fit?' → identify the category\nWORD ASSOCIATION: 'Which word links all three?' → find connection\nCOMPLETE THE WORD: _ight → light, right, night, sight\nHIDDEN WORD: 'Find the word hidden in: carpet' → 'arc', 'car', 'pet'\nANAGRAMS: rearrange letters → 'SILENT' = 'LISTEN'"},
 ];
 
-let filtered = [];
-let current = 0;
-let isFlipped = false;
-let activeMeta = null;
+let filtered=[],current=0,isFlipped=false,activeMeta=null;
 
-function buildTopicGrid() {
-  var topics = [...new Set(ALL_CARDS.map(function(c) { return c.topic; }))];
-  var grid = document.getElementById("topicGrid");
-  grid.innerHTML = "";
-
-  // Tricky Cards tile (only if any hard-rated cards exist) - goes FIRST
-  var trickyCards = (typeof getTrickyCards === 'function') ? getTrickyCards() : [];
-  if (trickyCards.length > 0) {
-    var trickTile = document.createElement("div");
-    trickTile.className = "topic-tile tricky-tile";
-    trickTile.innerHTML = '<div class="tile-emoji">😅</div><div class="tile-name">Tricky Cards</div><div class="tile-count">' + trickyCards.length + ' card' + (trickyCards.length > 1 ? 's' : '') + '</div>';
-    trickTile.onclick = function() {
-      var hardCards = getTrickyCards();
-      if (hardCards.length === 0) { alert('No tricky cards yet! Rate some cards first.'); return; }
-      filtered = hardCards;
-      current = 0; isFlipped = false;
-      document.getElementById('cardInner').classList.remove('flipped');
-      document.getElementById('cvTitle').textContent = '😅 Tricky Cards';
-      document.getElementById('cvSub').textContent = hardCards.length + ' cards to practice';
-      activeMeta = {emoji:'😅', g1:'#7f1d1d', g2:'#dc2626', d1:'#450a0a', d2:'#7f1d1d'};
-      document.getElementById('progressBar').style.background = 'linear-gradient(90deg, #7f1d1d, #dc2626)';
-      document.getElementById('topicView').style.display = 'none';
-      document.getElementById('cardView').style.display = 'block';
-      renderCard();
-    };
-    grid.appendChild(trickTile);
+function buildTopicGrid(){
+  const topics=[...new Set(ALL_CARDS.map(c=>c.topic))];
+  const grid=document.getElementById("topicGrid");grid.innerHTML="";
+  const trickyCards=getTrickyCards();
+  if(trickyCards.length>0){
+    const t=document.createElement("div");t.className="topic-tile tricky-tile";
+    t.innerHTML=`<div class="tile-emoji">😅</div><div class="tile-name">Tricky Cards</div><div class="tile-count">${trickyCards.length} card${trickyCards.length!==1?'s':''}</div>`;
+    t.onclick=function(){const h=getTrickyCards();if(!h.length)return;filtered=h;current=0;isFlipped=false;document.getElementById("cvTitle").textContent="😅 Tricky Cards";document.getElementById("cvSub").textContent=h.length+" cards to practise";activeMeta={emoji:"😅",g1:"#7f1d1d",g2:"#dc2626",d1:"#450a0a",d2:"#7f1d1d"};_enterCardView();};
+    grid.appendChild(t);
   }
-
-  var allTile = document.createElement("div");
-  allTile.className = "topic-tile all-tile";
-  allTile.innerHTML = '<div class="tile-emoji">⭐</div><div class="tile-name">Practice All Topics</div><div class="tile-count">' + ALL_CARDS.length + ' cards</div>';
-  allTile.onclick = function() { enterTopic("__all__"); };
-  grid.appendChild(allTile);
-
-  topics.forEach(function(t) {
-    var meta = TOPIC_META[t] || { emoji:"📚", g1:"#37474f", g2:"#546e7a" };
-    var count = ALL_CARDS.filter(function(c) { return c.topic === t; }).length;
-    var tile = document.createElement("div");
-    tile.className = "topic-tile";
-    tile.style.background = "linear-gradient(145deg, " + meta.g1 + ", " + meta.g2 + ")";
-    tile.innerHTML = '<div class="tile-emoji">' + meta.emoji + '</div><div class="tile-name">' + t + '</div><div class="tile-count">' + count + ' cards</div>';
-    tile.onclick = (function(topic) { return function() { enterTopic(topic); }; })(t);
-    grid.appendChild(tile);
+  const allTile=document.createElement("div");allTile.className="topic-tile all-tile";
+  allTile.innerHTML=`<div class="tile-emoji">⭐</div><div class="tile-name">Practice All Topics</div><div class="tile-count">${ALL_CARDS.length} cards</div>`;
+  allTile.onclick=()=>enterTopic("__all__");grid.appendChild(allTile);
+  topics.forEach(t=>{
+    const meta=TOPIC_META[t]||{emoji:"📚",g1:"#37474f",g2:"#546e7a"};
+    const count=ALL_CARDS.filter(c=>c.topic===t).length;
+    const tile=document.createElement("div");tile.className="topic-tile";
+    tile.style.background=`linear-gradient(145deg,${meta.g1},${meta.g2})`;
+    tile.innerHTML=`<div class="tile-emoji">${meta.emoji}</div><div class="tile-name">${t}</div><div class="tile-count">${count} cards</div>`;
+    tile.onclick=()=>enterTopic(t);grid.appendChild(tile);
   });
-
-  if (typeof refreshTileProgress === 'function') refreshTileProgress();
+  refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
+  document.getElementById('badgesFab').classList.add('fab-show');
 }
 
-function enterTopic(topic) {
+function _enterCardView(){window.scrollTo(0,0);
+  document.getElementById("cardInner").classList.remove("flipped");
+  document.getElementById("progressBar").style.background=`linear-gradient(90deg,${activeMeta.g1},${activeMeta.g2})`;
+  sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;newlyEarnedBadges=[];updateSessionBar();
+  document.getElementById("topicView").style.display="none";
+  var cv=document.getElementById("cardView");cv.style.display="block";cv.classList.add('slide-in-right');
+  setTimeout(function(){cv.classList.remove('slide-in-right');},300);
+  mascotSay(_pick(MASCOT_START),false);renderCard();
+}
+
+function enterTopic(topic){
   updateStreak();
-  if (topic === "__all__") {
-    filtered = [...ALL_CARDS];
-    activeMeta = { emoji:"⭐", g1:"#1a1a3a", g2:"#2d2d60", d1:"#0d0d1e", d2:"#1a1a3a" };
-    document.getElementById("cvTitle").textContent = "⭐ All Topics";
-    document.getElementById("cvSub").textContent = ALL_CARDS.length + " cards";
-  } else {
-    filtered = ALL_CARDS.filter(c => c.topic === topic);
-    activeMeta = TOPIC_META[topic] || { emoji:"📚", g1:"#37474f", g2:"#546e7a", d1:"#263238", d2:"#37474f" };
-    document.getElementById("cvTitle").textContent = activeMeta.emoji + " " + topic;
-    document.getElementById("cvSub").textContent = filtered.length + " card" + (filtered.length !== 1 ? "s" : "");
+  if(topic==="__all__"){
+    filtered=[...ALL_CARDS];activeMeta={emoji:"⭐",g1:"#0a3d12",g2:"#1b5e20",d1:"#051f09",d2:"#0a3d12"};
+    document.getElementById("cvTitle").textContent="⭐ All Topics";
+    document.getElementById("cvSub").textContent=ALL_CARDS.length+" cards";
+  }else{
+    filtered=ALL_CARDS.filter(c=>c.topic===topic);
+    activeMeta=TOPIC_META[topic]||{emoji:"📚",g1:"#37474f",g2:"#546e7a",d1:"#263238",d2:"#37474f"};
+    document.getElementById("cvTitle").textContent=activeMeta.emoji+" "+topic;
+    document.getElementById("cvSub").textContent=filtered.length+" card"+(filtered.length!==1?"s":"");
   }
-  current = 0; isFlipped = false;
-  document.getElementById("cardInner").classList.remove("flipped");
-  document.getElementById("progressBar").style.background = `linear-gradient(90deg, ${activeMeta.g1}, ${activeMeta.g2})`;
-  document.getElementById("topicView").style.display = "none";
-  document.getElementById("cardView").style.display = "block";
-  renderCard();
+  current=0;isFlipped=false;_enterCardView();
 }
 
-function backToTopics() {
-  document.getElementById("cardView").style.display = "none";
-  document.getElementById("topicView").style.display = "block";
-  isFlipped = false;
-  document.getElementById("cardInner").classList.remove("flipped");
-  if (typeof refreshTileProgress === 'function') refreshTileProgress();
-  isQuizMode = false;
-  var quizArea = document.getElementById('quizArea');
-  if (quizArea) quizArea.classList.remove('qa-show');
-  var wrapper = document.getElementById('cardWrapper');
-  if (wrapper) wrapper.style.display = '';
-  var flipBtn = document.getElementById('flipBtn');
-  if (flipBtn) flipBtn.style.display = '';
-  var qToggle = document.getElementById('quizToggle');
-  if (qToggle) qToggle.classList.remove('qt-active');
+function goBackToTopics(){window.scrollTo(0,0);
+  document.getElementById("cardView").style.display="none";
+  var tv=document.getElementById("topicView");tv.style.display="block";
+  tv.classList.add('slide-in-left');setTimeout(function(){tv.classList.remove('slide-in-left');},300);
+  isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");
+  hideRatingBtns();isQuizMode=false;
+  var qa=document.getElementById("quizArea");if(qa)qa.classList.remove("qa-show");
+  var cw=document.getElementById("cardWrapper");if(cw)cw.style.display="";
+  var fb=document.getElementById("flipBtn");if(fb)fb.style.display="";
+  var qt=document.getElementById("quizToggle");if(qt)qt.classList.remove("qt-active");
+  sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;
+  refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
 }
 
-function renderCard() {
-  if (filtered.length === 0) {
-    document.getElementById("cardProgress").textContent = "No cards";
-    return;
-  }
-  const card = filtered[current];
-  const meta = activeMeta;
-
-  document.getElementById("cardFront").style.background = `linear-gradient(145deg, ${meta.g1}, ${meta.g2})`;
-  document.getElementById("cardBack").style.background = `linear-gradient(145deg, ${meta.d1}, ${meta.d2})`;
-
-  const cardMeta = TOPIC_META[card.topic] || { emoji:"📚" };
-  const tagText = cardMeta.emoji + " " + card.topic;
-  document.getElementById("frontTag").textContent = tagText;
-  document.getElementById("backTag").textContent = tagText;
-  document.getElementById("frontSession").textContent = card.session;
-  document.getElementById("backSession").textContent = card.session;
-  const funEmoji = FUN_EMOJIS[current % FUN_EMOJIS.length];
-  document.getElementById("cardEmoji").textContent = cardMeta.emoji + " " + funEmoji;
-  document.getElementById("cardQuestion").textContent = card.q;
-  document.getElementById("cardAnswer").textContent = card.a;
-
-  document.getElementById("cardProgress").textContent = "Card " + (current + 1) + " of " + filtered.length;
-  document.getElementById("prevBtn").disabled = current === 0;
-  document.getElementById("nextBtn").disabled = current === filtered.length - 1;
-  const pct = filtered.length > 1 ? (current / (filtered.length - 1)) * 100 : 100;
-  document.getElementById("progressBar").style.width = pct + "%";
-  if (typeof updateRatedBadge === 'function') updateRatedBadge();
-  if (typeof hideRatingBtns === 'function') hideRatingBtns();
-  if (typeof trackCardSeen === 'function') trackCardSeen(filtered[current].topic, filtered[current].q);
+function renderCard(){
+  if(!filtered.length){document.getElementById("cardProgress").textContent="No cards";return;}
+  const card=filtered[current],meta=activeMeta;
+  document.getElementById("cardFront").style.background=`linear-gradient(145deg,${meta.g1},${meta.g2})`;
+  document.getElementById("cardBack").style.background=`linear-gradient(145deg,${meta.d1},${meta.d2})`;
+  const cardMeta=TOPIC_META[card.topic]||{emoji:"📚"};
+  const tag=cardMeta.emoji+" "+card.topic;
+  document.getElementById("frontTag").textContent=tag;document.getElementById("backTag").textContent=tag;
+  document.getElementById("frontSession").textContent=card.session;document.getElementById("backSession").textContent=card.session;
+  document.getElementById("cardEmoji").textContent=cardMeta.emoji+" "+FUN_EMOJIS[current%FUN_EMOJIS.length];
+  document.getElementById("cardQuestion").textContent=card.q;document.getElementById("cardAnswer").textContent=card.a;
+  document.getElementById("cardProgress").textContent="Card "+(current+1)+" of "+filtered.length;
+  document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===filtered.length-1;
+  const pct=filtered.length>1?(current/(filtered.length-1))*100:100;
+  document.getElementById("progressBar").style.width=pct+"%";
+  updateRatedBadge();hideRatingBtns();trackCardSeen(card.topic,card.q);updateSessionBar();
+  if(isQuizMode)setTimeout(renderQuiz,0);
 }
 
-function flipCard() {
-  if (typeof isSwiping !== 'undefined' && isSwiping) return;
-  isFlipped = !isFlipped;
-  if (typeof playFlip === 'function') playFlip();
-  if (isFlipped && !isQuizMode) { if (typeof showRatingBtns === 'function') showRatingBtns(); }
-  else { if (typeof hideRatingBtns === 'function') hideRatingBtns(); }
-  document.getElementById("cardInner").classList.toggle("flipped", isFlipped);
-}
+function flipCard(){if(isSwiping)return;isFlipped=!isFlipped;document.getElementById("cardInner").classList.toggle("flipped",isFlipped);playFlip();if(isFlipped){checkBadge('first_flip');if(!isQuizMode)showRatingBtns();}else hideRatingBtns();}
+function navigate(dir){hideRatingBtns();if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}const n=current+dir;if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}}
+function shuffleCards(){for(let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}current=0;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
 
-function navigate(dir) {
-  if (typeof hideRatingBtns === 'function') hideRatingBtns();
-  if (dir > 0 && current >= filtered.length - 1) {
-    if (typeof triggerCelebration === 'function') triggerCelebration();
-    return;
-  }
-  const newIdx = current + dir;
-  if (newIdx >= 0 && newIdx < filtered.length) {
-    current = newIdx; isFlipped = false;
-    document.getElementById("cardInner").classList.remove("flipped");
-    if (typeof trackCardSeen === 'function') trackCardSeen(filtered[current] ? filtered[current].topic : '', filtered[current] ? filtered[current].q : '');
-    if (isQuizMode) { if (typeof renderQuiz === 'function') renderQuiz(); } else renderCard();
-  }
-}
-
-function shuffleCards() {
-  for (let i = filtered.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
-  }
-  current = 0; isFlipped = false;
-  document.getElementById("cardInner").classList.remove("flipped");
-  renderCard();
-}
-
-document.addEventListener("keydown", e => {
-  if (document.getElementById("cardView").style.display === "none") return;
-  if (e.key === "ArrowRight") navigate(1);
-  else if (e.key === "ArrowLeft") navigate(-1);
-  else if (e.key === " " || e.key === "Enter") { e.preventDefault(); flipCard(); }
-  else if (e.key === "Escape") backToTopics();
+document.addEventListener("keydown",e=>{
+  if(document.getElementById("cardView").style.display==="none")return;
+  if(e.key==="ArrowRight")navigate(1);else if(e.key==="ArrowLeft")navigate(-1);
+  else if(e.key===" "||e.key==="Enter"){e.preventDefault();flipCard();}
+  else if(e.key==="Escape")goBackToTopics();
 });
 
-// ── TOPIC SEARCH ─────────────────────────────────────────────────────────────
-function handleSearch(val) {
-  var q = val.trim().toLowerCase();
-  var allTile = document.querySelector('.all-tile');
-  var tiles = document.querySelectorAll('.topic-tile:not(.all-tile)');
-  var visible = 0;
-
-  // Build a set of topics that have at least one matching card
-  var topicsWithMatch = new Set();
-  if (q) {
-    ALL_CARDS.forEach(function(card) {
-      if (card.topic.toLowerCase().includes(q) ||
-          card.q.toLowerCase().includes(q) ||
-          card.a.toLowerCase().includes(q)) {
-        topicsWithMatch.add(card.topic);
-      }
-    });
-  }
-
-  tiles.forEach(function(tile) {
-    var nameEl = tile.querySelector('.tile-name');
-    var name = nameEl ? nameEl.textContent.toLowerCase() : '';
-    var show = !q || name.includes(q) || topicsWithMatch.has(nameEl ? nameEl.textContent.trim() : '');
-    tile.style.display = show ? '' : 'none';
-    if (show) visible++;
-  });
-
-  if (allTile) allTile.style.display = q ? 'none' : '';
-  var nr = document.getElementById('noResults');
-  if (nr) nr.style.display = (q && visible === 0) ? 'block' : 'none';
-}
+function handleSearch(val){var q=val.trim().toLowerCase(),allTile=document.querySelector('.all-tile'),tiles=document.querySelectorAll('.topic-tile:not(.all-tile)'),visible=0,match=new Set();if(q)ALL_CARDS.forEach(function(c){if(c.topic.toLowerCase().includes(q)||c.q.toLowerCase().includes(q)||c.a.toLowerCase().includes(q))match.add(c.topic);});tiles.forEach(function(tile){var ne=tile.querySelector('.tile-name'),name=ne?ne.textContent.toLowerCase():'',show=!q||name.includes(q)||match.has(ne?ne.textContent.trim():'');tile.style.display=show?'':'none';if(show)visible++;});if(allTile)allTile.style.display=q?'none':'';var nr=document.getElementById('noResults');if(nr)nr.style.display=(q&&visible===0)?'block':'none';}
 
 buildTopicGrid();
 </script>
-
-<div id="celebrateOverlay">
-  <canvas id="confettiCanvas"></canvas>
-  <div class="celebrate-msg" id="celebrateMsg">🎉<br>Well done Prisha!<br>🌟 Topic Complete!</div>
-  <button class="celebrate-btn" onclick="closeCelebration()">Keep going! ✨</button>
-</div>
-
-<style>
-/* ── NEW FEATURES CSS ── */
-.cv-toolbar { display:flex; gap:8px; align-items:center; padding:6px 14px 8px; background:rgba(0,0,0,0.2); flex-wrap:wrap; }
-.font-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:8px; padding:4px 11px; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.82em; -webkit-tap-highlight-color:transparent; }
-.font-btn.fb-active { background:rgba(255,255,255,0.3); border-color:rgba(255,255,255,0.6); }
-.quiz-toggle-btn, .mute-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:10px; padding:5px 12px; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.8em; -webkit-tap-highlight-color:transparent; }
-.quiz-toggle-btn.qt-active { background:rgba(100,200,100,0.3); border-color:rgba(100,255,100,0.5); }
-.toolbar-spacer { flex:1; }
-.font-sm .card-q-text { font-size:0.85em!important; }
-.font-sm .card-a-text { font-size:0.78em!important; }
-.font-lg .card-q-text { font-size:1.22em!important; }
-.font-lg .card-a-text { font-size:1.06em!important; }
-.rating-wrap { display:none; gap:10px; justify-content:center; padding:10px 0 0; }
-.rating-wrap.rw-show { display:flex; }
-.btn-got  { flex:1; max-width:170px; background:linear-gradient(135deg,#166534,#22c55e); color:white; border:none; border-radius:16px; padding:13px 10px; font-size:0.9em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 14px rgba(34,197,94,0.35); -webkit-tap-highlight-color:transparent; }
-.btn-hard { flex:1; max-width:170px; background:linear-gradient(135deg,#991b1b,#ef4444); color:white; border:none; border-radius:16px; padding:13px 10px; font-size:0.9em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 14px rgba(239,68,68,0.35); -webkit-tap-highlight-color:transparent; }
-.card-rated-badge { position:absolute; top:10px; right:12px; font-size:1.3em; z-index:5; pointer-events:none; }
-.streak-badge { background:linear-gradient(135deg,#f97316,#fbbf24); color:#1c0a00; font-weight:900; border-radius:20px; padding:5px 14px; font-size:0.75em; letter-spacing:0.5px; white-space:nowrap; }
-.tricky-tile { background:linear-gradient(145deg,#7f1d1d,#dc2626)!important; }
-.tile-progress { font-size:0.58em; color:rgba(255,255,255,0.55); margin-top:3px; font-weight:700; }
-.quiz-area { display:none; flex-direction:column; gap:0; padding:0; }
-.quiz-area.qa-show { display:flex; }
-.quiz-q-box { background:rgba(255,255,255,0.08); border-radius:16px; padding:18px 20px; margin:10px 14px 0; color:white; font-weight:800; font-size:0.92em; line-height:1.5; }
-.quiz-opts { display:flex; flex-direction:column; gap:9px; padding:12px 14px; }
-.quiz-opt { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15); border-radius:14px; padding:13px 16px; color:white; font-weight:700; font-family:'Nunito',sans-serif; cursor:pointer; text-align:left; font-size:0.84em; line-height:1.4; -webkit-tap-highlight-color:transparent; transition:background 0.12s; }
-.quiz-opt:active { background:rgba(255,255,255,0.16); }
-.quiz-opt.qo-correct { background:rgba(34,197,94,0.35)!important; border-color:#22c55e!important; }
-.quiz-opt.qo-wrong   { background:rgba(239,68,68,0.35)!important; border-color:#ef4444!important; }
-.quiz-opt:disabled   { cursor:default; }
-#celebrateOverlay { position:fixed; inset:0; z-index:999; background:rgba(0,0,10,0.88); display:none; flex-direction:column; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
-#celebrateOverlay.co-show { display:flex; }
-#confettiCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.celebrate-msg { position:relative; z-index:1; text-align:center; color:white; font-family:'Nunito',sans-serif; font-size:clamp(1.6em,5vw,2.6em); font-weight:900; line-height:1.4; text-shadow:0 2px 24px rgba(255,200,0,0.6); -webkit-animation:cel-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; animation:cel-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
-@-webkit-keyframes cel-pop { 0%{-webkit-transform:scale(0.3);opacity:0} 100%{-webkit-transform:scale(1);opacity:1} }
-@keyframes cel-pop { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
-.celebrate-btn { position:relative; z-index:1; margin-top:28px; background:white; color:#1a1a2e; border:none; border-radius:24px; padding:14px 34px; font-size:1em; font-weight:900; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
-</style>
-
 <script>
-// ══════════════════════════════════════════════════
-//  FEATURE PACK — All 9 UX Enhancements
-// ══════════════════════════════════════════════════
-
-// ── Shared state ──────────────────────────────────
-var isQuizMode = false;
-var soundMuted = false;
-var currentFont = 'md';
-var sessionSeen = {};
-var isSwiping = false;
-
-// ── localStorage helpers ──────────────────────────
-function lsGet(k, def) {
-  try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch(e) { return def; }
-}
-function lsSet(k, v) {
-  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
-}
-
-// ── 7. Sound effects ──────────────────────────────
-var _audioCtx = null;
-function getAudioCtx() {
-  if (!_audioCtx) {
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) _audioCtx = new AC();
-  }
-  return _audioCtx;
-}
-function _playTone(freq, type, startT, dur, gainVal) {
-  var ctx = getAudioCtx();
-  if (!ctx) return;
-  var osc = ctx.createOscillator();
-  var g   = ctx.createGain();
-  osc.connect(g); g.connect(ctx.destination);
-  osc.frequency.value = freq;
-  osc.type = type || 'sine';
-  g.gain.setValueAtTime(gainVal || 0.09, startT);
-  g.gain.exponentialRampToValueAtTime(0.0001, startT + dur);
-  osc.start(startT);
-  osc.stop(startT + dur + 0.01);
-}
-function playFlip() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var osc = ctx.createOscillator();
-  var g   = ctx.createGain();
-  osc.connect(g); g.connect(ctx.destination);
-  osc.frequency.setValueAtTime(380, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.12);
-  g.gain.setValueAtTime(0.07, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-  osc.start(); osc.stop(ctx.currentTime + 0.13);
-}
-function playGot() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var t = ctx.currentTime;
-  [523, 659, 784].forEach(function(f, i) { _playTone(f, 'sine', t + i*0.13, 0.2, 0.1); });
-}
-function playHard() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var t = ctx.currentTime;
-  _playTone(220, 'sawtooth', t, 0.22, 0.07);
-}
-function playCelebrate() {
-  if (soundMuted) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
-  var t = ctx.currentTime;
-  [523, 784, 1047, 1047].forEach(function(f, i) { _playTone(f, 'sine', t + i*0.1, 0.18, 0.12); });
-}
-
-// ── 8. Font size toggle ───────────────────────────
-function initFont() {
-  currentFont = lsGet('prisha_font', 'md');
-  applyFont(currentFont);
-}
-function setFont(size) {
-  currentFont = size;
-  lsSet('prisha_font', size);
-  applyFont(size);
-}
-function applyFont(size) {
-  document.body.classList.remove('font-sm','font-md','font-lg');
-  document.body.classList.add('font-' + size);
-  ['fontSm','fontMd','fontLg'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.remove('fb-active');
-  });
-  var map = {sm:'fontSm', md:'fontMd', lg:'fontLg'};
-  var btn = document.getElementById(map[size]);
-  if (btn) btn.classList.add('fb-active');
-}
-
-// ── Mute toggle ───────────────────────────────────
-function initMute() {
-  soundMuted = lsGet('prisha_mute', false);
-  updateMuteBtn();
-}
-function toggleMute() {
-  soundMuted = !soundMuted;
-  lsSet('prisha_mute', soundMuted);
-  updateMuteBtn();
-}
-function updateMuteBtn() {
-  var btn = document.getElementById('muteBtn');
-  if (btn) btn.textContent = soundMuted ? '🔇' : '🔊';
-}
-
-// ── 5. Daily streak ───────────────────────────────
-function getToday() {
-  var d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function updateStreak() {
-  var today = getToday();
-  var yesterday = (function(){
-    var d2 = new Date(); d2.setDate(d2.getDate()-1);
-    return d2.getFullYear() + '-' + String(d2.getMonth()+1).padStart(2,'0') + '-' + String(d2.getDate()).padStart(2,'0');
-  })();
-  var s = lsGet('prisha_streak', {date:'', count:0});
-  if (s.date === today) { showStreakBadge(s.count); return; }
-  var newCount = (s.date === yesterday) ? s.count + 1 : 1;
-  lsSet('prisha_streak', {date: today, count: newCount});
-  showStreakBadge(newCount);
-}
-function showStreakBadge(count) {
-  var badge = document.getElementById('streakBadge');
-  if (!badge) return;
-  if (count >= 1) {
-    badge.textContent = '🔥 ' + count + ' day streak';
-    badge.style.display = 'inline-block';
-  }
-}
-
-// ── 1. Self-rating buttons ────────────────────────
-function getRatings() { return lsGet('prisha_ratings', {}); }
-function saveRating(topic, question, val) {
-  var r = getRatings();
-  r[topic + '|' + question] = val;
-  lsSet('prisha_ratings', r);
-}
-function getCardRating(topic, question) {
-  return getRatings()[topic + '|' + question] || null;
-}
-function showRatingBtns() {
-  var wrap = document.getElementById('ratingWrap');
-  if (wrap) wrap.classList.add('rw-show');
-}
-function hideRatingBtns() {
-  var wrap = document.getElementById('ratingWrap');
-  if (wrap) wrap.classList.remove('rw-show');
-}
-function rateCard(val) {
-  if (!filtered || !filtered[current]) return;
-  var card = filtered[current];
-  saveRating(card.topic, card.q, val);
-  if (val === 'got') playGot(); else playHard();
-  updateRatedBadge();
-  var isLast = (current >= filtered.length - 1);
-  hideRatingBtns();
-  if (isLast) {
-    triggerCelebration();
-  } else {
-    setTimeout(function() { navigate(1); }, 400);
-  }
-}
-function updateRatedBadge() {
-  var badge = document.getElementById('cardRatedBadge');
-  if (!badge || !filtered || !filtered[current]) return;
-  var card = filtered[current];
-  var r = getCardRating(card.topic, card.q);
-  badge.textContent = r === 'got' ? '✅' : (r === 'hard' ? '😅' : '');
-}
-
-// ── 2. Tricky cards ───────────────────────────────
-function getTrickyCards() {
-  var ratings = getRatings();
-  return ALL_CARDS.filter(function(c) { return ratings[c.topic + '|' + c.q] === 'hard'; });
-}
-
-// ── 3. Celebration ────────────────────────────────
-var confettiAnim = null;
-var celebratedTopics = {};
-function triggerCelebration() {
-  var topic = (filtered && filtered[0]) ? filtered[0].topic : 'done';
-  if (celebratedTopics[topic]) return;
-  celebratedTopics[topic] = true;
-  playCelebrate();
-  var overlay = document.getElementById('celebrateOverlay');
-  var msg = document.getElementById('celebrateMsg');
-  if (!overlay) return;
-  if (msg) msg.innerHTML = '🎉<br>Well done Prisha!<br>🌟 Topic Complete!';
-  overlay.classList.add('co-show');
-  startConfetti();
-}
-function closeCelebration() {
-  var overlay = document.getElementById('celebrateOverlay');
-  if (overlay) overlay.classList.remove('co-show');
-  stopConfetti();
-}
-function startConfetti() {
-  var canvas = document.getElementById('confettiCanvas');
-  if (!canvas) return;
-  var ctx2 = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  var particles = [];
-  var colors = ['#f9d423','#ff6b6b','#c471f5','#12c2e9','#22c55e','#fb923c','#818cf8'];
-  for (var i = 0; i < 120; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      w: 8 + Math.random() * 8,
-      h: 4 + Math.random() * 5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      speed: 2 + Math.random() * 3,
-      angle: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 0.15,
-      drift: (Math.random() - 0.5) * 1.2
-    });
-  }
-  function frame() {
-    ctx2.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(function(p) {
-      p.y += p.speed;
-      p.x += p.drift;
-      p.angle += p.spin;
-      if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
-      ctx2.save();
-      ctx2.translate(p.x, p.y);
-      ctx2.rotate(p.angle);
-      ctx2.fillStyle = p.color;
-      ctx2.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx2.restore();
-    });
-    confettiAnim = requestAnimationFrame(frame);
-  }
-  frame();
-}
-function stopConfetti() {
-  if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
-  var canvas = document.getElementById('confettiCanvas');
-  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-}
-
-// ── 6. Topic progress ─────────────────────────────
-function trackCardSeen(topic, question) {
-  if (!topic) return;
-  if (!sessionSeen[topic]) sessionSeen[topic] = [];
-  if (sessionSeen[topic].indexOf(question) < 0) sessionSeen[topic].push(question);
-}
-function refreshTileProgress() {
-  var tiles = document.querySelectorAll('.topic-tile:not(.all-tile):not(.tricky-tile)');
-  tiles.forEach(function(tile) {
-    var nameEl = tile.querySelector('.tile-name');
-    if (!nameEl) return;
-    var topic = nameEl.textContent.trim();
-    var seen = sessionSeen[topic] ? sessionSeen[topic].length : 0;
-    var total = ALL_CARDS.filter(function(c) { return c.topic === topic; }).length;
-    var prog = tile.querySelector('.tile-progress');
-    if (!prog) {
-      prog = document.createElement('div');
-      prog.className = 'tile-progress';
-      tile.appendChild(prog);
-    }
-    prog.textContent = seen > 0 ? (seen + '/' + total + ' seen') : '';
-  });
-}
-
-// ── 9. Quiz mode ─────────────────────────────────
-function toggleQuizMode() {
-  isQuizMode = !isQuizMode;
-  var btn = document.getElementById('quizToggle');
-  if (btn) btn.classList.toggle('qt-active', isQuizMode);
-  var wrapper = document.getElementById('cardWrapper');
-  var quizArea = document.getElementById('quizArea');
-  var flipBtn = document.getElementById('flipBtn');
-  if (wrapper) wrapper.style.display = isQuizMode ? 'none' : '';
-  if (quizArea) quizArea.classList.toggle('qa-show', isQuizMode);
-  if (flipBtn) flipBtn.style.display = isQuizMode ? 'none' : '';
-  hideRatingBtns();
-  if (isQuizMode) renderQuiz(); else renderCard();
-}
-function renderQuiz() {
-  if (!filtered || !filtered[current]) return;
-  var card = filtered[current];
-  var qEl = document.getElementById('quizQuestion');
-  var optsEl = document.getElementById('quizOpts');
-  if (!qEl || !optsEl) return;
-  qEl.textContent = card.q;
-  var others = ALL_CARDS.filter(function(c) { return c.topic !== card.topic || c.q !== card.q; });
-  for (var i = others.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i+1));
-    var tmp = others[i]; others[i] = others[j]; others[j] = tmp;
-  }
-  var distractors = others.slice(0, 3).map(function(c) { return c.a.replace(/\n/g,' ').substring(0, 100); });
-  var correctAns = card.a.replace(/\n/g,' ').substring(0, 100);
-  var options = [correctAns].concat(distractors);
-  for (var ii = options.length - 1; ii > 0; ii--) {
-    var jj = Math.floor(Math.random() * (ii+1));
-    var tt = options[ii]; options[ii] = options[jj]; options[jj] = tt;
-  }
-  optsEl.innerHTML = '';
-  options.forEach(function(opt) {
-    var btn = document.createElement('button');
-    btn.className = 'quiz-opt';
-    btn.textContent = opt;
-    btn.onclick = (function(o) { return function() { answerQuiz(this, o, correctAns); }; })(opt);
-    optsEl.appendChild(btn);
-  });
-}
-function answerQuiz(el, chosen, correct) {
-  var all = document.querySelectorAll('.quiz-opt');
-  all.forEach(function(b) { b.onclick = null; });
-  if (chosen === correct) {
-    el.classList.add('qo-correct');
-    playGot();
-    if (filtered && filtered[current]) saveRating(filtered[current].topic, filtered[current].q, 'got');
-    setTimeout(function() { navigate(1); }, 1200);
-  } else {
-    el.classList.add('qo-wrong');
-    playHard();
-    all.forEach(function(b) { if (b.textContent === correct) b.classList.add('qo-correct'); });
-    setTimeout(function() { navigate(1); }, 1600);
-  }
-}
-
-// ── 4. Swipe gestures ─────────────────────────────
-(function() {
-  var sx = 0, sy = 0;
-  document.addEventListener('touchstart', function(e) {
-    sx = e.touches[0].clientX;
-    sy = e.touches[0].clientY;
-    isSwiping = false;
-  }, {passive: true});
-  document.addEventListener('touchend', function(e) {
-    var cv = document.getElementById('cardView');
-    if (!cv || cv.style.display === 'none') return;
-    var dx = e.changedTouches[0].clientX - sx;
-    var dy = e.changedTouches[0].clientY - sy;
-    var adx = Math.abs(dx), ady = Math.abs(dy);
-    if (adx > ady && adx > 48) {
-      isSwiping = true;
-      navigate(dx < 0 ? 1 : -1);
-    } else if (ady > adx && dy < -55) {
-      isSwiping = true;
-      if (!isQuizMode) flipCard();
-    }
-    setTimeout(function() { isSwiping = false; }, 300);
-  }, {passive: true});
-})();
-
-// ── Init on load ──────────────────────────────────
-(function() {
-  initFont();
-  initMute();
-  updateStreak();
-})();
-</script>
-
-<script>
-// ── Enchanted Library Theme ───────────────────────────────────
-(function() {
-  const bg = document.getElementById('themeBg');
-
-  // Firefly particles — green and gold dots
-  const colours = ['#a8e6a3','#ffd54f','#80cbc4','#c8e6c9','#ffffff'];
-  for (let i = 0; i < 70; i++) {
-    const s = document.createElement('div');
-    s.className = 'theme-star';
-    const sz = (Math.random() * 3 + 1).toFixed(1);
-    const col = colours[Math.floor(Math.random() * colours.length)];
-    s.style.cssText = `width:${sz}px;height:${sz}px;background:${col};top:${(Math.random()*100).toFixed(1)}%;left:${(Math.random()*100).toFixed(1)}%;animation-duration:${(Math.random()*3.5+1.5).toFixed(1)}s;animation-delay:${(Math.random()*6).toFixed(1)}s;box-shadow:0 0 6px ${col};`;
-    bg.appendChild(s);
-  }
-
-  // Floating enchanted library emojis — appended to fixed bg container
-  const pool = ['📚','🦉','🪄','🔮','📖','✨','🌟','🦋','🌙','🍃','⭐','🌿','🕯️','🧙'];
-  pool.forEach((em, i) => {
-    const el = document.createElement('div');
-    el.className = 'theme-float';
-    const dur = (16 + Math.random() * 10).toFixed(1);
-    el.style.cssText = `left:${((i / pool.length) * 100 + Math.random() * 3).toFixed(1)}%;font-size:${(1.2 + Math.random() * 0.8).toFixed(1)}em;animation-duration:${dur}s;animation-delay:${(Math.random() * parseFloat(dur)).toFixed(1)}s;`;
-    el.textContent = em;
-    bg.appendChild(el);
-  });
+(function(){
+  var canvas=document.getElementById("leafCanvas"),ctx=canvas.getContext("2d"),W,H,leaves=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener("resize",resize);
+  var colors=["rgba(80,200,120,0.3)","rgba(50,150,80,0.25)","rgba(165,214,167,0.2)","rgba(200,230,201,0.15)","rgba(100,230,100,0.2)"];
+  for(var i=0;i<45;i++)leaves.push({x:Math.random()*9999,y:Math.random()*9999,size:Math.random()*12+6,color:colors[Math.floor(Math.random()*colors.length)],speed:Math.random()*0.4+0.1,drift:Math.random()*0.3-0.15,angle:Math.random()*Math.PI*2,spin:Math.random()*0.03-0.015});
+  function draw(){ctx.clearRect(0,0,W,H);leaves.forEach(function(l){var lx=((l.x+l.drift*50)%W+W)%W,ly=(l.y%H+H)%H;ctx.save();ctx.translate(lx,ly);ctx.rotate(l.angle);ctx.beginPath();ctx.ellipse(0,0,l.size/2,l.size,0,0,Math.PI*2);ctx.fillStyle=l.color;ctx.fill();ctx.restore();l.y+=l.speed;l.x+=l.drift;l.angle+=l.spin;});requestAnimationFrame(draw);}
+  draw();
 })();
 </script>
 </body>
