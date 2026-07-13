@@ -12,6 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
+:root{--ta:#818cf8;--ta-glow:rgba(129,140,248,0.35);--ta-border:rgba(129,140,248,0.45);--ta-text:#c7d2fe;--ta-dark:rgba(67,56,202,0.22);--ta-xp:linear-gradient(90deg,#4338ca,#818cf8);}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{min-height:100%;}
 body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%);background-attachment:fixed;color:#e8eaf6;min-height:100vh;min-height:100svh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px;transition:background 0.3s,color 0.4s;}
@@ -50,7 +51,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .greeting{font-size:30px;font-weight:900;text-align:center;margin-bottom:2px;}
 .greeting-sub{font-size:13px;opacity:0.45;text-align:center;margin-bottom:18px;}
 .stats-row{display:flex;gap:8px;width:100%;margin-bottom:22px;}
-.stat-pill{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 8px;text-align:center;}
+.stat-pill{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--ta-border);border-radius:14px;padding:12px 8px;text-align:center;}
 .stat-val{font-size:22px;font-weight:900;line-height:1;}
 .stat-lbl{font-size:10px;opacity:0.45;margin-top:3px;text-transform:uppercase;letter-spacing:0.3px;}
 .subject-btn{width:100%;padding:20px;border-radius:20px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:12px;display:flex;align-items:center;gap:14px;transition:transform 0.15s,box-shadow 0.15s;}
@@ -62,7 +63,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .sb-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;}
 .btn-maths{background:#1565c0;box-shadow:0 6px 24px rgba(21,101,192,0.4);}
 .btn-english{background:#2e7d32;box-shadow:0 6px 24px rgba(46,125,50,0.4);}
-.theme-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:6px;transition:background 0.15s;}
+.theme-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid var(--ta-border);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:6px;transition:background 0.15s;}
 .theme-chip:hover{background:rgba(255,255,255,0.11);}
 .theme-chip-muted{opacity:0.4;font-size:11px;}
 /* Home action buttons */
@@ -377,12 +378,12 @@ const db = firebase.firestore();
 const FALLBACK_CODES = ['PREP2027'];
 
 const THEMES = {
-  space:     {name:'Space Explorer',    emoji:'🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6'},
-  library:   {name:'Enchanted Library', emoji:'📚', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  text:'#fde68a'},
-  ocean:     {name:'Ocean Deep',        emoji:'🌊', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa'},
-  candy:     {name:'Candy Kingdom',     emoji:'🍭', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec'},
-  jungle:    {name:'Jungle Quest',      emoji:'🌿', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7'},
-  superhero: {name:'Superhero HQ',      emoji:'⚡', bodyBg:'#0a0a0a',                                                                  tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1'}
+  space:     {name:'Space Explorer',    emoji:'🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6', accent:'#818cf8', accentGlow:'rgba(129,140,248,0.35)', accentBorder:'rgba(129,140,248,0.45)', accentText:'#c7d2fe', accentDark:'rgba(67,56,202,0.22)',    xp:'linear-gradient(90deg,#4338ca,#818cf8)'},
+  library:   {name:'Enchanted Library', emoji:'📚', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  text:'#fde68a', accent:'#fbbf24', accentGlow:'rgba(251,191,36,0.35)',  accentBorder:'rgba(251,191,36,0.45)',  accentText:'#fde68a', accentDark:'rgba(146,64,14,0.22)',   xp:'linear-gradient(90deg,#b45309,#fbbf24)'},
+  ocean:     {name:'Ocean Deep',        emoji:'🌊', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa', accent:'#22d3ee', accentGlow:'rgba(34,211,238,0.35)',  accentBorder:'rgba(34,211,238,0.45)',  accentText:'#a5f3fc', accentDark:'rgba(14,116,144,0.22)',   xp:'linear-gradient(90deg,#0e7490,#22d3ee)'},
+  candy:     {name:'Candy Kingdom',     emoji:'🍭', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec', accent:'#e879f9', accentGlow:'rgba(232,121,249,0.35)', accentBorder:'rgba(232,121,249,0.45)', accentText:'#f5d0fe', accentDark:'rgba(126,34,206,0.22)',   xp:'linear-gradient(90deg,#7e22ce,#e879f9)'},
+  jungle:    {name:'Jungle Quest',      emoji:'🌿', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7', accent:'#4ade80', accentGlow:'rgba(74,222,128,0.35)',  accentBorder:'rgba(74,222,128,0.45)',  accentText:'#bbf7d0', accentDark:'rgba(21,128,61,0.22)',    xp:'linear-gradient(90deg,#15803d,#4ade80)'},
+  superhero: {name:'Superhero HQ',      emoji:'⚡', bodyBg:'linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#080000 100%)',             tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1', accent:'#f87171', accentGlow:'rgba(248,113,113,0.35)', accentBorder:'rgba(248,113,113,0.45)', accentText:'#fecaca', accentDark:'rgba(153,27,27,0.22)',    xp:'linear-gradient(90deg,#991b1b,#f87171)'},
 };
 
 let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
@@ -650,6 +651,13 @@ function applyTheme(key) {
   document.body.style.background = t.bodyBg;
   document.body.style.backgroundAttachment = 'fixed';
   document.body.style.color = t.text;
+  const r = document.documentElement;
+  r.style.setProperty('--ta', t.accent);
+  r.style.setProperty('--ta-glow', t.accentGlow);
+  r.style.setProperty('--ta-border', t.accentBorder);
+  r.style.setProperty('--ta-text', t.accentText);
+  r.style.setProperty('--ta-dark', t.accentDark);
+  r.style.setProperty('--ta-xp', t.xp);
 }
 function spawnStars(containerId) {
   const c = document.getElementById(containerId); if (!c) return; c.innerHTML = '';
