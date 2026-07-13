@@ -570,7 +570,12 @@ function initSignInPad() {
     try {
       const snap = await db.collection('users').get();
       let found = null;
-      snap.forEach(doc => { const d=doc.data(); if (d.name && d.name.toLowerCase()===name.toLowerCase() && d.pin===pin) found = { id: doc.id, ...d }; });
+      let suspended = null;
+      snap.forEach(doc => { const d=doc.data(); if (d.name && d.name.toLowerCase()===name.toLowerCase() && d.pin===pin) { if(d.suspended) suspended=d; else found = { id: doc.id, ...d }; } });
+      if (suspended) {
+        document.getElementById('signinErr').textContent = '⚠️ This account has been suspended. Please contact your admin.';
+        _signinPad.shake(); return;
+      }
       if (found) {
         currentProfile = found;
         saveProfileEntry(found.id, found.name, found.themeMaths, found.themeEnglish);
