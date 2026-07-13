@@ -478,12 +478,22 @@ function closeVerifyPin() {
 }
 
 // ── Switch profile overlay ───────────────────────────────────────
-function switchProfile() {
+async function switchProfile() {
   const profiles = getSavedProfiles();
   if (!profiles.length) { startNewProfile(); return; }
+  // Validate profiles against Firebase — remove any deleted by admin
+  const checks = await Promise.all(profiles.map(p => db.collection('users').doc(p.id).get().catch(()=>null)));
+  const valid = profiles.filter((p, i) => checks[i] && checks[i].exists);
+  if (valid.length !== profiles.length) {
+    localStorage.setItem('gsc_profiles', JSON.stringify(valid));
+  }
+  if (!valid.length) {
+    renderSavedProfilesOnWelcome(); // hides the Existing User button
+    return;
+  }
   const list = document.getElementById('profilePickList');
   list.innerHTML = '';
-  profiles.forEach(p => {
+  valid.forEach(p => {
     const tm = THEMES[p.themeMaths] || THEMES.space;
     const te = THEMES[p.themeEnglish] || THEMES.library;
     const card = document.createElement('div');
