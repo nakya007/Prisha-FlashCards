@@ -509,13 +509,13 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
       }
     } else if(key==='library'){
       const cols=['#dc2626','#d97706','#7c3aed','#0369a1','#15803d','#b45309','#be123c','#1d4ed8','#dc2626','#d97706','#7c3aed','#166534','#9a3412'];
-      const books=Array.from({length:16},()=>{
+      const booksArr=Array.from({length:16},()=>{
         const w=8+Math.floor(Math.random()*7),h=20+Math.floor(Math.random()*26),c=cols[Math.floor(Math.random()*cols.length)];
         return `<div style="width:${w}px;height:${h}px;background:${c};border-radius:2px 2px 0 0;opacity:0.72;flex-shrink:0;"></div>`;
-      }).join('');
+      });
       d.innerHTML=`
-      <div style="position:absolute;top:0;left:0;bottom:0;width:18px;display:flex;flex-direction:column;justify-content:flex-start;padding-top:60px;gap:2px;overflow:hidden;">${books.slice(0,8)}</div>
-      <div style="position:absolute;top:0;right:0;bottom:0;width:18px;display:flex;flex-direction:column;justify-content:flex-start;padding-top:60px;gap:2px;overflow:hidden;">${books.slice(8)}</div>
+      <div style="position:absolute;top:0;left:0;bottom:0;width:18px;display:flex;flex-direction:column;justify-content:flex-start;padding-top:60px;gap:2px;overflow:hidden;">${booksArr.slice(0,8).join('')}</div>
+      <div style="position:absolute;top:0;right:0;bottom:0;width:18px;display:flex;flex-direction:column;justify-content:flex-start;padding-top:60px;gap:2px;overflow:hidden;">${booksArr.slice(8).join('')}</div>
       <div style="position:absolute;top:14px;right:28px;font-size:20px;animation:flicker 1.8s ease-in-out infinite alternate;">🕯️</div>
       <div style="position:absolute;top:14px;left:28px;font-size:18px;animation:flicker 2.3s 0.6s ease-in-out infinite alternate;">🕯️</div>`;
     } else if(key==='ocean'){
@@ -752,10 +752,12 @@ function onEnglishChallengeComplete(dur, startPos, posKey){
   localStorage.setItem(posKey, String((startPos + cardsStudied) % ALL_CARDS.length));
   const today = new Date();
   const dateKey = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-  const stored = JSON.parse(localStorage.getItem('gsc_challenges') || '{}');
+  const _uid = localStorage.getItem('gsc_userId') || 'shared';
+  const _ck = 'gsc_challenges_' + _uid;
+  const stored = JSON.parse(localStorage.getItem(_ck) || '{}');
   if (!stored[dateKey]) stored[dateKey] = {};
   stored[dateKey]['english' + dur] = true;
-  localStorage.setItem('gsc_challenges', JSON.stringify(stored));
+  localStorage.setItem(_ck, JSON.stringify(stored));
   document.getElementById('ccSub').textContent = 'You nailed the ' + dur + '-minute English challenge! \ud83d\udcda';
   document.getElementById('ccCards').textContent = '\ud83c\udccf ' + cardsStudied + ' card' + (cardsStudied !== 1 ? 's' : '') + ' studied';
   document.getElementById('challengeComplete').classList.add('show');
