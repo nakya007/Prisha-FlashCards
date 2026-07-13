@@ -296,11 +296,11 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     </div>
   </div>
   <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
-    <div class="sb-icon">🎯</div>
+    <div class="sb-icon" id="sbMathsIcon">🧑‍🚀</div>
     <div class="sb-info"><div class="sb-title">Maths</div><div class="sb-sub">Numbers, Shapes &amp; More</div></div>
   </button>
   <button class="subject-btn btn-english" onclick="goToSubject('english')">
-    <div class="sb-icon">📚</div>
+    <div class="sb-icon" id="sbEnglishIcon">🦉</div>
     <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
   </button>
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
@@ -382,15 +382,15 @@ const db = firebase.firestore();
 const FALLBACK_CODES = ['PREP2027'];
 
 const THEMES = {
-  space:     {name:'Space Explorer',    emoji:'🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6', accent:'#818cf8', accentGlow:'rgba(129,140,248,0.35)', accentBorder:'rgba(129,140,248,0.45)', accentText:'#c7d2fe', accentDark:'rgba(67,56,202,0.22)',    xp:'linear-gradient(90deg,#4338ca,#818cf8)'},
-  library:   {name:'Enchanted Library', emoji:'📚', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  text:'#fde68a', accent:'#fbbf24', accentGlow:'rgba(251,191,36,0.35)',  accentBorder:'rgba(251,191,36,0.45)',  accentText:'#fde68a', accentDark:'rgba(146,64,14,0.22)',   xp:'linear-gradient(90deg,#b45309,#fbbf24)'},
-  ocean:     {name:'Ocean Deep',        emoji:'🌊', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa', accent:'#22d3ee', accentGlow:'rgba(34,211,238,0.35)',  accentBorder:'rgba(34,211,238,0.45)',  accentText:'#a5f3fc', accentDark:'rgba(14,116,144,0.22)',   xp:'linear-gradient(90deg,#0e7490,#22d3ee)'},
-  candy:     {name:'Candy Kingdom',     emoji:'🍭', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec', accent:'#e879f9', accentGlow:'rgba(232,121,249,0.35)', accentBorder:'rgba(232,121,249,0.45)', accentText:'#f5d0fe', accentDark:'rgba(126,34,206,0.22)',   xp:'linear-gradient(90deg,#7e22ce,#e879f9)'},
-  jungle:    {name:'Jungle Quest',      emoji:'🌿', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7', accent:'#4ade80', accentGlow:'rgba(74,222,128,0.35)',  accentBorder:'rgba(74,222,128,0.45)',  accentText:'#bbf7d0', accentDark:'rgba(21,128,61,0.22)',    xp:'linear-gradient(90deg,#15803d,#4ade80)'},
-  superhero: {name:'Superhero HQ',      emoji:'⚡', bodyBg:'linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#080000 100%)',             tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1', accent:'#f87171', accentGlow:'rgba(248,113,113,0.35)', accentBorder:'rgba(248,113,113,0.45)', accentText:'#fecaca', accentDark:'rgba(153,27,27,0.22)',    xp:'linear-gradient(90deg,#991b1b,#f87171)'},
-  dragon:    {name:"Dragon's Keep",     emoji:'🐉', bodyBg:'linear-gradient(180deg,#1a0500 0%,#2d0a00 40%,#0a0200 100%)',             tint:'rgba(154,52,18,0.30)',  glow:'#fb923c', border:'rgba(251,146,60,0.4)', text:'#fed7aa', accent:'#fb923c', accentGlow:'rgba(251,146,60,0.35)',  accentBorder:'rgba(251,146,60,0.45)',  accentText:'#fed7aa', accentDark:'rgba(154,52,18,0.22)',   xp:'linear-gradient(90deg,#9a3412,#fb923c)'},
-  crystal:   {name:'Crystal Cavern',    emoji:'💎', bodyBg:'linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%)',             tint:'rgba(109,40,217,0.30)', glow:'#a78bfa', border:'rgba(167,139,250,0.4)',text:'#e9d5ff', accent:'#a78bfa', accentGlow:'rgba(167,139,250,0.35)', accentBorder:'rgba(167,139,250,0.45)', accentText:'#e9d5ff', accentDark:'rgba(109,40,217,0.22)',   xp:'linear-gradient(90deg,#6d28d9,#a78bfa)'},
-  neon:      {name:'Neon City',         emoji:'🌆', bodyBg:'linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%)',                tint:'rgba(134,25,143,0.30)', glow:'#f0abfc', border:'rgba(240,171,252,0.4)',text:'#f0abfc', accent:'#f0abfc', accentGlow:'rgba(240,171,252,0.35)', accentBorder:'rgba(240,171,252,0.45)', accentText:'#f0abfc', accentDark:'rgba(134,25,143,0.22)',   xp:'linear-gradient(90deg,#86198f,#f0abfc)'},
+  space:     {name:'Space Explorer',    emoji:'🚀', mascot:'🧑‍🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6', accent:'#818cf8', accentGlow:'rgba(129,140,248,0.35)', accentBorder:'rgba(129,140,248,0.45)', accentText:'#c7d2fe', accentDark:'rgba(67,56,202,0.22)',    xp:'linear-gradient(90deg,#4338ca,#818cf8)'},
+  library:   {name:'Enchanted Library', emoji:'📚', mascot:'🦉', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  text:'#fde68a', accent:'#fbbf24', accentGlow:'rgba(251,191,36,0.35)',  accentBorder:'rgba(251,191,36,0.45)',  accentText:'#fde68a', accentDark:'rgba(146,64,14,0.22)',   xp:'linear-gradient(90deg,#b45309,#fbbf24)'},
+  ocean:     {name:'Ocean Deep',        emoji:'🌊', mascot:'🐬', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa', accent:'#22d3ee', accentGlow:'rgba(34,211,238,0.35)',  accentBorder:'rgba(34,211,238,0.45)',  accentText:'#a5f3fc', accentDark:'rgba(14,116,144,0.22)',   xp:'linear-gradient(90deg,#0e7490,#22d3ee)'},
+  candy:     {name:'Candy Kingdom',     emoji:'🍭', mascot:'🧚', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec', accent:'#e879f9', accentGlow:'rgba(232,121,249,0.35)', accentBorder:'rgba(232,121,249,0.45)', accentText:'#f5d0fe', accentDark:'rgba(126,34,206,0.22)',   xp:'linear-gradient(90deg,#7e22ce,#e879f9)'},
+  jungle:    {name:'Jungle Quest',      emoji:'🌿', mascot:'🐯', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7', accent:'#4ade80', accentGlow:'rgba(74,222,128,0.35)',  accentBorder:'rgba(74,222,128,0.45)',  accentText:'#bbf7d0', accentDark:'rgba(21,128,61,0.22)',    xp:'linear-gradient(90deg,#15803d,#4ade80)'},
+  superhero: {name:'Superhero HQ',      emoji:'⚡', mascot:'🦸', bodyBg:'linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#080000 100%)',             tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1', accent:'#f87171', accentGlow:'rgba(248,113,113,0.35)', accentBorder:'rgba(248,113,113,0.45)', accentText:'#fecaca', accentDark:'rgba(153,27,27,0.22)',    xp:'linear-gradient(90deg,#991b1b,#f87171)'},
+  dragon:    {name:"Dragon's Keep",     emoji:'🐉', mascot:'🐉', bodyBg:'linear-gradient(180deg,#1a0500 0%,#2d0a00 40%,#0a0200 100%)',             tint:'rgba(154,52,18,0.30)',  glow:'#fb923c', border:'rgba(251,146,60,0.4)', text:'#fed7aa', accent:'#fb923c', accentGlow:'rgba(251,146,60,0.35)',  accentBorder:'rgba(251,146,60,0.45)',  accentText:'#fed7aa', accentDark:'rgba(154,52,18,0.22)',   xp:'linear-gradient(90deg,#9a3412,#fb923c)'},
+  crystal:   {name:'Crystal Cavern',    emoji:'💎', mascot:'🔮', bodyBg:'linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%)',             tint:'rgba(109,40,217,0.30)', glow:'#a78bfa', border:'rgba(167,139,250,0.4)',text:'#e9d5ff', accent:'#a78bfa', accentGlow:'rgba(167,139,250,0.35)', accentBorder:'rgba(167,139,250,0.45)', accentText:'#e9d5ff', accentDark:'rgba(109,40,217,0.22)',   xp:'linear-gradient(90deg,#6d28d9,#a78bfa)'},
+  neon:      {name:'Neon City',         emoji:'🌆', mascot:'🤖', bodyBg:'linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%)',                tint:'rgba(134,25,143,0.30)', glow:'#f0abfc', border:'rgba(240,171,252,0.4)',text:'#f0abfc', accent:'#f0abfc', accentGlow:'rgba(240,171,252,0.35)', accentBorder:'rgba(240,171,252,0.45)', accentText:'#f0abfc', accentDark:'rgba(134,25,143,0.22)',   xp:'linear-gradient(90deg,#86198f,#f0abfc)'},
 };
 
 let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
@@ -810,6 +810,9 @@ function renderHome() {
   document.getElementById('chipMathsName').textContent    = tm.name;
   document.getElementById('chipEnglishEmoji').textContent = te.emoji;
   document.getElementById('chipEnglishName').textContent  = te.name;
+  const sbm=document.getElementById('sbMathsIcon'), sbe=document.getElementById('sbEnglishIcon');
+  if(sbm) sbm.textContent=tm.mascot||'🧑‍🚀';
+  if(sbe) sbe.textContent=te.mascot||'🦉';
   renderChallengePanel(getTodayChallenges());
 }
 function goToSubject(subject) {
