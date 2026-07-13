@@ -34,7 +34,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .back-link:hover{color:rgba(255,255,255,0.55);}
 .theme-section-label{font-size:11px;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;width:100%;margin-bottom:10px;}
 .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-bottom:18px;}
-.theme-card{border-radius:14px;padding:12px 6px 14px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,0.08);transition:transform 0.15s,border-color 0.2s,box-shadow 0.2s;position:relative;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;overflow:hidden;}
+.theme-card{border-radius:14px;padding:12px 6px 14px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,0.08);transition:transform 0.15s,border-color 0.2s;position:relative;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;overflow:hidden;}
 .theme-card:hover{transform:translateY(-2px);}
 .theme-card.selected{border-color:rgba(255,255,255,0.3);}
 .theme-card .t-emoji{font-size:24px;line-height:1;position:relative;z-index:1;}
@@ -62,7 +62,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .theme-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:6px;transition:background 0.15s;}
 .theme-chip:hover{background:rgba(255,255,255,0.11);}
 .theme-chip-muted{opacity:0.4;font-size:11px;}
-/* Redesigned home action buttons */
+/* Home action buttons */
 .home-actions{display:flex;gap:10px;width:100%;margin-top:14px;}
 .home-action-btn{flex:1;padding:11px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s,border-color 0.15s,color 0.15s;text-align:center;}
 .home-action-btn:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.28);color:#fff;}
@@ -85,6 +85,19 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .saved-profiles-label{font-size:10px;font-weight:800;color:rgba(167,139,250,0.7);text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:8px;}
 .saved-profile-btn{width:100%;display:flex;align-items:center;gap:12px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:14px;padding:12px 16px;cursor:pointer;font-family:'Nunito',sans-serif;color:#c4b5fd;font-size:14px;font-weight:800;transition:background 0.15s,border-color 0.15s;margin-bottom:7px;}
 .saved-profile-btn:hover{background:rgba(139,92,246,0.18);border-color:rgba(139,92,246,0.4);}
+/* 4-digit PIN pad */
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:20px 0 24px;}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);background:transparent;transition:background 0.15s,border-color 0.15s;}
+.pin-dot.filled{background:#a78bfa;border-color:#a78bfa;}
+.pin-dot.error{background:#ef4444;border-color:#ef4444;animation:shake 0.3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;margin:0 auto;}
+.pin-key{padding:18px 8px;border-radius:16px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.07);color:#fff;font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;cursor:pointer;transition:background 0.1s,transform 0.08s;text-align:center;-webkit-tap-highlight-color:transparent;}
+.pin-key:hover{background:rgba(255,255,255,0.14);}
+.pin-key:active{transform:scale(0.93);background:rgba(167,139,250,0.25);}
+.pin-key.pin-del{font-size:18px;color:rgba(255,255,255,0.55);}
+.pin-key.pin-zero{grid-column:2;}
+.pin-note{font-size:11px;color:rgba(255,255,255,0.35);text-align:center;margin-top:16px;}
 /* Welcome screen */
 #screenWelcome{position:relative;overflow:hidden;min-height:500px;justify-content:center;padding:30px 0 10px;}
 .portal-rings{position:absolute;top:0;left:50%;transform:translateX(-50%);pointer-events:none;}
@@ -99,22 +112,26 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .portal-title{font-size:32px;font-weight:900;text-align:center;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:2;}
 .portal-sub{font-size:13px;color:#a78bfa;text-align:center;margin-bottom:22px;letter-spacing:0.3px;position:relative;z-index:2;}
 .portal-subjects{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:18px;position:relative;z-index:2;}
-.portal-subj{border-radius:16px;padding:12px 8px;text-align:center;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);cursor:default;}
+.portal-subj{border-radius:16px;padding:12px 8px;text-align:center;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);}
 .portal-subj-icon{font-size:26px;display:block;margin-bottom:4px;}
 .portal-subj-name{font-size:13px;font-weight:800;color:#fff;}
 .portal-subj-desc{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;}
 .btn-portal{width:100%;padding:17px;border-radius:18px;border:none;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;margin-bottom:10px;box-shadow:0 6px 28px rgba(109,40,217,0.45);position:relative;z-index:2;}
-.btn-portal:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(109,40,217,0.6);}
+.btn-portal:hover{transform:translateY(-2px);}
 .btn-portal:active{transform:scale(0.97);}
-.btn-admin-link{background:none;border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:rgba(255,255,255,0.28);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:8px 18px;transition:color 0.15s,border-color 0.15s;position:relative;z-index:2;}
-.btn-admin-link:hover{color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.22);}
+.btn-signin-link{background:none;border:1px solid rgba(255,255,255,0.14);border-radius:14px;color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;padding:10px 18px;transition:color 0.15s,border-color 0.15s;position:relative;z-index:2;width:100%;margin-top:4px;}
+.btn-signin-link:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.28);}
+.btn-admin-link{background:none;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:rgba(255,255,255,0.22);font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;padding:7px 16px;position:relative;z-index:2;margin-top:6px;}
+.btn-admin-link:hover{color:rgba(255,255,255,0.4);}
 .portal-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .pstar{position:absolute;width:3px;height:3px;border-radius:50%;background:#c4b5fd;animation:twinkle 2.5s ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:0.7;transform:scale(1);}50%{opacity:0.1;transform:scale(0.4);}}
+/* Sign-in screen */
+#screenSignIn .logo{font-size:40px;margin-bottom:8px;}
 .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.1);border-top-color:#42a5f5;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-text{font-size:13px;opacity:0.4;}
-/* Daily Challenges */
+/* Challenges */
 .challenge-panel{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:14px;margin-top:12px;margin-bottom:4px;}
 .challenge-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .challenge-ttl{font-size:11px;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;}
@@ -128,7 +145,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .ch-label{font-size:11px;font-weight:800;color:rgba(255,255,255,0.8);line-height:1.2;}
 .ch-time{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;}
 .ch-badge.done .ch-time{color:rgba(74,222,128,0.7);}
-@media(max-width:400px){.theme-grid{grid-template-columns:repeat(2,1fr);}.greeting{font-size:26px;}}
+@media(max-width:400px){.theme-grid{grid-template-columns:repeat(2,1fr);}.greeting{font-size:26px;}.pin-grid{gap:7px;}.pin-key{padding:14px 8px;font-size:20px;}}
 </style>
 </head>
 <body>
@@ -143,9 +160,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 <div class="screen" id="screenWelcome">
   <div class="portal-stars" id="portalStars" aria-hidden="true"></div>
   <div class="portal-rings" aria-hidden="true">
-    <div class="portal-ring pr1"></div>
-    <div class="portal-ring pr2"></div>
-    <div class="portal-ring pr3"></div>
+    <div class="portal-ring pr1"></div><div class="portal-ring pr2"></div><div class="portal-ring pr3"></div>
   </div>
   <div class="portal-badge">11+ Exam Flash Cards</div>
   <div class="portal-orb">🎓</div>
@@ -153,26 +168,23 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="portal-sub">Your learning adventure awaits ✨</div>
   <div class="portal-subjects">
     <div class="portal-subj" style="border-color:rgba(96,165,250,0.3);background:rgba(59,130,246,0.08);">
-      <span class="portal-subj-icon">🚀</span>
-      <div class="portal-subj-name">Maths</div>
-      <div class="portal-subj-desc">Numbers &amp; Shapes</div>
+      <span class="portal-subj-icon">🚀</span><div class="portal-subj-name">Maths</div><div class="portal-subj-desc">Numbers &amp; Shapes</div>
     </div>
     <div class="portal-subj" style="border-color:rgba(52,211,153,0.3);background:rgba(16,185,129,0.08);">
-      <span class="portal-subj-icon">📚</span>
-      <div class="portal-subj-name">English</div>
-      <div class="portal-subj-desc">Grammar &amp; Writing</div>
+      <span class="portal-subj-icon">📚</span><div class="portal-subj-name">English</div><div class="portal-subj-desc">Grammar &amp; Writing</div>
     </div>
   </div>
-  <!-- Saved profiles shown here when returning -->
+  <!-- Saved profiles (same device) -->
   <div class="saved-profiles-section" id="savedProfilesSection" style="display:none;">
     <div class="saved-profiles-label">Welcome back!</div>
     <div id="savedProfilesList"></div>
   </div>
   <button class="btn-portal" onclick="showScreen('screenInvite')" id="btnEnterPortal">🎒 New Profile →</button>
+  <button class="btn-signin-link" onclick="showScreen('screenSignIn')">📱 Already have a profile? Sign in →</button>
   <button class="btn-admin-link" onclick="window.location.href='admin.html'">Admin Login 🔐</button>
 </div>
 
-<!-- INVITE CODE -->
+<!-- INVITE CODE (new profile only) -->
 <div class="screen" id="screenInvite">
   <div class="logo">🔑</div>
   <div class="screen-title">Enter Invite Code</div>
@@ -205,8 +217,30 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="theme-section-label">📚 English theme</div>
   <div class="theme-grid" id="themeGridEnglish"></div>
   <div class="err" id="profileErr"></div>
-  <button class="btn btn-primary" id="createBtn" onclick="createProfile()">Let's Go! 🚀</button>
+  <button class="btn btn-primary" id="createBtn" onclick="createProfile()">Next — Set PIN 🔐</button>
   <button class="back-link" onclick="showScreen('screenInvite')">← Back</button>
+</div>
+
+<!-- SIGN IN (new device / returning) -->
+<div class="screen" id="screenSignIn">
+  <div class="logo">🔐</div>
+  <div class="screen-title">Welcome Back!</div>
+  <div class="screen-sub">Enter your name and 4-digit PIN</div>
+  <div class="input-wrap">
+    <label class="input-label">Your name</label>
+    <input class="input-field" id="signinName" type="text" placeholder="e.g. Prisha" maxlength="20"
+      autocomplete="off">
+  </div>
+  <div class="pin-dots" id="signinDots">
+    <div class="pin-dot" id="sdin0"></div>
+    <div class="pin-dot" id="sdin1"></div>
+    <div class="pin-dot" id="sdin2"></div>
+    <div class="pin-dot" id="sdin3"></div>
+  </div>
+  <div class="pin-grid" id="signinGrid"></div>
+  <div class="err" id="signinErr" style="margin-top:14px;"></div>
+  <div class="pin-note">Forgotten your PIN? Ask your tutor to look it up.</div>
+  <button class="back-link" style="margin-top:12px;" onclick="showScreen('screenWelcome');resetSignIn()">← Back</button>
 </div>
 
 <!-- HOME -->
@@ -230,8 +264,6 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="sb-icon">📚</div>
     <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
   </button>
-
-  <!-- Daily Challenges -->
   <div class="challenge-panel" id="challengePanel">
     <div class="challenge-header">
       <div class="challenge-ttl">🏆 Daily Challenges</div>
@@ -244,18 +276,9 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
       <div class="ch-badge" onclick="goToChallenge('english',30)"><div class="ch-icon">📚</div><div class="ch-label">English</div><div class="ch-time">30-min</div></div>
     </div>
   </div>
-
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
-    <div class="theme-chip" onclick="openThemeChanger('maths')">
-      <span id="chipMathsEmoji">🚀</span>
-      <span id="chipMathsName">Space Explorer</span>
-      <span class="theme-chip-muted">· Maths</span>
-    </div>
-    <div class="theme-chip" onclick="openThemeChanger('english')">
-      <span id="chipEnglishEmoji">📚</span>
-      <span id="chipEnglishName">Enchanted Library</span>
-      <span class="theme-chip-muted">· English</span>
-    </div>
+    <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><span id="chipMathsName">Space Explorer</span><span class="theme-chip-muted">· Maths</span></div>
+    <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><span id="chipEnglishName">Enchanted Library</span><span class="theme-chip-muted">· English</span></div>
   </div>
   <div class="home-actions">
     <button class="home-action-btn" onclick="switchProfile()">🔄 Switch Profile</button>
@@ -274,19 +297,33 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   </div>
 </div>
 
-<!-- PROFILE PICKER OVERLAY -->
+<!-- PIN SET OVERLAY (during profile creation) -->
+<div class="overlay" id="pinSetOverlay">
+  <div class="overlay-sheet" style="text-align:center;">
+    <div class="overlay-title">🔐 Set Your PIN</div>
+    <div class="overlay-sub">Choose 4 digits — you'll need this on a new device</div>
+    <div class="pin-dots" id="setPinDots">
+      <div class="pin-dot" id="spd0"></div><div class="pin-dot" id="spd1"></div>
+      <div class="pin-dot" id="spd2"></div><div class="pin-dot" id="spd3"></div>
+    </div>
+    <div class="pin-grid" id="setPinGrid"></div>
+    <div class="pin-note" style="margin-top:18px;">Tip: use your lucky number or birthday digits!</div>
+    <div class="err" id="setPinErr" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- PROFILE PICKER OVERLAY (switch profile) -->
 <div class="overlay" id="profilePickerOverlay" onclick="profilePickerClick(event)">
   <div class="overlay-sheet">
     <div class="overlay-title">👤 Switch Profile</div>
-    <div class="overlay-sub">Pick a profile or create a new one</div>
+    <div class="overlay-sub">Pick a profile or start fresh</div>
     <div class="profile-pick-list" id="profilePickList"></div>
-    <button class="btn btn-ghost" style="margin-bottom:8px" onclick="startNewProfile()">➕ New Profile</button>
+    <button class="btn btn-ghost" style="margin-bottom:8px;" onclick="startNewProfile()">➕ New Profile</button>
     <button class="btn btn-ghost" style="margin-bottom:0;opacity:0.5;" onclick="closeProfilePicker()">Cancel</button>
   </div>
 </div>
 
 <script>
-// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCEyADr23BV0nASX_RlTfQR-Ewt0XMFYJ8",
   authDomain: "grammar-school-flash-cards.firebaseapp.com",
@@ -301,21 +338,57 @@ const db = firebase.firestore();
 const FALLBACK_CODES = ['PREP2027'];
 
 const THEMES = {
-  space:     {name:'Space Explorer',    emoji:'🚀', bg:'#060618', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   accent:'#7986cb', text:'#e8eaf6'},
-  library:   {name:'Enchanted Library', emoji:'📚', bg:'#1a0f08', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  accent:'#fbbf24', text:'#fde68a'},
-  ocean:     {name:'Ocean Deep',        emoji:'🌊', bg:'#041c2c', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', accent:'#4dd0e1', text:'#e0f7fa'},
-  candy:     {name:'Candy Kingdom',     emoji:'🍭', bg:'#1a0828', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',accent:'#ce93d8', text:'#fce4ec'},
-  jungle:    {name:'Jungle Quest',      emoji:'🌿', bg:'#052e16', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', accent:'#4ade80', text:'#dcfce7'},
-  superhero: {name:'Superhero HQ',      emoji:'⚡', bg:'#0a0a0a', bodyBg:'#0a0a0a',                                                                  tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',accent:'#ef9a9a', text:'#fff8e1'}
+  space:     {name:'Space Explorer',    emoji:'🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6'},
+  library:   {name:'Enchanted Library', emoji:'📚', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  text:'#fde68a'},
+  ocean:     {name:'Ocean Deep',        emoji:'🌊', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa'},
+  candy:     {name:'Candy Kingdom',     emoji:'🍭', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec'},
+  jungle:    {name:'Jungle Quest',      emoji:'🌿', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7'},
+  superhero: {name:'Superhero HQ',      emoji:'⚡', bodyBg:'#0a0a0a',                                                                  tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1'}
 };
 
-let currentProfile  = null;
-let selectedMaths   = 'space';
-let selectedEnglish = 'library';
-let pendingSubject  = 'maths';
-let pendingTheme    = 'space';
+let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
+let pendingSubject = 'maths', pendingTheme = 'space';
 
-// ── Saved profiles (multi-profile support) ───────────────────────
+// ── PIN PAD builder ──────────────────────────────────────────────
+function buildPinPad(gridId, dotsPrefix, onComplete, onUpdate) {
+  let digits = '';
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  const keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  keys.forEach((k, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'pin-key' + (k === '⌫' ? ' pin-del' : '') + (k === '0' ? ' pin-zero' : '');
+    btn.textContent = k;
+    if (k === '') { btn.style.visibility = 'hidden'; grid.appendChild(btn); return; }
+    btn.onclick = () => {
+      if (k === '⌫') { digits = digits.slice(0, -1); }
+      else if (digits.length < 4) { digits += k; }
+      updateDots(dotsPrefix, digits);
+      if (onUpdate) onUpdate(digits);
+      if (digits.length === 4 && onComplete) onComplete(digits);
+    };
+    grid.appendChild(btn);
+  });
+  function updateDots(prefix, d) {
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById(prefix + i);
+      if (dot) { dot.classList.toggle('filled', i < d.length); dot.classList.remove('error'); }
+    }
+  }
+  return {
+    reset() { digits = ''; updateDots(dotsPrefix, ''); },
+    shake() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(dotsPrefix + i);
+        if (dot) { dot.classList.add('error'); setTimeout(() => dot.classList.remove('error'), 400); }
+      }
+      digits = ''; setTimeout(() => updateDots(dotsPrefix, ''), 400);
+    },
+    get value() { return digits; }
+  };
+}
+
+// ── Saved profiles (device cache) ───────────────────────────────
 function getSavedProfiles() {
   try { return JSON.parse(localStorage.getItem('gsc_profiles') || '[]'); } catch(e) { return []; }
 }
@@ -324,19 +397,18 @@ function saveProfileEntry(id, name, themeMaths, themeEnglish) {
   profiles.unshift({ id, name, themeMaths: themeMaths||'space', themeEnglish: themeEnglish||'library' });
   localStorage.setItem('gsc_profiles', JSON.stringify(profiles.slice(0, 6)));
 }
-
 function renderSavedProfilesOnWelcome() {
   const profiles = getSavedProfiles();
-  const section  = document.getElementById('savedProfilesSection');
-  const list     = document.getElementById('savedProfilesList');
-  const btn      = document.getElementById('btnEnterPortal');
+  const section = document.getElementById('savedProfilesSection');
+  const list    = document.getElementById('savedProfilesList');
+  const btn     = document.getElementById('btnEnterPortal');
   if (!profiles.length) { section.style.display = 'none'; btn.textContent = '🎒 Enter the Portal →'; return; }
   section.style.display = '';
   btn.textContent = '➕ New Profile →';
   list.innerHTML = '';
   profiles.forEach(p => {
     const tm = THEMES[p.themeMaths] || THEMES.space;
-    const b  = document.createElement('button');
+    const b = document.createElement('button');
     b.className = 'saved-profile-btn';
     b.innerHTML = '<span style="font-size:22px;">' + tm.emoji + '</span><span>Continue as <strong>' + p.name + '</strong></span>';
     b.onclick = () => selectProfile(p.id);
@@ -345,25 +417,22 @@ function renderSavedProfilesOnWelcome() {
 }
 
 async function selectProfile(id) {
-  localStorage.setItem('gsc_userId', id);
   try {
     const snap = await db.collection('users').doc(id).get();
     if (snap.exists) {
       currentProfile = { id, ...snap.data() };
       saveProfileEntry(id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
+      localStorage.setItem('gsc_userId', id);
       applyTheme(currentProfile.themeMaths || 'space');
-      renderHome();
-      showScreen('screenHome');
+      renderHome(); showScreen('screenHome');
       db.collection('users').doc(id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
       syncChallengeCompletions(id).catch(()=>{});
       closeProfilePicker();
     }
-  } catch(e) {
-    console.warn('Profile load failed', e);
-  }
+  } catch(e) { console.warn('selectProfile failed', e); }
 }
 
-// ── Profile picker overlay ────────────────────────────────────────
+// ── Switch profile overlay ───────────────────────────────────────
 function switchProfile() {
   const profiles = getSavedProfiles();
   if (!profiles.length) { startNewProfile(); return; }
@@ -393,96 +462,142 @@ function startNewProfile() {
   showScreen('screenWelcome');
 }
 
+// ── Sign-in with PIN (new device) ────────────────────────────────
+let _signinPad = null;
+function initSignInPad() {
+  _signinPad = buildPinPad('signinGrid', 'sdin', async (pin) => {
+    const name = (document.getElementById('signinName').value || '').trim();
+    if (!name) {
+      document.getElementById('signinErr').textContent = 'Please enter your name first.';
+      _signinPad.shake(); return;
+    }
+    document.getElementById('signinErr').textContent = 'Looking up your profile…';
+    try {
+      const snap = await db.collection('users').where('name', '==', name).get();
+      let found = null;
+      snap.forEach(doc => { if (doc.data().pin === pin) found = { id: doc.id, ...doc.data() }; });
+      if (found) {
+        currentProfile = found;
+        saveProfileEntry(found.id, found.name, found.themeMaths, found.themeEnglish);
+        localStorage.setItem('gsc_userId', found.id);
+        applyTheme(found.themeMaths || 'space');
+        renderHome(); showScreen('screenHome');
+        db.collection('users').doc(found.id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+        syncChallengeCompletions(found.id).catch(()=>{});
+        document.getElementById('signinErr').textContent = '';
+        resetSignIn();
+      } else {
+        document.getElementById('signinErr').textContent = '❌ Name or PIN not recognised — try again.';
+        _signinPad.shake();
+      }
+    } catch(e) {
+      document.getElementById('signinErr').textContent = '⚠️ Connection error — try again.';
+      _signinPad.shake();
+    }
+  });
+}
+function resetSignIn() {
+  if (_signinPad) _signinPad.reset();
+  document.getElementById('signinName').value = '';
+  document.getElementById('signinErr').textContent = '';
+}
+
+// ── PIN set overlay (profile creation) ──────────────────────────
+let _setPinPad = null, _pendingProfileData = null;
+function openPinSetOverlay(profileData) {
+  _pendingProfileData = profileData;
+  document.getElementById('setPinErr').textContent = '';
+  if (!_setPinPad) {
+    _setPinPad = buildPinPad('setPinGrid', 'spd', async (pin) => {
+      await finishCreateProfile(_pendingProfileData, pin);
+    });
+  } else { _setPinPad.reset(); }
+  document.getElementById('pinSetOverlay').classList.add('open');
+}
+async function finishCreateProfile(profileData, pin) {
+  document.getElementById('setPinErr').textContent = 'Creating your profile…';
+  const userId = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+  const profile = { ...profileData, pin, createdAt: firebase.firestore.FieldValue.serverTimestamp(), lastActive: firebase.firestore.FieldValue.serverTimestamp(), xp:0, streak:0, badges:[], ratings:{} };
+  try {
+    await db.collection('users').doc(userId).set(profile);
+    localStorage.setItem('gsc_userId', userId);
+    saveProfileEntry(userId, profile.name, profile.themeMaths, profile.themeEnglish);
+    currentProfile = { id: userId, ...profile };
+    document.getElementById('pinSetOverlay').classList.remove('open');
+    applyTheme(profile.themeMaths);
+    renderHome(); showScreen('screenHome');
+  } catch(e) {
+    document.getElementById('setPinErr').textContent = '⚠️ Could not save — check connection.';
+    _setPinPad.shake();
+  }
+}
+
+// ── Core helpers ─────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-
 function applyTheme(key) {
   const t = THEMES[key] || THEMES.space;
-  document.body.style.background = t.bodyBg || t.bg;
+  document.body.style.background = t.bodyBg;
   document.body.style.color = t.text;
 }
-
 function spawnStars(containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
+  const c = document.getElementById(containerId); if (!c) return; c.innerHTML = '';
   for (let i = 0; i < 28; i++) {
-    const s = document.createElement('div');
-    s.className = 'pstar';
-    s.style.left  = Math.random() * 100 + '%';
-    s.style.top   = Math.random() * 100 + '%';
-    s.style.animationDelay    = (Math.random() * 3).toFixed(1) + 's';
-    s.style.animationDuration = (1.5 + Math.random() * 2).toFixed(1) + 's';
-    s.style.opacity = (0.3 + Math.random() * 0.5).toFixed(2);
-    const sz = 2 + Math.random() * 3;
-    s.style.width = sz + 'px'; s.style.height = sz + 'px';
-    container.appendChild(s);
+    const s = document.createElement('div'); s.className = 'pstar';
+    s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*3).toFixed(1)+'s';
+    s.style.animationDuration = (1.5+Math.random()*2).toFixed(1)+'s';
+    s.style.opacity = (0.3+Math.random()*0.5).toFixed(2);
+    const sz = 2+Math.random()*3; s.style.width = sz+'px'; s.style.height = sz+'px';
+    c.appendChild(s);
   }
 }
-
 function buildThemeGrid(containerId, activeKey, onPick) {
-  const grid = document.getElementById(containerId);
-  grid.innerHTML = '';
+  const grid = document.getElementById(containerId); grid.innerHTML = '';
   Object.entries(THEMES).forEach(([key, t]) => {
     const c = document.createElement('div');
-    c.className = 'theme-card' + (key === activeKey ? ' selected' : '');
-    c.style.background = t.tint;
-    c.style.borderColor = key === activeKey ? t.border : 'rgba(255,255,255,0.08)';
-    c.dataset.key = key;
-    c.innerHTML = '<div class="t-glow" style="background:' + t.glow + ';"></div><div class="t-check">✓</div><div class="t-emoji">' + t.emoji + '</div><div class="t-name">' + t.name + '</div>';
+    c.className = 'theme-card'+(key===activeKey?' selected':'');
+    c.style.background = t.tint; c.style.borderColor = key===activeKey ? t.border : 'rgba(255,255,255,0.08)';
+    c.innerHTML = '<div class="t-glow" style="background:'+t.glow+';"></div><div class="t-check">✓</div><div class="t-emoji">'+t.emoji+'</div><div class="t-name">'+t.name+'</div>';
     c.onclick = () => {
-      grid.querySelectorAll('.theme-card').forEach(x => {
-        x.classList.remove('selected');
-        x.style.borderColor = 'rgba(255,255,255,0.08)';
-      });
-      c.classList.add('selected');
-      c.style.borderColor = t.border;
-      onPick(key);
+      grid.querySelectorAll('.theme-card').forEach(x => { x.classList.remove('selected'); x.style.borderColor='rgba(255,255,255,0.08)'; });
+      c.classList.add('selected'); c.style.borderColor=t.border; onPick(key);
     };
     grid.appendChild(c);
   });
 }
 
 function enterAdminPreview() {
-  currentProfile = { id: 'admin_preview', name: 'Admin', themeMaths: 'space', themeEnglish: 'library', xp: 0, streak: 0, badges: [], ratings: {} };
-  applyTheme('space');
-  renderHome();
+  currentProfile = { id:'admin_preview', name:'Admin', themeMaths:'space', themeEnglish:'library', xp:0, streak:0, badges:[], ratings:{} };
+  applyTheme('space'); renderHome();
   document.getElementById('adminPreviewBar').style.display = 'flex';
   showScreen('screenHome');
 }
-
-function exitAdminPreview() {
-  localStorage.removeItem('gsc_admin_preview');
-  window.location.href = 'admin.html';
-}
+function exitAdminPreview() { localStorage.removeItem('gsc_admin_preview'); window.location.href='admin.html'; }
 
 async function init() {
-  spawnStars('portalStars');
-  spawnStars('profileStars');
-  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths = k; applyTheme(k); });
-  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish = k; });
+  spawnStars('portalStars'); spawnStars('profileStars');
+  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); });
+  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; });
+  initSignInPad();
 
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('preview') === '1' || localStorage.getItem('gsc_admin_preview') === '1') {
-    localStorage.setItem('gsc_admin_preview', '1');
-    enterAdminPreview();
-    return;
+  if (urlParams.get('preview')==='1' || localStorage.getItem('gsc_admin_preview')==='1') {
+    localStorage.setItem('gsc_admin_preview','1'); enterAdminPreview(); return;
   }
-
   const userId = localStorage.getItem('gsc_userId');
   if (userId) {
     try {
       const snap = await db.collection('users').doc(userId).get();
       if (snap.exists) {
-        currentProfile = { id: userId, ...snap.data() };
+        currentProfile = { id:userId, ...snap.data() };
         saveProfileEntry(userId, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
-        applyTheme(currentProfile.themeMaths || 'space');
-        renderHome();
-        showScreen('screenHome');
-        db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
-        syncChallengeCompletions(userId).catch(() => {});
+        applyTheme(currentProfile.themeMaths||'space');
+        renderHome(); showScreen('screenHome');
+        db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+        syncChallengeCompletions(userId).catch(()=>{});
         return;
       }
     } catch(e) { console.warn('Firebase load failed', e); }
@@ -492,73 +607,48 @@ async function init() {
 }
 
 async function validateInvite() {
-  const code = (document.getElementById('inviteInput').value || '').trim().toUpperCase();
+  const code = (document.getElementById('inviteInput').value||'').trim().toUpperCase();
   const err  = document.getElementById('inviteErr');
-  if (!code) { err.textContent = 'Please enter your invite code.'; return; }
-  err.textContent = 'Checking...';
+  if (!code) { err.textContent='Please enter your invite code.'; return; }
+  err.textContent='Checking…';
   try {
     const snap = await db.collection('inviteCodes').doc(code).get();
-    if (!snap.exists || snap.data().active === false) {
-      err.textContent = '❌ Invalid code — ask your tutor!';
-      return;
-    }
+    if (!snap.exists || snap.data().active===false) { err.textContent='❌ Invalid code — ask your tutor!'; return; }
   } catch(e) {
-    if (!FALLBACK_CODES.includes(code)) {
-      err.textContent = '❌ Invalid code — ask your tutor!';
-      return;
-    }
+    if (!FALLBACK_CODES.includes(code)) { err.textContent='❌ Invalid code — ask your tutor!'; return; }
   }
-  err.textContent = '';
-  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths = k; applyTheme(k); });
-  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish = k; });
+  err.textContent='';
+  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); });
+  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; });
   showScreen('screenProfile');
-  setTimeout(() => document.getElementById('nameInput').focus(), 300);
+  setTimeout(()=>document.getElementById('nameInput').focus(),300);
 }
 
 async function createProfile() {
-  const name = (document.getElementById('nameInput').value || '').trim();
+  const name = (document.getElementById('nameInput').value||'').trim();
   const err  = document.getElementById('profileErr');
-  if (!name)           { err.textContent = 'Please enter your name!'; return; }
-  if (name.length < 2) { err.textContent = 'Name needs at least 2 letters.'; return; }
-  const btn = document.getElementById('createBtn');
-  btn.disabled = true;
-  err.textContent = 'Creating your profile...';
-  const userId = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-  const profile = {
-    name: name,
-    themeMaths:   selectedMaths,
-    themeEnglish: selectedEnglish,
-    inviteCode: (document.getElementById('inviteInput').value || '').trim().toUpperCase(),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-    xp: 0, streak: 0, badges: [], ratings: {}
+  if (!name)           { err.textContent='Please enter your name!'; return; }
+  if (name.length < 2) { err.textContent='Name needs at least 2 letters.'; return; }
+  err.textContent='';
+  const profileData = {
+    name, themeMaths: selectedMaths, themeEnglish: selectedEnglish,
+    inviteCode: (document.getElementById('inviteInput').value||'').trim().toUpperCase()
   };
-  try {
-    await db.collection('users').doc(userId).set(profile);
-    localStorage.setItem('gsc_userId', userId);
-    saveProfileEntry(userId, name, selectedMaths, selectedEnglish);
-    currentProfile = { id: userId, ...profile };
-    applyTheme(selectedMaths);
-    renderHome();
-    showScreen('screenHome');
-  } catch(e) {
-    err.textContent = '⚠️ Could not save — check your connection and try again.';
-    btn.disabled = false;
-    console.error(e);
-  }
+  document.getElementById('createBtn').disabled = true;
+  openPinSetOverlay(profileData);
+  setTimeout(()=>{ document.getElementById('createBtn').disabled=false; }, 500);
 }
 
 function renderHome() {
-  const p  = currentProfile;
-  const tm = THEMES[p.themeMaths]   || THEMES.space;
-  const te = THEMES[p.themeEnglish] || THEMES.library;
-  document.getElementById('homeGreeting').textContent = 'Hi, ' + p.name + '! 👋';
-  const xp       = parseInt(localStorage.getItem('prisha_xp') || '0') || p.xp || 0;
-  const streak   = parseInt(localStorage.getItem('prisha_streak') || '0') || p.streak || 0;
-  const ratings  = JSON.parse(localStorage.getItem('prisha_ratings') || '{}');
-  const mastered = Object.values(ratings).filter(v => v === 'got').length;
+  const p = currentProfile;
+  const tm = THEMES[p.themeMaths]||THEMES.space, te = THEMES[p.themeEnglish]||THEMES.library;
+  document.getElementById('homeGreeting').textContent = 'Hi, '+p.name+'! 👋';
+  const xp      = parseInt(localStorage.getItem('prisha_xp')||'0')||p.xp||0;
+  const streak  = parseInt(localStorage.getItem('prisha_streak')||'0')||p.streak||0;
+  const ratings = JSON.parse(localStorage.getItem('prisha_ratings')||'{}');
+  const mastered = Object.values(ratings).filter(v=>v==='got').length;
   document.getElementById('statXP').textContent       = xp;
-  document.getElementById('statStreak').textContent   = streak > 0 ? streak + ' 🔥' : '—';
+  document.getElementById('statStreak').textContent   = streak>0 ? streak+' 🔥' : '—';
   document.getElementById('statMastered').textContent = mastered;
   document.getElementById('chipMathsEmoji').textContent   = tm.emoji;
   document.getElementById('chipMathsName').textContent    = tm.name;
@@ -566,133 +656,57 @@ function renderHome() {
   document.getElementById('chipEnglishName').textContent  = te.name;
   renderChallengePanel(getTodayChallenges());
 }
-
 function goToSubject(subject) {
-  if (currentProfile) {
-    localStorage.setItem('gsc_profile', JSON.stringify({
-      id: currentProfile.id, name: currentProfile.name,
-      themeMaths: currentProfile.themeMaths || 'space',
-      themeEnglish: currentProfile.themeEnglish || 'library'
-    }));
-  }
-  window.location.href = subject === 'maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
+  if (currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
+  window.location.href = subject==='maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
 }
-
 function openThemeChanger(subject) {
-  pendingSubject = subject || 'maths';
-  const currentKey = pendingSubject === 'maths'
-    ? (currentProfile.themeMaths || 'space')
-    : (currentProfile.themeEnglish || 'library');
+  pendingSubject = subject||'maths';
+  const currentKey = pendingSubject==='maths' ? (currentProfile.themeMaths||'space') : (currentProfile.themeEnglish||'library');
   pendingTheme = currentKey;
-  document.getElementById('overlayTitle').textContent = pendingSubject === 'maths' ? '🚀 Change Maths Theme' : '📚 Change English Theme';
-  buildThemeGrid('themeGridChange', currentKey, k => { pendingTheme = k; });
+  document.getElementById('overlayTitle').textContent = pendingSubject==='maths' ? '🚀 Change Maths Theme' : '📚 Change English Theme';
+  buildThemeGrid('themeGridChange', currentKey, k=>{ pendingTheme=k; });
   document.getElementById('themeOverlay').classList.add('open');
 }
 function closeThemeChanger() { document.getElementById('themeOverlay').classList.remove('open'); }
-function overlayClick(e) { if (e.target === document.getElementById('themeOverlay')) closeThemeChanger(); }
-
+function overlayClick(e) { if (e.target===document.getElementById('themeOverlay')) closeThemeChanger(); }
 async function saveThemeChange() {
-  const t = THEMES[pendingTheme] || THEMES.space;
-  if (pendingSubject === 'maths') {
-    currentProfile.themeMaths = pendingTheme;
-    document.getElementById('chipMathsEmoji').textContent = t.emoji;
-    document.getElementById('chipMathsName').textContent  = t.name;
-    applyTheme(pendingTheme);
-  } else {
-    currentProfile.themeEnglish = pendingTheme;
-    document.getElementById('chipEnglishEmoji').textContent = t.emoji;
-    document.getElementById('chipEnglishName').textContent  = t.name;
-  }
+  const t = THEMES[pendingTheme]||THEMES.space;
+  if (pendingSubject==='maths') { currentProfile.themeMaths=pendingTheme; document.getElementById('chipMathsEmoji').textContent=t.emoji; document.getElementById('chipMathsName').textContent=t.name; applyTheme(pendingTheme); }
+  else { currentProfile.themeEnglish=pendingTheme; document.getElementById('chipEnglishEmoji').textContent=t.emoji; document.getElementById('chipEnglishName').textContent=t.name; }
   saveProfileEntry(currentProfile.id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
   closeThemeChanger();
-  try {
-    const update = pendingSubject === 'maths' ? { themeMaths: pendingTheme } : { themeEnglish: pendingTheme };
-    await db.collection('users').doc(currentProfile.id).update(update);
-  } catch(e) { console.warn('Theme save failed', e); }
+  try { await db.collection('users').doc(currentProfile.id).update(pendingSubject==='maths' ? {themeMaths:pendingTheme} : {themeEnglish:pendingTheme}); } catch(e) {}
 }
 
 // Daily Challenges
-function _dateKey(d) {
-  d = d || new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-
-function getTodayChallenges() {
-  const stored = JSON.parse(localStorage.getItem('gsc_challenges') || '{}');
-  return stored[_dateKey()] || {};
-}
-
-function calcChallengeStreak() {
-  const stored = JSON.parse(localStorage.getItem('gsc_challenges') || '{}');
-  let streak = 0;
-  const d = new Date();
-  for (let i = 0; i < 365; i++) {
-    const key = _dateKey(d);
-    const day = stored[key] || {};
-    const hasAny = day.maths15 || day.maths30 || day.english15 || day.english30;
-    if (hasAny) { streak++; d.setDate(d.getDate() - 1); }
-    else if (i === 0) { d.setDate(d.getDate() - 1); }
-    else { break; }
-  }
+function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function getTodayChallenges(){ const s=JSON.parse(localStorage.getItem('gsc_challenges')||'{}'); return s[_dateKey()]||{}; }
+function calcChallengeStreak(){
+  const s=JSON.parse(localStorage.getItem('gsc_challenges')||'{}'); let streak=0; const d=new Date();
+  for(let i=0;i<365;i++){ const k=_dateKey(d),day=s[k]||{},any=day.maths15||day.maths30||day.english15||day.english30; if(any){streak++;d.setDate(d.getDate()-1);}else if(i===0){d.setDate(d.getDate()-1);}else{break;} }
   return streak;
 }
-
-function renderChallengePanel(today) {
-  const tm = currentProfile ? (THEMES[currentProfile.themeMaths]   || THEMES.space)   : THEMES.space;
-  const te = currentProfile ? (THEMES[currentProfile.themeEnglish] || THEMES.library) : THEMES.library;
-  const emojis = { maths: tm.emoji, english: te.emoji };
-  const challenges = [
-    { key: 'maths15',   subject: 'maths',   mins: 15, label: 'Maths' },
-    { key: 'maths30',   subject: 'maths',   mins: 30, label: 'Maths' },
-    { key: 'english15', subject: 'english', mins: 15, label: 'English' },
-    { key: 'english30', subject: 'english', mins: 30, label: 'English' },
-  ];
-  const grid = document.getElementById('challengeGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  challenges.forEach(ch => {
-    const done = !!(today && today[ch.key]);
-    const badge = document.createElement('div');
-    badge.className = 'ch-badge' + (done ? ' done' : '');
-    badge.innerHTML = '<div class="ch-icon">' + (done ? '✅' : emojis[ch.subject]) + '</div><div class="ch-label">' + ch.label + '</div><div class="ch-time">' + ch.mins + '-min' + (done ? ' · Done!' : '') + '</div>';
-    badge.onclick = () => goToChallenge(ch.subject, ch.mins);
-    grid.appendChild(badge);
-  });
-  const streak = calcChallengeStreak();
-  const pill = document.getElementById('challengeStreakPill');
-  if (pill) {
-    if (streak > 0) { pill.textContent = '🔥 ' + streak + (streak === 1 ? ' day' : ' days'); pill.style.display = ''; }
-    else { pill.style.display = 'none'; }
-  }
+function renderChallengePanel(today){
+  const tm=currentProfile?(THEMES[currentProfile.themeMaths]||THEMES.space):THEMES.space;
+  const te=currentProfile?(THEMES[currentProfile.themeEnglish]||THEMES.library):THEMES.library;
+  const emojis={maths:tm.emoji,english:te.emoji};
+  const chs=[{key:'maths15',subject:'maths',mins:15,label:'Maths'},{key:'maths30',subject:'maths',mins:30,label:'Maths'},{key:'english15',subject:'english',mins:15,label:'English'},{key:'english30',subject:'english',mins:30,label:'English'}];
+  const grid=document.getElementById('challengeGrid'); if(!grid)return; grid.innerHTML='';
+  chs.forEach(ch=>{ const done=!!(today&&today[ch.key]); const b=document.createElement('div'); b.className='ch-badge'+(done?' done':''); b.innerHTML='<div class="ch-icon">'+(done?'✅':emojis[ch.subject])+'</div><div class="ch-label">'+ch.label+'</div><div class="ch-time">'+ch.mins+'-min'+(done?' · Done!':'')+'</div>'; b.onclick=()=>goToChallenge(ch.subject,ch.mins); grid.appendChild(b); });
+  const streak=calcChallengeStreak(); const pill=document.getElementById('challengeStreakPill');
+  if(pill){ if(streak>0){pill.textContent='🔥 '+streak+(streak===1?' day':' days');pill.style.display='';}else{pill.style.display='none';} }
+}
+async function syncChallengeCompletions(userId){
+  const stored=JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
+  const synced=JSON.parse(localStorage.getItem('gsc_challenges_synced')||'{}');
+  for(const[date,data] of Object.entries(stored)){ if(JSON.stringify(data)!==JSON.stringify(synced[date])){ try{ await db.collection('users').doc(userId).collection('dailyLogs').doc(date).set(data,{merge:true}); synced[date]=data; localStorage.setItem('gsc_challenges_synced',JSON.stringify(synced)); }catch(e){} } }
+}
+function goToChallenge(subject,mins){
+  if(currentProfile) localStorage.setItem('gsc_profile',JSON.stringify({id:currentProfile.id,name:currentProfile.name,themeMaths:currentProfile.themeMaths||'space',themeEnglish:currentProfile.themeEnglish||'library'}));
+  window.location.href=(subject==='maths'?'Maths_Flashcards.html':'English_Flashcards.html')+'?challenge='+mins;
 }
 
-async function syncChallengeCompletions(userId) {
-  const stored = JSON.parse(localStorage.getItem('gsc_challenges') || '{}');
-  const synced = JSON.parse(localStorage.getItem('gsc_challenges_synced') || '{}');
-  for (const [date, data] of Object.entries(stored)) {
-    if (JSON.stringify(data) !== JSON.stringify(synced[date])) {
-      try {
-        await db.collection('users').doc(userId).collection('dailyLogs').doc(date).set(data, { merge: true });
-        synced[date] = data;
-        localStorage.setItem('gsc_challenges_synced', JSON.stringify(synced));
-      } catch(e) { /* silent */ }
-    }
-  }
-}
-
-function goToChallenge(subject, mins) {
-  if (currentProfile) {
-    localStorage.setItem('gsc_profile', JSON.stringify({
-      id: currentProfile.id, name: currentProfile.name,
-      themeMaths: currentProfile.themeMaths || 'space',
-      themeEnglish: currentProfile.themeEnglish || 'library'
-    }));
-  }
-  const page = subject === 'maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
-  window.location.href = page + '?challenge=' + mins;
-}
-
-// Boot
 init();
 </script>
 </body>
