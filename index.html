@@ -177,14 +177,12 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="portal-orb">🎓</div>
   <div class="portal-title">Grammar<br>School Prep</div>
   <div class="portal-sub">Your learning adventure awaits ✨</div>
-  <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:2px;align-self:flex-start;margin-bottom:6px;">STUDY</div>
-  <div class="portal-subjects">
-    <div class="portal-subj" onclick="showScreen('screenSignIn')" style="border-color:rgba(96,165,250,0.35);background:rgba(59,130,246,0.1);" title="Sign in to study Maths">
-      <span class="portal-subj-icon">🎯</span><div class="portal-subj-name">Maths</div><div class="portal-subj-desc">Tap to start →</div>
-    </div>
-    <div class="portal-subj" onclick="showScreen('screenSignIn')" style="border-color:rgba(52,211,153,0.35);background:rgba(16,185,129,0.1);" title="Sign in to study English">
-      <span class="portal-subj-icon">📚</span><div class="portal-subj-name">English</div><div class="portal-subj-desc">Tap to start →</div>
-    </div>
+  <div style="display:flex;align-items:center;gap:8px;padding:7px 18px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:100px;margin-bottom:10px;">
+    <span style="font-size:15px;">🎯</span>
+    <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.45);letter-spacing:0.02em;">Maths</span>
+    <span style="font-size:12px;color:rgba(255,255,255,0.18);">·</span>
+    <span style="font-size:15px;">📚</span>
+    <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.45);letter-spacing:0.02em;">English</span>
   </div>
   <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:2px;align-self:flex-start;margin:14px 0 8px;">SIGN IN</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;">
@@ -306,8 +304,8 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
   </button>
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
-    <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><span id="chipMathsName">Space Explorer</span><span class="theme-chip-muted">· Maths</span></div>
-    <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><span id="chipEnglishName">Enchanted Library</span><span class="theme-chip-muted">· English</span></div>
+    <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><b>Maths</b><span class="theme-chip-muted">· <span id="chipMathsName">Space Explorer</span></span></div>
+    <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><b>English</b><span class="theme-chip-muted">· <span id="chipEnglishName">Enchanted Library</span></span></div>
   </div>
   <div class="home-actions">
     <button class="home-action-btn" onclick="logOut()">🚪 Log Out</button>
@@ -800,10 +798,10 @@ function renderHome() {
   const tm = THEMES[p.themeMaths]||THEMES.space, te = THEMES[p.themeEnglish]||THEMES.library;
   document.getElementById('homeGreeting').textContent = 'Hi, '+p.name+'! 👋';
   const _uid = p.id || localStorage.getItem('gsc_userId') || 'shared';
-  const xp      = parseInt(localStorage.getItem('prisha_xp_'+_uid)||'0')||p.xp||0;
-  const _streakObj = JSON.parse(localStorage.getItem('prisha_streak_'+_uid)||'{"count":0}');
+  const xp      = parseInt(localStorage.getItem('gsc_xp_'+_uid)||'0')||p.xp||0;
+  const _streakObj = JSON.parse(localStorage.getItem('gsc_streak_'+_uid)||'{"count":0}');
   const streak  = (_streakObj.count||0) || p.streak || 0;
-  const ratings = JSON.parse(localStorage.getItem('prisha_ratings_'+_uid)||'{}');
+  const ratings = JSON.parse(localStorage.getItem('gsc_ratings_'+_uid)||'{}');
   const mastered = Object.values(ratings).filter(v=>v==='got').length;
   document.getElementById('statXP').textContent       = xp;
   document.getElementById('statStreak').textContent   = streak>0 ? streak+' 🔥' : '—';
