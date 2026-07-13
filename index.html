@@ -439,6 +439,7 @@ async function _loadProfile(id) {
       currentProfile = { id, ...snap.data() };
       saveProfileEntry(id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
       localStorage.setItem('gsc_userId', id);
+      sessionStorage.setItem('gsc_session_user', id); // PIN verified — remember for this session
       applyTheme(currentProfile.themeMaths || 'space');
       renderHome(); showScreen('screenHome');
       db.collection('users').doc(id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
@@ -500,6 +501,7 @@ function profilePickerClick(e) { if (e.target === document.getElementById('profi
 function startNewProfile() {
   closeProfilePicker();
   localStorage.removeItem('gsc_userId');
+  sessionStorage.removeItem('gsc_session_user'); // Clear session so new profile must PIN
   currentProfile = null;
   document.body.style.background = 'radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%)';
   document.body.style.color = '#e8eaf6';
@@ -526,6 +528,7 @@ function initSignInPad() {
         currentProfile = found;
         saveProfileEntry(found.id, found.name, found.themeMaths, found.themeEnglish);
         localStorage.setItem('gsc_userId', found.id);
+        sessionStorage.setItem('gsc_session_user', found.id); // PIN verified — remember for this session
         applyTheme(found.themeMaths || 'space');
         renderHome(); showScreen('screenHome');
         db.collection('users').doc(found.id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
@@ -567,6 +570,7 @@ async function finishCreateProfile(profileData, pin) {
   try {
     await db.collection('users').doc(userId).set(profile);
     localStorage.setItem('gsc_userId', userId);
+    sessionStorage.setItem('gsc_session_user', userId); // PIN just set — session is verified
     saveProfileEntry(userId, profile.name, profile.themeMaths, profile.themeEnglish);
     currentProfile = { id: userId, ...profile };
     document.getElementById('pinSetOverlay').classList.remove('open');
@@ -623,33 +627,54 @@ function enterAdminPreview() {
 }
 function exitAdminPreview() { localStorage.removeItem('gsc_admin_preview'); window.location.href='admin.html'; }
 
-async function init() {
-  spawnStars('portalStars'); spawnStars('profileStars');
-  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); });
-  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; });
-  initSignInPad();
-
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('preview')==='1' || localStorage.getItem('gsc_admin_preview')==='1') {
-    localStorage.setItem('gsc_admin_preview','1'); enterAdminPreview(); return;
-  }
-  const userId = localStorage.getItem('gsc_userId');
-  if (userId) {
-    try {
-      const snap = await db.collection('users').doc(userId).get();
-      if (snap.exists) {
-        currentProfile = { id:userId, ...snap.data() };
-        saveProfileEntry(userId, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
-        applyTheme(currentProfile.themeMaths||'space');
-        renderHome(); showScreen('screenHome');
-        db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
-        syncChallengeCompletions(userId).catch(()=>{});
-        return;
-      }
-    } catch(e) { console.warn('Firebase load failed', e); }
-  }
-  renderSavedProfilesOnWelcome();
+function _goWelcome() {
+  try { renderSavedProfilesOnWelcome(); } catch(e) { console.warn('renderSaved failed', e); }
   showScreen('screenWelcome');
+}
+
+async function init() {
+  // Hard escape: no matter what, show welcome after 8s
+  const escape = setTimeout(_goWelcome, 8000);
+
+  try {
+    try { spawnStars('portalStars'); } catch(e) {}
+    try { spawnStars('profileStars'); } catch(e) {}
+    try { buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); }); } catch(e) {}
+    try { buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; }); } catch(e) {}
+    try { initSignInPad(); } catch(e) { console.warn('initSignInPad failed', e); }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('preview')==='1' || localStorage.getItem('gsc_admin_preview')==='1') {
+      clearTimeout(escape);
+      localStorage.setItem('gsc_admin_preview','1'); enterAdminPreview(); return;
+    }
+
+    const userId = localStorage.getItem('gsc_userId');
+    const sessionUser = sessionStorage.getItem('gsc_session_user');
+
+    if (userId && sessionUser === userId) {
+      try {
+        const snap = await db.collection('users').doc(userId).get();
+        if (snap.exists) {
+          currentProfile = { id:userId, ...snap.data() };
+          saveProfileEntry(userId, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
+          applyTheme(currentProfile.themeMaths||'space');
+          clearTimeout(escape);
+          renderHome(); showScreen('screenHome');
+          db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+          syncChallengeCompletions(userId).catch(()=>{});
+          return;
+        }
+      } catch(e) { console.warn('Firebase session resume failed', e); }
+    }
+
+    clearTimeout(escape);
+    _goWelcome();
+  } catch(e) {
+    console.error('init() error:', e);
+    clearTimeout(escape);
+    _goWelcome();
+  }
 }
 
 async function validateInvite() {
@@ -733,4 +758,28 @@ function calcChallengeStreak(){
   for(let i=0;i<365;i++){ const k=_dateKey(d),day=s[k]||{},any=day.maths15||day.maths30||day.english15||day.english30; if(any){streak++;d.setDate(d.getDate()-1);}else if(i===0){d.setDate(d.getDate()-1);}else{break;} }
   return streak;
 }
-function renderChallengePanel(toda
+function renderChallengePanel(today){
+  const tm=currentProfile?(THEMES[currentProfile.themeMaths]||THEMES.space):THEMES.space;
+  const te=currentProfile?(THEMES[currentProfile.themeEnglish]||THEMES.library):THEMES.library;
+  const emojis={maths:tm.emoji,english:te.emoji};
+  const chs=[{key:'maths15',subject:'maths',mins:15,label:'Maths'},{key:'maths30',subject:'maths',mins:30,label:'Maths'},{key:'english15',subject:'english',mins:15,label:'English'},{key:'english30',subject:'english',mins:30,label:'English'}];
+  const grid=document.getElementById('challengeGrid'); if(!grid)return; grid.innerHTML='';
+  chs.forEach(ch=>{ const done=!!(today&&today[ch.key]); const b=document.createElement('div'); b.className='ch-badge'+(done?' done':''); b.innerHTML='<div class="ch-icon">'+(done?'✅':emojis[ch.subject])+'</div><div class="ch-label">'+ch.label+'</div><div class="ch-time">'+ch.mins+'-min'+(done?' · Done!':'')+'</div>'; b.onclick=()=>goToChallenge(ch.subject,ch.mins); grid.appendChild(b); });
+  const streak=calcChallengeStreak(); const pill=document.getElementById('challengeStreakPill');
+  if(pill){ if(streak>0){pill.textContent='🔥 '+streak+(streak===1?' day':' days');pill.style.display='';}else{pill.style.display='none';} }
+}
+async function syncChallengeCompletions(userId){
+  const stored=JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
+  const synced=JSON.parse(localStorage.getItem('gsc_challenges_synced')||'{}');
+  for(const[date,data] of Object.entries(stored)){ if(JSON.stringify(data)!==JSON.stringify(synced[date])){ try{ await db.collection('users').doc(userId).collection('dailyLogs').doc(date).set(data,{merge:true}); synced[date]=data; localStorage.setItem('gsc_challenges_synced',JSON.stringify(synced)); }catch(e){} } }
+}
+function goToChallenge(subject,mins){
+  if(currentProfile) localStorage.setItem('gsc_profile',JSON.stringify({id:currentProfile.id,name:currentProfile.name,themeMaths:currentProfile.themeMaths||'space',themeEnglish:currentProfile.themeEnglish||'library'}));
+  window.location.href=(subject==='maths'?'Maths_Flashcards.html':'English_Flashcards.html')+'?challenge='+mins;
+}
+
+init();
+</script>
+</body>
+</html>
+                                                                                                                      
