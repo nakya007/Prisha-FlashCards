@@ -513,10 +513,11 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
         const w=8+Math.floor(Math.random()*7),h=20+Math.floor(Math.random()*26),c=cols[Math.floor(Math.random()*cols.length)];
         return `<div style="width:${w}px;height:${h}px;background:${c};border-radius:2px 2px 0 0;opacity:0.72;flex-shrink:0;"></div>`;
       }).join('');
-      d.innerHTML=`<div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(180deg,rgba(92,51,23,0.6),rgba(61,32,16,0.8));"></div>
-      <div style="position:absolute;bottom:60px;left:0;right:0;display:flex;align-items:flex-end;padding:0 12px;gap:2px;">${books}</div>
-      <div style="position:absolute;top:14px;right:22px;font-size:22px;animation:flicker 1.8s ease-in-out infinite alternate;">🕯️</div>
-      <div style="position:absolute;top:14px;right:56px;font-size:18px;animation:flicker 2.3s 0.6s ease-in-out infinite alternate;">🕯️</div>`;
+      d.innerHTML=`
+      <div style="position:absolute;top:0;left:0;bottom:0;width:18px;display:flex;flex-direction:column;justify-content:flex-start;padding-top:60px;gap:2px;overflow:hidden;">${books.slice(0,8)}</div>
+      <div style="position:absolute;top:0;right:0;bottom:0;width:18px;display:flex;flex-direction:column;justify-content:flex-start;padding-top:60px;gap:2px;overflow:hidden;">${books.slice(8)}</div>
+      <div style="position:absolute;top:14px;right:28px;font-size:20px;animation:flicker 1.8s ease-in-out infinite alternate;">🕯️</div>
+      <div style="position:absolute;top:14px;left:28px;font-size:18px;animation:flicker 2.3s 0.6s ease-in-out infinite alternate;">🕯️</div>`;
     } else if(key==='ocean'){
       for(let i=0;i<18;i++){
         const b=document.createElement('div');
@@ -779,6 +780,7 @@ function continueAfterChallenge(){
   <div class="cc-sub" id="ccSub">You nailed the challenge!</div>
   <div class="cc-cards" id="ccCards">&#127183; 0 cards studied</div>
   <div class="cc-note">Remaining cards saved &#8212; next challenge continues here &#128214;</div>
+  <button class="cc-btn cc-btn-primary" onclick="window.location.href='English_Flashcards.html?challenge=15'" style="background:linear-gradient(90deg,#059669,#34d399);">&#43; Another 15-min Challenge</button>
   <button class="cc-btn cc-btn-primary" onclick="window.location.href='index.html'">&#127968; Back to Home</button>
   <button class="cc-btn cc-btn-secondary" onclick="continueAfterChallenge()">Keep going &#8594;</button>
 </div>
