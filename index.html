@@ -106,15 +106,6 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 #screenWelcome{position:relative;overflow:visible;min-height:500px;justify-content:center;padding:30px 0 10px;}
 #screenSignIn{position:relative;overflow:visible;}
 #screenInvite{position:relative;overflow:visible;}
-/* Sign-in quick profile chips */
-.signin-profiles{width:100%;margin-bottom:12px;position:relative;z-index:2;}
-.signin-profiles-label{font-size:10px;font-weight:800;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1.5px;text-align:center;margin-bottom:8px;}
-.signin-chip{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--ta-border);background:var(--ta-dark);cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.12s,box-shadow 0.15s,border-color 0.15s;margin-bottom:7px;}
-.signin-chip:hover{box-shadow:0 0 18px var(--ta-glow);border-color:var(--ta-border);}
-.signin-chip:active{transform:scale(0.97);}
-.signin-chip-avatar{font-size:26px;line-height:1;}
-.signin-chip-name{font-size:14px;font-weight:800;color:#fff;flex:1;text-align:left;}
-.signin-chip-theme{font-size:11px;color:var(--ta-text);opacity:0.65;}
 /* Invite screen animated logo */
 .invite-orb{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#fde68a 0%,#f59e0b 45%,#b45309 80%,#78350f 100%);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 18px;box-shadow:0 0 40px rgba(245,158,11,0.6),0 0 80px rgba(180,83,9,0.3);animation:orbPulse 2.5s ease-in-out infinite;position:relative;z-index:2;}
 .portal-rings{position:absolute;top:0;left:50%;transform:translateX(-50%);pointer-events:none;}
@@ -260,8 +251,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="portal-ring" style="width:230px;height:230px;top:50%;left:50%;transform:translate(-50%,-50%);position:absolute;border-radius:50%;border:2px solid var(--ta-border);opacity:0.12;animation:ringExpand 3s ease-out infinite 1.2s;pointer-events:none;"></div>
   <div class="logo" id="signinLogo">🔐</div>
   <div class="screen-title">Welcome Back!</div>
-  <div class="screen-sub">Tap your profile or enter your name</div>
-  <div class="signin-profiles" id="signinProfiles"></div>
+  <div class="screen-sub">Enter your name and 4-digit PIN</div>
   <div class="input-wrap">
     <label class="input-label">Your name</label>
     <input class="input-field" id="signinName" type="text" placeholder="e.g. Alex" maxlength="20"
@@ -671,41 +661,6 @@ async function finishCreateProfile(profileData, pin) {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'screenSignIn') renderSignInProfiles();
-}
-
-function renderSignInProfiles() {
-  const container = document.getElementById('signinProfiles');
-  if (!container) return;
-  const profiles = getSavedProfiles();
-  if (!profiles || profiles.length === 0) { container.style.display = 'none'; return; }
-  container.style.display = 'block';
-  const THEMES_LOCAL = typeof THEMES !== 'undefined' ? THEMES : {};
-  container.innerHTML = '<div class="signin-profiles-label">Your Profiles</div>' +
-    profiles.map(p => {
-      const tm = THEMES_LOCAL[p.themeMaths] || THEMES_LOCAL['space'] || {};
-      const mascot = tm.mascot || '🧑‍🚀';
-      const themeName = tm.name || p.themeMaths || '';
-      return `<div class="signin-chip" onclick="signinTapProfile('${p.id}','${p.name}','${p.themeMaths||'space'}','${p.themeEnglish||'library'}')">
-        <span class="signin-chip-avatar">${mascot}</span>
-        <span class="signin-chip-name">${p.name}</span>
-        <span class="signin-chip-theme">${themeName}</span>
-      </div>`;
-    }).join('');
-}
-
-function signinTapProfile(id, name, themeMaths, themeEnglish) {
-  // Apply that profile's theme visually
-  applyTheme(themeMaths);
-  // Update logo to mascot
-  const tm = typeof THEMES !== 'undefined' ? (THEMES[themeMaths] || THEMES['space']) : {};
-  const logoEl = document.getElementById('signinLogo');
-  if (logoEl) logoEl.textContent = tm.mascot || '🔐';
-  // Pre-fill name and open PIN
-  const nameEl = document.getElementById('signinName');
-  if (nameEl) nameEl.value = name;
-  selectProfile(id, name);
-}
 function applyTheme(key) {
   const t = THEMES[key] || THEMES.space;
   document.body.style.background = t.bodyBg;
