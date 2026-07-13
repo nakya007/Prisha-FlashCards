@@ -265,6 +265,28 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="stat-pill"><div class="stat-val" id="statStreak">—</div><div class="stat-lbl">Streak</div></div>
     <div class="stat-pill"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
   </div>
+  <div class="challenge-panel" id="challengePanel">
+    <div class="challenge-header">
+      <div class="challenge-ttl">🏆 Daily Challenges</div>
+      <div class="challenge-streak-pill" id="challengeStreakPill" style="display:none;">🔥 0</div>
+    </div>
+    <div class="ch-grid" id="challengeGrid">
+      <div onclick="goToChallenge('maths',15)" style="background:linear-gradient(145deg,#1a2a6c,#b21f1f,#fdbb2d);border-radius:20px;padding:20px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(253,187,45,0.25);transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+        <div style="position:absolute;top:-8px;right:-8px;font-size:48px;opacity:0.1;pointer-events:none;">🎯</div>
+        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.65);letter-spacing:1.5px;margin-bottom:8px;">MATHS</div>
+        <div style="font-size:30px;margin-bottom:7px;">🎯</div>
+        <div style="font-size:13px;font-weight:900;color:#fff;">Mission</div>
+        <div style="background:rgba(0,0,0,0.25);border-radius:20px;padding:3px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:7px;">⏱ 15 min</div>
+      </div>
+      <div onclick="goToChallenge('english',15)" style="background:linear-gradient(145deg,#134e5e,#71b280);border-radius:20px;padding:20px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(113,178,128,0.25);transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+        <div style="position:absolute;top:-8px;right:-8px;font-size:48px;opacity:0.1;pointer-events:none;">📚</div>
+        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.65);letter-spacing:1.5px;margin-bottom:8px;">ENGLISH</div>
+        <div style="font-size:30px;margin-bottom:7px;">📚</div>
+        <div style="font-size:13px;font-weight:900;color:#fff;">Quest</div>
+        <div style="background:rgba(0,0,0,0.25);border-radius:20px;padding:3px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:7px;">⏱ 15 min</div>
+      </div>
+    </div>
+  </div>
   <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
     <div class="sb-icon">🎯</div>
     <div class="sb-info"><div class="sb-title">Maths</div><div class="sb-sub">Numbers, Shapes &amp; More</div></div>
@@ -273,16 +295,6 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="sb-icon">📚</div>
     <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
   </button>
-  <div class="challenge-panel" id="challengePanel">
-    <div class="challenge-header">
-      <div class="challenge-ttl">🏆 Daily Challenges</div>
-      <div class="challenge-streak-pill" id="challengeStreakPill" style="display:none;">🔥 0</div>
-    </div>
-    <div class="ch-grid" id="challengeGrid">
-      <div class="ch-badge" onclick="goToChallenge('maths',15)"><div class="ch-icon">🚀</div><div class="ch-label">Maths</div><div class="ch-time">15-min</div></div>
-      <div class="ch-badge" onclick="goToChallenge('english',15)"><div class="ch-icon">📚</div><div class="ch-label">English</div><div class="ch-time">15-min</div></div>
-    </div>
-  </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
     <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><span id="chipMathsName">Space Explorer</span><span class="theme-chip-muted">· Maths</span></div>
     <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><span id="chipEnglishName">Enchanted Library</span><span class="theme-chip-muted">· English</span></div>
@@ -798,18 +810,25 @@ function calcChallengeStreak(){
   return streak;
 }
 function renderChallengePanel(today){
-  const tm=currentProfile?(THEMES[currentProfile.themeMaths]||THEMES.space):THEMES.space;
-  const te=currentProfile?(THEMES[currentProfile.themeEnglish]||THEMES.library):THEMES.library;
-  const chs=[{key:'maths15',subject:'maths',label:'Maths',emoji:tm.emoji},{key:'english15',subject:'english',label:'English',emoji:te.emoji}];
+  const configs=[
+    {key:'maths15',subject:'maths',label:'MATHS',title:'Mission',icon:'🎯',bg:'linear-gradient(145deg,#1a2a6c,#b21f1f,#fdbb2d)',shadow:'rgba(253,187,45,0.25)'},
+    {key:'english15',subject:'english',label:'ENGLISH',title:'Quest',icon:'📚',bg:'linear-gradient(145deg,#134e5e,#71b280)',shadow:'rgba(113,178,128,0.25)'}
+  ];
   const grid=document.getElementById('challengeGrid'); if(!grid)return; grid.innerHTML='';
-  chs.forEach(ch=>{
+  configs.forEach(ch=>{
     const done=!!(today&&today[ch.key]);
     const extra=(today&&today[ch.key+'_extra'])||0;
     const cell=document.createElement('div');
-    cell.style.cssText='display:flex;flex-direction:column;gap:4px;';
+    cell.style.cssText='display:flex;flex-direction:column;gap:6px;';
     const b=document.createElement('div');
-    b.className='ch-badge'+(done?' done':'');
-    b.innerHTML='<div class="ch-icon">'+(done?'✅':ch.emoji)+'</div><div class="ch-label">'+ch.label+'</div><div class="ch-time">15-min'+(done?' · Done!'+(extra>0?' ×'+(extra+1):''):'')+'</div>';
+    b.style.cssText='background:'+ch.bg+';border-radius:20px;padding:20px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px '+ch.shadow+';transition:transform 0.15s;'+(done?'opacity:0.75;':'');
+    b.innerHTML='<div style="position:absolute;top:-8px;right:-8px;font-size:48px;opacity:0.1;pointer-events:none;">'+ch.icon+'</div>'
+      +'<div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.65);letter-spacing:1.5px;margin-bottom:8px;">'+ch.label+'</div>'
+      +'<div style="font-size:30px;margin-bottom:7px;">'+(done?'✅':ch.icon)+'</div>'
+      +'<div style="font-size:13px;font-weight:900;color:#fff;">'+(done?'Done!'+(extra>0?' ×'+(extra+1):''):ch.title)+'</div>'
+      +'<div style="background:rgba(0,0,0,0.25);border-radius:20px;padding:3px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:7px;">⏱ 15 min</div>';
+    b.onmouseenter=()=>{ if(!done) b.style.transform='scale(1.04)'; };
+    b.onmouseleave=()=>{ b.style.transform='scale(1)'; };
     b.onclick=()=>goToChallenge(ch.subject,15);
     cell.appendChild(b);
     if(done){
