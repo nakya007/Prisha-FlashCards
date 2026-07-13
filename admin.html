@@ -135,6 +135,8 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
 .habit-close{width:100%;padding:13px;border-radius:14px;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:6px;}
 .habit-close:hover{background:rgba(255,255,255,0.1);}
 .habit-section-lbl{font-size:10px;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.student-card.suspended{opacity:0.65;border-color:rgba(251,191,36,0.35);}
+.suspended-banner{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;color:#fbbf24;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 </style>
 </head>
 <body>
@@ -342,12 +344,29 @@ async function resetPin(id, name) {
 }
 
 async function deleteStudent(id, name) {
-  if (!confirm(`Delete ${name}'s profile and all their progress? This cannot be undone.`)) return;
+  if (!confirm(`Delete ${name}'s profile and ALL their progress? This cannot be undone.`)) return;
   try {
+    // Delete dailyLogs subcollection first
+    const logs = await db.collection('users').doc(id).collection('dailyLogs').get();
+    const batch = db.batch();
+    logs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    // Delete the user document
     await db.collection('users').doc(id).delete();
     loadStudents();
   } catch(e) {
     alert('Failed to delete student: ' + e.message);
+  }
+}
+
+async function suspendStudent(id, name, currentlySuspended) {
+  const action = currentlySuspended ? 'unsuspend' : 'suspend';
+  if (!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} ${name}? ${currentlySuspended ? 'They will be able to log in again.' : 'They will not be able to log in until unsuspended.'}`)) return;
+  try {
+    await db.collection('users').doc(id).update({ suspended: !currentlySuspended });
+    loadStudents();
+  } catch(e) {
+    alert('Failed to update student: ' + e.message);
   }
 }
 
@@ -372,7 +391,7 @@ function updateSummaryBar(students) {
 
 function buildStudentCard(s) {
   const card = document.createElement('div');
-  card.className = 'student-card';
+  card.className = 'student-card' + (s.suspended ? ' suspended' : '');
 
   const theme    = s.themeMaths || s.theme || 'space';
   const emoji    = THEME_EMOJIS[theme] || '📖';
@@ -405,6 +424,7 @@ function buildStudentCard(s) {
   const badges = (s.badges || []).slice(0, 4);
 
   card.innerHTML = `
+    ${s.suspended ? '<div class="suspended-banner">⚠️ Account Suspended — cannot log in</div>' : ''}
     <div class="stu-header">
       <div class="stu-avatar" style="background:${color}22;border:2px solid ${color}55;">${emoji}</div>
       <div>
@@ -440,6 +460,7 @@ function buildStudentCard(s) {
       </div>
       <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Report</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;" onclick='showHabitReport("${s.id}","${escHtml(s.name||'Student')}")'>📅 Habits</button>
+      <button class="report-btn" style="flex:1;white-space:nowrap;background:${s.suspended?'rgba(74,222,128,0.12)':'rgba(251,191,36,0.12)'};border:1px solid ${s.suspended?'rgba(74,222,128,0.3)':'rgba(251,191,36,0.3)'};color:${s.suspended?'#86efac':'#fbbf24'};" onclick='suspendStudent("${s.id}","${escHtml(s.name||'Student')}",${!!s.suspended})'>${s.suspended?'✅ Unsuspend':'⚠️ Suspend'}</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️</button>
     </div>
   `;
