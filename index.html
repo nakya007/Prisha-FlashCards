@@ -418,17 +418,15 @@ function renderSavedProfilesOnWelcome() {
   const list    = document.getElementById('savedProfilesList');
   const btn     = document.getElementById('btnEnterPortal');
   if (!profiles.length) { section.style.display = 'none'; btn.textContent = '🎒 Enter the Portal →'; return; }
+  // Show a single "Existing User" button — individual names shown only after PIN in the picker
   section.style.display = '';
   btn.textContent = '➕ New Profile →';
   list.innerHTML = '';
-  profiles.forEach(p => {
-    const tm = THEMES[p.themeMaths] || THEMES.space;
-    const b = document.createElement('button');
-    b.className = 'saved-profile-btn';
-    b.innerHTML = '<span style="font-size:22px;">' + tm.emoji + '</span><span>Continue as <strong>' + p.name + '</strong></span>';
-    b.onclick = () => selectProfile(p.id, p.name);
-    list.appendChild(b);
-  });
+  const b = document.createElement('button');
+  b.className = 'saved-profile-btn';
+  b.innerHTML = '<span style="font-size:22px;">👤</span><span>Existing User →</span>';
+  b.onclick = () => switchProfile();
+  list.appendChild(b);
 }
 
 // Called after PIN verified — actually loads the profile
@@ -782,4 +780,3 @@ init();
 </script>
 </body>
 </html>
-                                                                                                                      
