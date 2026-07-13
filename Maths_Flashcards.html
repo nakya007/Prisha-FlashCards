@@ -396,6 +396,7 @@ var sessionXP=0,sessionGot=0,sessionCards=0,newlyEarnedBadges=[],sessionQuizCorr
 
 function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function _uk(b){return b+'_'+(localStorage.getItem('gsc_userId')||'shared');}
 
 /* ── Sound ── */
 function _getAC(){if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();return _audioCtx;}
@@ -417,13 +418,13 @@ function _updMute(){var b=document.getElementById('muteBtn');if(b)b.textContent=
 
 /* ── Streak ── */
 function _today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-function updateStreak(){var s=lsGet('prisha_streak',{day:'',count:0}),today=_today();if(s.day===today){_showStreak(s.count);return;}var yest=new Date();yest.setDate(yest.getDate()-1);var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();var nc=s.day===ys?s.count+1:1;s={day:today,count:nc};lsSet('prisha_streak',s);_showStreak(nc);if(nc>=3)checkBadge('streak3');if(nc>=7)checkBadge('streak7');}
+function updateStreak(){var s=lsGet(_uk('prisha_streak'),{day:'',count:0}),today=_today();if(s.day===today){_showStreak(s.count);return;}var yest=new Date();yest.setDate(yest.getDate()-1);var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();var nc=s.day===ys?s.count+1:1;s={day:today,count:nc};lsSet(_uk('prisha_streak'),s);_showStreak(nc);if(nc>=3)checkBadge('streak3');if(nc>=7)checkBadge('streak7');}
 function _showStreak(n){var b=document.getElementById('streakBadge');if(!b)return;if(n>0){b.textContent='🔥 '+n+' day streak';b.style.display='flex';}else{b.style.display='none';}}
 
 /* ── Ratings ── */
-function _ratings(){return lsGet('prisha_ratings',{});}
+function _ratings(){return lsGet(_uk('prisha_ratings'),{});}
 function _key(t,q){return t+'||'+q;}
-function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;lsSet('prisha_ratings',r);}
+function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;lsSet(_uk('prisha_ratings'),r);}
 function getCardRating(t,q){return _ratings()[_key(t,q)]||null;}
 function showRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.add('rw-show');}
 function hideRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.remove('rw-show');}
@@ -465,14 +466,14 @@ var XP_LEVELS=[
 ];
 function getLevelIdx(xp){for(var i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS[i].min)return i;}return 0;}
 function addXP(amt){
-  var xp=lsGet('prisha_xp',0),oldLvl=getLevelIdx(xp);
-  xp+=amt; lsSet('prisha_xp',xp);
+  var xp=lsGet(_uk('prisha_xp'),0),oldLvl=getLevelIdx(xp);
+  xp+=amt; lsSet(_uk('prisha_xp'),xp);
   var newLvl=getLevelIdx(xp);
   if(newLvl>oldLvl){showLevelUpToast(XP_LEVELS[newLvl].name);if(newLvl>=3)checkBadge('level_scholar');if(newLvl>=4)checkBadge('level_champion');}
   updateXPBar();
 }
 function updateXPBar(){
-  var xp=lsGet('prisha_xp',0),li=getLevelIdx(xp),lvl=XP_LEVELS[li];
+  var xp=lsGet(_uk('prisha_xp'),0),li=getLevelIdx(xp),lvl=XP_LEVELS[li];
   var pct=li===XP_LEVELS.length-1?100:Math.round((xp-lvl.min)/(lvl.max-lvl.min)*100);
   var f=document.getElementById('xpFill');if(f)f.style.width=pct+'%';
   var l=document.getElementById('xpLabel');if(l)l.textContent=xp+' XP';
@@ -485,7 +486,7 @@ function showLevelUpToast(name){
   setTimeout(function(){t.classList.remove('lt-show');},2800);
 }
 function updateStatsRow(){
-  var r=_ratings(),total=Object.keys(r).length,mastered=Object.values(r).filter(function(v){return v==='got';}).length,xp=lsGet('prisha_xp',0);
+  var r=_ratings(),total=Object.keys(r).length,mastered=Object.values(r).filter(function(v){return v==='got';}).length,xp=lsGet(_uk('prisha_xp'),0);
   var e;e=document.getElementById('statTotalCards');if(e)e.textContent=total;
   e=document.getElementById('statMastered');if(e)e.textContent=mastered;
   e=document.getElementById('statXPTotal');if(e)e.textContent=xp;
