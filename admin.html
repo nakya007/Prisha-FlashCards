@@ -243,26 +243,22 @@ const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 // To change the admin password: go to Firebase Console → Firestore → config → admin → set the 'password' field.
 // Default password on first run: Prep2027!
 
-async function adminSignIn() {
+function adminSignIn() {
+  // To change the password, edit the ADMIN_PASSWORD line below and re-upload.
+  const ADMIN_PASSWORD = 'Prep2027!';
+
   const entered = (document.getElementById('adminPassword').value || '').trim();
   const errEl   = document.getElementById('signinErr');
   if (!entered) { errEl.textContent = 'Please enter the admin password.'; return; }
-  errEl.textContent = 'Checking…';
 
-  try {
-    const snap = await db.collection('config').doc('admin').get();
-    const correctPassword = snap.exists ? snap.data().password : 'Prep2027!';
-    if (entered === correctPassword) {
-      sessionStorage.setItem('gsc_admin_session', '1');
-      errEl.textContent = '';
-      showDashboard();
-    } else {
-      errEl.textContent = '❌ Incorrect password — try again.';
-      document.getElementById('adminPassword').value = '';
-      document.getElementById('adminPassword').focus();
-    }
-  } catch(e) {
-    errEl.textContent = '⚠️ Connection error — check your internet and try again.';
+  if (entered === ADMIN_PASSWORD) {
+    sessionStorage.setItem('gsc_admin_session', '1');
+    errEl.textContent = '';
+    showDashboard();
+  } else {
+    errEl.textContent = '❌ Incorrect password — try again.';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminPassword').focus();
   }
 }
 
@@ -662,4 +658,47 @@ async function showHabitReport(userId, name) {
     const log = logs[day.key] || {};
     const count = [log.maths15, log.maths30, log.english15, log.english30].filter(Boolean).length;
     cell.className = 'cal-day ' + (count >= 4 ? 'cal-full' : count > 0 ? 'cal-partial' : 'cal-none');
-    if (day.
+    if (day.key === todayKey) cell.classList.add('cal-today');
+    cell.title = day.key + (count > 0 ? ' (' + count + '/4 challenges)' : ' (none)');
+    calGrid.appendChild(cell);
+  });
+
+  // Challenge detail summary
+  const total = days.length;
+  const daysWithAny = days.filter(d => {
+    const l = logs[d.key] || {};
+    return l.maths15 || l.maths30 || l.english15 || l.english30;
+  }).length;
+  const daysWithAll = days.filter(d => {
+    const l = logs[d.key] || {};
+    return l.maths15 && l.maths30 && l.english15 && l.english30;
+  }).length;
+  document.getElementById('habitSummaryText').textContent =
+    'Active ' + daysWithAny + ' of last 30 days · All 4 challenges: ' + daysWithAll + ' days';
+}
+
+function closeHabitOverlay(e) {
+  if (!e || e.target === document.getElementById('habitOverlay'))
+    document.getElementById('habitOverlay').classList.remove('open');
+}
+</script>
+
+<!-- Habit calendar modal -->
+<div class="habit-overlay" id="habitOverlay" onclick="closeHabitOverlay(event)">
+  <div class="habit-sheet" id="habitSheet">
+    <div class="habit-name" id="habitStudentName">Habit Tracker</div>
+    <div class="habit-streak-row" id="habitStreakRow" style="margin-top:6px;"></div>
+    <div class="habit-section-lbl">Last 30 Days</div>
+    <div class="habit-legend">
+      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(74,222,128,0.45);"></div>All 4 done</div>
+      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(251,191,36,0.35);"></div>Partial</div>
+      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(255,255,255,0.05);"></div>None</div>
+    </div>
+    <div class="cal-grid" id="habitCalGrid"></div>
+    <div id="habitSummaryText" style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;"></div>
+    <button class="habit-close" onclick="closeHabitOverlay()">Close</button>
+  </div>
+</div>
+
+</body>
+</html>
