@@ -110,6 +110,31 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
   .students-grid{grid-template-columns:1fr;}
   .dash-header{flex-direction:column;align-items:flex-start;}
 }
+
+/* ── Habit calendar modal ── */
+.habit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:300;justify-content:center;align-items:flex-end;}
+.habit-overlay.open{display:flex;}
+.habit-sheet{background:#12122a;border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:520px;animation:slideUp 0.28s ease;max-height:90vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.habit-name{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;}
+.habit-streak-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.habit-pill{border-radius:20px;padding:6px 14px;font-size:12px;font-weight:800;}
+.habit-pill-fire{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;}
+.habit-pill-best{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:#c4b5fd;}
+.habit-legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.habit-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.5);}
+.habit-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+.cal-day-hdr{font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);text-align:center;padding:2px 0;}
+.cal-day{aspect-ratio:1;border-radius:4px;cursor:default;position:relative;}
+.cal-day.cal-none{background:rgba(255,255,255,0.05);}
+.cal-day.cal-partial{background:rgba(251,191,36,0.35);}
+.cal-day.cal-full{background:rgba(74,222,128,0.45);}
+.cal-day.cal-today{outline:2px solid rgba(255,255,255,0.35);}
+.cal-day.cal-future{background:transparent;}
+.habit-close{width:100%;padding:13px;border-radius:14px;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:6px;}
+.habit-close:hover{background:rgba(255,255,255,0.1);}
+.habit-section-lbl{font-size:10px;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
 </style>
 </head>
 <body>
@@ -379,9 +404,10 @@ function buildStudentCard(s) {
     </div>
     ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge-chip">🏅 ${escHtml(b)}</span>`).join('')}</div>` : ''}
     <div class="last-active">Last active: ${lastAct}</div>
-    <div style="display:flex;gap:8px;margin-top:2px;">
-      <button class="report-btn" style="flex:2;white-space:nowrap;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Generate Report</button>
-      <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️ Delete</button>
+    <div style="display:flex;gap:6px;margin-top:2px;flex-wrap:wrap;">
+      <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Report</button>
+      <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;" onclick='showHabitReport("${s.id}","${escHtml(s.name||'Student')}")'>📅 Habits</button>
+      <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️</button>
     </div>
   `;
   return card;
@@ -470,71 +496,179 @@ async function loadInviteCodes() {
     grid.innerHTML = '';
     snap.forEach(doc => grid.appendChild(buildCodeCard(doc.id, doc.data())));
   } catch(e) {
-    grid.innerHTML = '<div style="color:#ef9a9a;font-size:13px;padding:12px;">Failed to load codes.</div>';
+    grid.innerHTML = '<div class="empty-state">Failed to load invite codes</div>';
+    console.error(e);
   }
 }
 
 function buildCodeCard(id, data) {
-  const div = document.createElement('div');
-  div.className = 'code-card' + (data.active ? '' : ' inactive');
-  div.innerHTML = `
-    <div>
-      <div class="code-pill">${escHtml(id)}</div>
-      <span class="code-status ${data.active ? 'code-active' : 'code-inactive'}">${data.active ? 'Active' : 'Inactive'}</span>
+  const card = document.createElement('div');
+  card.style.cssText = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;';
+  const active = data.active !== false;
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:16px;font-weight:900;letter-spacing:2px;color:#fff;">${escHtml(id)}</span>
+      <span style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:12px;${active?'background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.3);':'background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);'}">${active?'Active':'Inactive'}</span>
     </div>
-    <div class="code-actions">
-      ${data.active
-        ? `<button class="btn-code btn-deactivate" onclick="toggleCode('${escHtml(id)}',false)">Deactivate</button>`
-        : `<button class="btn-code btn-activate"   onclick="toggleCode('${escHtml(id)}',true)">Activate</button>`}
-      <button class="btn-code btn-delete" onclick="deleteCode('${escHtml(id)}')">✕</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-sm btn-deactivate" onclick="toggleCode('${escHtml(id)}',${!active})" style="flex:1;">${active?'Deactivate':'Activate'}</button>
     </div>`;
-  return div;
+  return card;
 }
 
-async function addInviteCode() {
-  const input = document.getElementById('newCodeInput');
-  const code  = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if (!code || code.length < 4) {
-    alert('Code must be at least 4 letters/numbers (A–Z, 0–9 only).'); return;
-  }
+async function toggleCode(id, newActive) {
   try {
-    await db.collection('inviteCodes').doc(code).set({
-      code, active:true,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    await db.collection('inviteCodes').doc(id).update({ active: newActive });
+    loadInviteCodes();
+  } catch(e) { alert('Failed to update code: ' + e.message); }
+}
+
+async function addCode() {
+  const code = prompt('Enter new invite code (letters and numbers only):');
+  if (!code) return;
+  const clean = code.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if (clean.length < 4) { alert('Code must be at least 4 characters.'); return; }
+  try {
+    await db.collection('inviteCodes').doc(clean).set({
+      code: clean, active: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    input.value = '';
     loadInviteCodes();
   } catch(e) { alert('Failed to add code: ' + e.message); }
 }
 
-async function toggleCode(code, active) {
+// ── Habit calendar ────────────────────────────────────────────────
+async function showHabitReport(userId, name) {
+  const overlay = document.getElementById('habitOverlay');
+  const sheet = document.getElementById('habitSheet');
+  if (!overlay) return;
+
+  // Show loading state
+  document.getElementById('habitStudentName').textContent = name + "'s Habit Tracker";
+  document.getElementById('habitStreakRow').innerHTML = '<span style="color:rgba(255,255,255,0.4);font-size:12px;">Loading...</span>';
+  document.getElementById('habitCalGrid').innerHTML = '';
+  overlay.classList.add('open');
+
+  // Build list of last 30 days
+  const today = new Date();
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    days.push({ key, date: new Date(d), future: d > today });
+  }
+
+  // Fetch logs
+  const logs = {};
   try {
-    await db.collection('inviteCodes').doc(code).update({ active });
-    loadInviteCodes();
-  } catch(e) { alert('Failed to update code.'); }
+    for (const day of days) {
+      const snap = await db.collection('users').doc(userId).collection('dailyLogs').doc(day.key).get();
+      if (snap.exists) logs[day.key] = snap.data();
+    }
+  } catch(e) {
+    document.getElementById('habitStreakRow').innerHTML = '<span style="color:#fca5a5;font-size:12px;">Could not load habit data</span>';
+    return;
+  }
+
+  // Calculate streak (consecutive days with at least one challenge done, going back from today)
+  let currentStreak = 0, longestStreak = 0, tempStreak = 0;
+  const allKeys = [...days].reverse().map(d => d.key);
+  for (let i = 0; i < allKeys.length; i++) {
+    const log = logs[allKeys[i]] || {};
+    const hasAny = log.maths15 || log.maths30 || log.english15 || log.english30;
+    if (hasAny) {
+      tempStreak++;
+      if (i === 0 || (i > 0 && (logs[allKeys[i-1]] || {}).maths15 || (logs[allKeys[i-1]] || {}).maths30 || (logs[allKeys[i-1]] || {}).english15 || (logs[allKeys[i-1]] || {}).english30)) {
+        if (i === 0) currentStreak = 1;
+      }
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      if (i === 0) currentStreak = 0;
+      tempStreak = 0;
+    }
+  }
+  // Recalculate current streak properly going back from today
+  currentStreak = 0;
+  for (let i = 0; i < days.length; i++) {
+    const day = days[days.length - 1 - i]; // Go backwards from today
+    const log = logs[day.key] || {};
+    const hasAny = log.maths15 || log.maths30 || log.english15 || log.english30;
+    if (hasAny) { currentStreak++; }
+    else if (i === 0) { break; } // Today not done — no streak yet
+    else { break; }
+  }
+
+  // Render streak pills
+  const streakRow = document.getElementById('habitStreakRow');
+  streakRow.innerHTML = `
+    <span class="habit-pill habit-pill-fire">🔥 ${currentStreak} day streak</span>
+    <span class="habit-pill habit-pill-best">⭐ Best: ${longestStreak} days</span>`;
+
+  // Render calendar
+  const calGrid = document.getElementById('habitCalGrid');
+  calGrid.innerHTML = '';
+  // Day headers
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => {
+    const hdr = document.createElement('div');
+    hdr.className = 'cal-day-hdr';
+    hdr.textContent = d;
+    calGrid.appendChild(hdr);
+  });
+  // Pad to Monday start
+  const firstDow = (days[0].date.getDay() + 6) % 7; // 0=Mon
+  for (let i = 0; i < firstDow; i++) {
+    const pad = document.createElement('div');
+    pad.className = 'cal-day cal-future';
+    calGrid.appendChild(pad);
+  }
+  const todayKey = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  days.forEach(day => {
+    const cell = document.createElement('div');
+    const log = logs[day.key] || {};
+    const count = [log.maths15, log.maths30, log.english15, log.english30].filter(Boolean).length;
+    cell.className = 'cal-day ' + (count >= 4 ? 'cal-full' : count > 0 ? 'cal-partial' : 'cal-none');
+    if (day.key === todayKey) cell.classList.add('cal-today');
+    cell.title = day.key + (count > 0 ? ' (' + count + '/4 challenges)' : ' (none)');
+    calGrid.appendChild(cell);
+  });
+
+  // Challenge detail summary
+  const total = days.length;
+  const daysWithAny = days.filter(d => {
+    const l = logs[d.key] || {};
+    return l.maths15 || l.maths30 || l.english15 || l.english30;
+  }).length;
+  const daysWithAll = days.filter(d => {
+    const l = logs[d.key] || {};
+    return l.maths15 && l.maths30 && l.english15 && l.english30;
+  }).length;
+  document.getElementById('habitSummaryText').textContent =
+    'Active ' + daysWithAny + ' of last 30 days · All 4 challenges: ' + daysWithAll + ' days';
 }
 
-async function deleteCode(code) {
-  if (!confirm(`Delete code "${code}"? Students with this code won't be able to join.`)) return;
-  try {
-    await db.collection('inviteCodes').doc(code).delete();
-    loadInviteCodes();
-  } catch(e) { alert('Failed to delete code.'); }
+function closeHabitOverlay(e) {
+  if (!e || e.target === document.getElementById('habitOverlay'))
+    document.getElementById('habitOverlay').classList.remove('open');
 }
-
-// ── Utils ─────────────────────────────────────────────────────────
-function formatDate(d) {
-  if (!d) return '—';
-  return d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
-}
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Auto-check if already signed in ──────────────────────────────
-auth.onAuthStateChanged(user => {
-  if (user && user.email === ADMIN_EMAIL) showDashboard();
-});
 </script>
+
+<!-- Habit calendar modal -->
+<div class="habit-overlay" id="habitOverlay" onclick="closeHabitOverlay(event)">
+  <div class="habit-sheet" id="habitSheet">
+    <div class="habit-name" id="habitStudentName">Habit Tracker</div>
+    <div class="habit-streak-row" id="habitStreakRow" style="margin-top:6px;"></div>
+    <div class="habit-section-lbl">Last 30 Days</div>
+    <div class="habit-legend">
+      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(74,222,128,0.45);"></div>All 4 done</div>
+      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(251,191,36,0.35);"></div>Partial</div>
+      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(255,255,255,0.05);"></div>None</div>
+    </div>
+    <div class="cal-grid" id="habitCalGrid"></div>
+    <div id="habitSummaryText" style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;"></div>
+    <button class="habit-close" onclick="closeHabitOverlay()">Close</button>
+  </div>
+</div>
+
 </body>
 </html>
