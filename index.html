@@ -170,19 +170,24 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="portal-sub">Your learning adventure awaits ✨</div>
   <div class="portal-subjects">
     <div class="portal-subj" style="border-color:rgba(96,165,250,0.3);background:rgba(59,130,246,0.08);">
-      <span class="portal-subj-icon">🚀</span><div class="portal-subj-name">Maths</div><div class="portal-subj-desc">Numbers &amp; Shapes</div>
+      <span class="portal-subj-icon">🎯</span><div class="portal-subj-name">Maths</div><div class="portal-subj-desc">Numbers &amp; Shapes</div>
     </div>
     <div class="portal-subj" style="border-color:rgba(52,211,153,0.3);background:rgba(16,185,129,0.08);">
       <span class="portal-subj-icon">📚</span><div class="portal-subj-name">English</div><div class="portal-subj-desc">Grammar &amp; Writing</div>
     </div>
   </div>
-  <!-- Saved profiles (same device) -->
-  <div class="saved-profiles-section" id="savedProfilesSection" style="display:none;">
-    <div class="saved-profiles-label">Welcome back!</div>
-    <div id="savedProfilesList"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:8px;">
+    <button id="btnImBack" onclick="switchProfile()" style="background:linear-gradient(135deg,#1a3a2a,#0d2016);border:1px solid rgba(74,222,128,0.3);border-radius:18px;padding:20px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.15s,border-color 0.15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+      <span style="font-size:34px;">🏆</span>
+      <span style="font-size:14px;font-weight:900;color:#86efac;">I'm Back!</span>
+      <span style="font-size:10px;color:rgba(134,239,172,0.5);">Continue my quest</span>
+    </button>
+    <button id="btnNewExplorer" onclick="showScreen('screenInvite')" style="background:linear-gradient(135deg,#1e1b4b,#0f0d2e);border:1px solid rgba(167,139,250,0.4);border-radius:18px;padding:20px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.15s,border-color 0.15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+      <span style="font-size:34px;">🚀</span>
+      <span style="font-size:14px;font-weight:900;color:#c4b5fd;">New Explorer</span>
+      <span style="font-size:10px;color:rgba(196,181,253,0.5);">Start my journey</span>
+    </button>
   </div>
-  <button class="btn-portal" onclick="showScreen('screenInvite')" id="btnEnterPortal">🎒 New Profile →</button>
-  <button class="btn-signin-link" onclick="showScreen('screenSignIn')">📱 Already have a profile? Sign in →</button>
   <button class="btn-admin-link" onclick="window.location.href='admin.html'">Admin Login 🔐</button>
 </div>
 
@@ -259,7 +264,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="stat-pill"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
   </div>
   <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
-    <div class="sb-icon">🚀</div>
+    <div class="sb-icon">🎯</div>
     <div class="sb-info"><div class="sb-title">Maths</div><div class="sb-sub">Numbers, Shapes &amp; More</div></div>
   </button>
   <button class="subject-btn btn-english" onclick="goToSubject('english')">
@@ -416,19 +421,8 @@ function saveProfileEntry(id, name, themeMaths, themeEnglish) {
 }
 function renderSavedProfilesOnWelcome() {
   const profiles = getSavedProfiles();
-  const section = document.getElementById('savedProfilesSection');
-  const list    = document.getElementById('savedProfilesList');
-  const btn     = document.getElementById('btnEnterPortal');
-  if (!profiles.length) { section.style.display = 'none'; btn.textContent = '🎒 Enter the Portal →'; return; }
-  // Show a single "Existing User" button — individual names shown only after PIN in the picker
-  section.style.display = '';
-  btn.textContent = '➕ New Profile →';
-  list.innerHTML = '';
-  const b = document.createElement('button');
-  b.className = 'saved-profile-btn';
-  b.innerHTML = '<span style="font-size:22px;">👦</span><span>Existing User →</span>';
-  b.onclick = () => switchProfile();
-  list.appendChild(b);
+  const btn = document.getElementById('btnImBack');
+  if (btn) btn.style.display = profiles.length ? '' : 'none';
 }
 
 // Called after PIN verified — actually loads the profile
