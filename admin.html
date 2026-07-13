@@ -6,7 +6,6 @@
 <title>Admin — Grammar School Prep</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -145,14 +144,11 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
     <div class="signin-logo">🔐</div>
     <div class="signin-title">Admin Login</div>
     <div class="signin-sub">Grammar School Prep</div>
-    <button class="btn-google" onclick="adminSignIn()">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
-      Sign in with Google
+    <input id="adminPassword" type="password" placeholder="Enter admin password"
+      style="width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#e8eaf6;font-size:16px;font-family:'Nunito',sans-serif;outline:none;margin-bottom:12px;"
+      onkeydown="if(event.key==='Enter')adminSignIn()">
+    <button class="btn-google" onclick="adminSignIn()" style="background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;font-size:15px;font-weight:800;">
+      🔓 Sign In
     </button>
     <div class="signin-err" id="signinErr"></div>
     <button class="back-home" onclick="window.location.href='index.html'">← Back to site</button>
@@ -228,8 +224,7 @@ const firebaseConfig = {
   appId: "1:699212561669:web:1fa5b71c77b178fb084b6c"
 };
 firebase.initializeApp(firebaseConfig);
-const db   = firebase.firestore();
-const auth = firebase.auth();
+const db = firebase.firestore();
 
 // ── Config ──────────────────────────────────────────────────────
 const ADMIN_EMAIL = 'grammarschooladmin@gmail.com';
@@ -244,37 +239,48 @@ const THEME_COLORS = {
 
 const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 
-// ── Auth ─────────────────────────────────────────────────────────
-function adminSignIn() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  // Always show account picker, never auto-sign in silently
-  provider.setCustomParameters({ prompt: 'select_account' });
-  // Session-only persistence — auth clears when tab closes
-  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
-    .then(() => auth.signInWithPopup(provider))
-    .then(result => {
-      if (result.user.email !== ADMIN_EMAIL) {
-        auth.signOut();
-        document.getElementById('signinErr').textContent = '⛔ This Google account is not authorised as admin.';
-        return;
-      }
+// ── Auth (password-based — no OAuth, works on all browsers/devices) ──
+// To change the admin password: go to Firebase Console → Firestore → config → admin → set the 'password' field.
+// Default password on first run: Prep2027!
+
+async function adminSignIn() {
+  const entered = (document.getElementById('adminPassword').value || '').trim();
+  const errEl   = document.getElementById('signinErr');
+  if (!entered) { errEl.textContent = 'Please enter the admin password.'; return; }
+  errEl.textContent = 'Checking…';
+
+  try {
+    const snap = await db.collection('config').doc('admin').get();
+    const correctPassword = snap.exists ? snap.data().password : 'Prep2027!';
+    if (entered === correctPassword) {
+      sessionStorage.setItem('gsc_admin_session', '1');
+      errEl.textContent = '';
       showDashboard();
-    })
-    .catch(err => {
-      document.getElementById('signinErr').textContent = '❌ Sign-in failed: ' + err.message;
-    });
+    } else {
+      errEl.textContent = '❌ Incorrect password — try again.';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminPassword').focus();
+    }
+  } catch(e) {
+    errEl.textContent = '⚠️ Connection error — check your internet and try again.';
+  }
 }
 
 function signOut() {
-  auth.signOut().then(() => {
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('signinWrap').style.display = 'flex';
-  });
+  sessionStorage.removeItem('gsc_admin_session');
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('signinWrap').style.display = 'flex';
+  document.getElementById('adminPassword').value = '';
 }
 
 function goToSite() {
   localStorage.setItem('gsc_admin_preview', '1');
   window.open('index.html?preview=1', '_blank');
+}
+
+// Auto-resume if already authenticated this browser session
+if (sessionStorage.getItem('gsc_admin_session') === '1') {
+  document.addEventListener('DOMContentLoaded', showDashboard);
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────
@@ -313,6 +319,28 @@ async function loadStudents() {
 }
 
 function refreshStudents() { loadStudents(); }
+
+function togglePin(id, pin) {
+  const el = document.getElementById('pin_' + id);
+  const btn = document.getElementById('pinBtn_' + id);
+  if (!el || !btn) return;
+  if (el.textContent === '••••') { el.textContent = pin; btn.textContent = 'Hide'; }
+  else { el.textContent = '••••'; btn.textContent = 'Show'; }
+}
+
+async function resetPin(id, name) {
+  const newPin = prompt(`Reset PIN for ${name}\n\nEnter a new 4-digit PIN (or leave blank to cancel):`);
+  if (!newPin) return;
+  const clean = newPin.trim().replace(/\D/g, '');
+  if (clean.length !== 4) { alert('PIN must be exactly 4 digits.'); return; }
+  try {
+    await db.collection('users').doc(id).update({ pin: clean });
+    alert(`✅ PIN for ${name} has been reset to ${clean}`);
+    loadStudents();
+  } catch(e) {
+    alert('Failed to reset PIN: ' + e.message);
+  }
+}
 
 async function deleteStudent(id, name) {
   if (!confirm(`Delete ${name}'s profile and all their progress? This cannot be undone.`)) return;
@@ -405,6 +433,12 @@ function buildStudentCard(s) {
     ${badges.length ? `<div class="badge-row">${badges.map(b => `<span class="badge-chip">🏅 ${escHtml(b)}</span>`).join('')}</div>` : ''}
     <div class="last-active">Last active: ${lastAct}</div>
     <div style="display:flex;gap:6px;margin-top:2px;flex-wrap:wrap;">
+      <div style="width:100%;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:11px;color:rgba(167,139,250,0.7);font-weight:800;">🔐 PIN</span>
+        <span style="font-size:14px;font-weight:900;letter-spacing:4px;color:#c4b5fd;" id="pin_${s.id}">${s.pin ? '••••' : '—'}</span>
+        ${s.pin ? `<button onclick="togglePin('${s.id}','${s.pin}')" style="background:none;border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;" id="pinBtn_${s.id}">Show</button>` : ''}
+        <button onclick="resetPin('${s.id}','${escHtml(s.name||'Student')}')" style="background:none;border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;">Reset</button>
+      </div>
       <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Report</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;" onclick='showHabitReport("${s.id}","${escHtml(s.name||'Student')}")'>📅 Habits</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️</button>
@@ -628,47 +662,4 @@ async function showHabitReport(userId, name) {
     const log = logs[day.key] || {};
     const count = [log.maths15, log.maths30, log.english15, log.english30].filter(Boolean).length;
     cell.className = 'cal-day ' + (count >= 4 ? 'cal-full' : count > 0 ? 'cal-partial' : 'cal-none');
-    if (day.key === todayKey) cell.classList.add('cal-today');
-    cell.title = day.key + (count > 0 ? ' (' + count + '/4 challenges)' : ' (none)');
-    calGrid.appendChild(cell);
-  });
-
-  // Challenge detail summary
-  const total = days.length;
-  const daysWithAny = days.filter(d => {
-    const l = logs[d.key] || {};
-    return l.maths15 || l.maths30 || l.english15 || l.english30;
-  }).length;
-  const daysWithAll = days.filter(d => {
-    const l = logs[d.key] || {};
-    return l.maths15 && l.maths30 && l.english15 && l.english30;
-  }).length;
-  document.getElementById('habitSummaryText').textContent =
-    'Active ' + daysWithAny + ' of last 30 days · All 4 challenges: ' + daysWithAll + ' days';
-}
-
-function closeHabitOverlay(e) {
-  if (!e || e.target === document.getElementById('habitOverlay'))
-    document.getElementById('habitOverlay').classList.remove('open');
-}
-</script>
-
-<!-- Habit calendar modal -->
-<div class="habit-overlay" id="habitOverlay" onclick="closeHabitOverlay(event)">
-  <div class="habit-sheet" id="habitSheet">
-    <div class="habit-name" id="habitStudentName">Habit Tracker</div>
-    <div class="habit-streak-row" id="habitStreakRow" style="margin-top:6px;"></div>
-    <div class="habit-section-lbl">Last 30 Days</div>
-    <div class="habit-legend">
-      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(74,222,128,0.45);"></div>All 4 done</div>
-      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(251,191,36,0.35);"></div>Partial</div>
-      <div class="habit-legend-item"><div class="habit-legend-dot" style="background:rgba(255,255,255,0.05);"></div>None</div>
-    </div>
-    <div class="cal-grid" id="habitCalGrid"></div>
-    <div id="habitSummaryText" style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;"></div>
-    <button class="habit-close" onclick="closeHabitOverlay()">Close</button>
-  </div>
-</div>
-
-</body>
-</html>
+    if (day.
