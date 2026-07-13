@@ -568,9 +568,9 @@ function initSignInPad() {
     }
     document.getElementById('signinErr').textContent = 'Looking up your profile…';
     try {
-      const snap = await db.collection('users').where('name', '==', name).get();
+      const snap = await db.collection('users').get();
       let found = null;
-      snap.forEach(doc => { if (doc.data().pin === pin) found = { id: doc.id, ...doc.data() }; });
+      snap.forEach(doc => { const d=doc.data(); if (d.name && d.name.toLowerCase()===name.toLowerCase() && d.pin===pin) found = { id: doc.id, ...d }; });
       if (found) {
         currentProfile = found;
         saveProfileEntry(found.id, found.name, found.themeMaths, found.themeEnglish);
