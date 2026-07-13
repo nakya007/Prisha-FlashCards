@@ -803,9 +803,10 @@ async function saveThemeChange() {
 
 // Daily Challenges
 function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function getTodayChallenges(){ const s=JSON.parse(localStorage.getItem('gsc_challenges')||'{}'); return s[_dateKey()]||{}; }
+function _challengeKey(){ return 'gsc_challenges_'+(currentProfile?currentProfile.id:'shared'); }
+function getTodayChallenges(){ const s=JSON.parse(localStorage.getItem(_challengeKey())||'{}'); return s[_dateKey()]||{}; }
 function calcChallengeStreak(){
-  const s=JSON.parse(localStorage.getItem('gsc_challenges')||'{}'); let streak=0; const d=new Date();
+  const s=JSON.parse(localStorage.getItem(_challengeKey())||'{}'); let streak=0; const d=new Date();
   for(let i=0;i<365;i++){ const k=_dateKey(d),day=s[k]||{},any=day.maths15||day.english15; if(any){streak++;d.setDate(d.getDate()-1);}else if(i===0){d.setDate(d.getDate()-1);}else{break;} }
   return streak;
 }
@@ -844,9 +845,10 @@ function renderChallengePanel(today){
   if(pill){ if(streak>0){pill.textContent='🔥 '+streak+(streak===1?' day':' days');pill.style.display='';}else{pill.style.display='none';} }
 }
 async function syncChallengeCompletions(userId){
-  const stored=JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
-  const synced=JSON.parse(localStorage.getItem('gsc_challenges_synced')||'{}');
-  for(const[date,data] of Object.entries(stored)){ if(JSON.stringify(data)!==JSON.stringify(synced[date])){ try{ await db.collection('users').doc(userId).collection('dailyLogs').doc(date).set(data,{merge:true}); synced[date]=data; localStorage.setItem('gsc_challenges_synced',JSON.stringify(synced)); }catch(e){} } }
+  const ck='gsc_challenges_'+userId, sk='gsc_challenges_synced_'+userId;
+  const stored=JSON.parse(localStorage.getItem(ck)||'{}');
+  const synced=JSON.parse(localStorage.getItem(sk)||'{}');
+  for(const[date,data] of Object.entries(stored)){ if(JSON.stringify(data)!==JSON.stringify(synced[date])){ try{ await db.collection('users').doc(userId).collection('dailyLogs').doc(date).set(data,{merge:true}); synced[date]=data; localStorage.setItem(sk,JSON.stringify(synced)); }catch(e){} } }
 }
 function goToChallenge(subject,mins){
   if(currentProfile) localStorage.setItem('gsc_profile',JSON.stringify({id:currentProfile.id,name:currentProfile.name,themeMaths:currentProfile.themeMaths||'space',themeEnglish:currentProfile.themeEnglish||'library'}));
