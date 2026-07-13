@@ -281,7 +281,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><span id="chipEnglishName">Enchanted Library</span><span class="theme-chip-muted">· English</span></div>
   </div>
   <div class="home-actions">
-    <button class="home-action-btn" onclick="switchProfile()">🔄 Switch Profile</button>
+    <button class="home-action-btn" onclick="logOut()">🚪 Log Out</button>
     <button class="home-action-btn" onclick="window.location.href='admin.html'">🔐 Admin</button>
   </div>
 </div>
@@ -308,6 +308,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     </div>
     <div class="pin-grid" id="setPinGrid"></div>
     <div class="pin-note" style="margin-top:18px;">Tip: use your lucky number or birthday digits!</div>
+    <button id="pinSetConfirmBtn" disabled onclick="finishCreateProfile(_pendingProfileData, _setPinPad.value)" style="margin-top:16px;width:100%;padding:14px;border-radius:14px;border:none;background:#7c3aed;color:#fff;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;opacity:0.4;transition:opacity 0.2s;" onmouseenter="this.style.opacity=this.disabled?'0.4':'1'" onmouseleave="this.style.opacity=this.disabled?'0.4':'0.85'">✅ Confirm PIN</button>
     <div class="err" id="setPinErr" style="margin-top:10px;"></div>
   </div>
 </div>
@@ -506,11 +507,27 @@ async function switchProfile() {
 }
 function closeProfilePicker() { document.getElementById('profilePickerOverlay').classList.remove('open'); }
 function profilePickerClick(e) { if (e.target === document.getElementById('profilePickerOverlay')) closeProfilePicker(); }
+function logOut() {
+  localStorage.removeItem('gsc_userId');
+  sessionStorage.removeItem('gsc_session_user');
+  currentProfile = null;
+  const nameEl = document.getElementById('nameInput'); if (nameEl) nameEl.value = '';
+  const inviteEl = document.getElementById('inviteInput'); if (inviteEl) inviteEl.value = '';
+  document.body.style.background = 'radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%)';
+  document.body.style.color = '#e8eaf6';
+  spawnStars('portalStars');
+  renderSavedProfilesOnWelcome();
+  showScreen('screenWelcome');
+}
 function startNewProfile() {
   closeProfilePicker();
   localStorage.removeItem('gsc_userId');
-  sessionStorage.removeItem('gsc_session_user'); // Clear session so new profile must PIN
+  sessionStorage.removeItem('gsc_session_user');
   currentProfile = null;
+  // Reset all new-profile form fields
+  const nameEl = document.getElementById('nameInput'); if (nameEl) nameEl.value = '';
+  const inviteEl = document.getElementById('inviteInput'); if (inviteEl) inviteEl.value = '';
+  const profErr = document.getElementById('profileErr'); if (profErr) profErr.textContent = '';
   document.body.style.background = 'radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%)';
   document.body.style.color = '#e8eaf6';
   spawnStars('portalStars');
@@ -565,10 +582,13 @@ function openPinSetOverlay(profileData) {
   _pendingProfileData = profileData;
   document.getElementById('setPinErr').textContent = '';
   if (!_setPinPad) {
-    _setPinPad = buildPinPad('setPinGrid', 'spd', async (pin) => {
-      await finishCreateProfile(_pendingProfileData, pin);
+    _setPinPad = buildPinPad('setPinGrid', 'spd', null, (digits) => {
+      const btn = document.getElementById('pinSetConfirmBtn');
+      btn.disabled = digits.length < 4;
+      btn.style.opacity = digits.length < 4 ? '0.4' : '1';
     });
   } else { _setPinPad.reset(); }
+  document.getElementById('pinSetConfirmBtn').disabled = true;
   document.getElementById('pinSetOverlay').classList.add('open');
 }
 async function finishCreateProfile(profileData, pin) {
