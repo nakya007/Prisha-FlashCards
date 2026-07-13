@@ -271,7 +271,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 
 <div class="page topic-view" id="topicView">
   <div class="hero-header">
-    <span class="hero-badge">📚</span>
+    <span class="hero-badge" id="heroBadge">🦉</span>
     <h1 class="hero-title">English Flashcards</h1>
     <p class="hero-sub" id="heroSubEnglish">✨ Enchanted Library · 11+ Prep</p>
     <div class="streak-badge" id="streakBadge"></div>
@@ -433,9 +433,20 @@ function checkBadge(id){var earned=lsGet('gsc_badges',[]);if(earned.indexOf(id)=
 function showBadgeToast(id){var b=BADGES.find(function(x){return x.id===id;});if(!b)return;var t=document.getElementById('badgeToast');if(!t)return;t.textContent=b.icon+' Badge unlocked: '+b.name+'!';t.classList.add('bt-show');setTimeout(function(){t.classList.remove('bt-show');},3000);}
 function showBadges(){var earned=lsGet('gsc_badges',[]),grid=document.getElementById('badgesGrid');if(!grid)return;grid.innerHTML='';BADGES.forEach(function(b){var isE=earned.indexOf(b.id)!==-1;var c=document.createElement('div');c.className='badge-card '+(isE?'earned':'locked');c.innerHTML='<div class="badge-icon">'+b.icon+'</div><div class="badge-name">'+b.name+'</div><div class="badge-desc">'+b.desc+'</div>';grid.appendChild(c);});document.getElementById('badgesModal').classList.add('bm-show');}
 function hideBadges(){document.getElementById('badgesModal').classList.remove('bm-show');}
-var MASCOT_GOT=['Splendid! Your vocabulary blooms! 🌸','Brilliant! A true wordsmith! ✍️','Magnificent! The library applauds! 📖','Eloquently done! ✨','The owl is impressed! 🦉'];
-var MASCOT_HARD=['Every great author once struggled! 💪','Wisdom grows with practice! 🌟','The owl believes in you! 🦉','Keep turning the pages! 📚'];
-var MASCOT_START=['Open the book and let\'s begin! 📖','The enchanted library awaits! ✨','Wisdom begins with the first word! 🦉'];
+const MASCOT_SETS={
+  space:    {mascot:'🧑‍🚀',got:['Stellar! ⭐','Houston, we have a genius! 🏆','Out of this world! 🌌','Perfect trajectory! 🎯'],hard:['Even astronauts need extra training! 💪','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'],start:['Mission launched! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸']},
+  library:  {mascot:'🦉',got:['The owl is proud! 🦉','Splendid wordsmith! ✍️','The library applauds! 📖','Eloquently done! ✨'],hard:['Every great author once struggled! 💪','The owl believes in you! 🦉','Keep turning the pages! 📚'],start:['Open the book and begin! 📖','The enchanted library awaits! ✨','Wisdom begins with the first word! 🦉']},
+  ocean:    {mascot:'🐬',got:['Splash-tastic! 🐬','Riding the wave! 🌊','Deep knowledge! 🌊','You\'re on a roll! 🏄'],hard:['Even dolphins practise every day! 💙','Dive deeper — you\'ll get it! 🌊','Keep swimming! 🐬'],start:['Dive in! 🌊','Time to make a splash! 🐬','The ocean awaits! 🌊']},
+  candy:    {mascot:'🧚',got:['Sweet! 🍭','Deliciously correct! 🍬','Sprinkle-tastic! ✨','Sugar-rush smart! 🍭'],hard:['Every sweet takes work! 💪','The fairy believes in you! 🧚','Keep going — candy awaits! 🍬'],start:['Let\'s make magic! 🧚','The candy kingdom is ready! 🍭','Sprinkle some brilliance! ✨']},
+  jungle:   {mascot:'🐯',got:['Roar-some! 🐯','Jungle genius! 🌿','Wild and brilliant! 🦁','Claws-ome! 🐯'],hard:['Even tigers miss sometimes! 💪','The jungle rewards persistence! 🌿','Keep prowling! 🐯'],start:['Into the jungle! 🌿','Unleash your inner tiger! 🐯','The wild awaits! 🦁']},
+  superhero:{mascot:'🦸',got:['Heroic! ⚡','Superb, hero! 🦸','Great power, great knowledge! 💥','Outstanding! 🌟'],hard:['Every hero has setbacks! 💪','Your power is growing! ⚡','Heroes never give up! 🦸'],start:['Suit up! ⚡','Mission begins! 🦸','Time to save the day! 💥']},
+  dragon:   {mascot:'🐉',got:['Scorching answer! 🔥','Dragon-level genius! 🐉','Fire! 🔥 Brilliant!','The hoard grows! 💰'],hard:['Even dragons learn to fly! 💪','The flame grows stronger! 🔥','Keep breathing fire! 🐉'],start:['The dragon awakens! 🐉','Breathe fire into your studies! 🔥','Quest begins! ⚔️']},
+  crystal:  {mascot:'🔮',got:['Crystal clear! 💎','Dazzling! 🔮','Brilliantly faceted! 💎','The crystal glows! 🔮'],hard:['Even gems need polishing! 💎','The crystal sees your potential! 🔮','Keep shining! ✨'],start:['The crystal magic begins! 🔮','Unlock your power! 💎','Shine bright! ✨']},
+  neon:     {mascot:'🤖',got:['Error rate: 0%! 🤖','System optimal! ⚡','Data processed! 💡','Upgrade complete! 🌆'],hard:['Recalibrating... 🔄','Every glitch is fixable! 🤖','System learning... ⚡'],start:['Booting up! 🤖','Initialising genius mode! 💡','System online! 🌆']},
+};
+var MASCOT_GOT=MASCOT_SETS.library.got;
+var MASCOT_HARD=MASCOT_SETS.library.hard;
+var MASCOT_START=MASCOT_SETS.library.start;
 function _pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function mascotSay(msg,happy){var bubble=document.getElementById('mascotBubble'),em=document.getElementById('mascotEmoji');if(bubble)bubble.textContent=msg;if(em&&happy){em.classList.remove('mascot-happy');void em.offsetWidth;em.classList.add('mascot-happy');setTimeout(function(){em.classList.remove('mascot-happy');},600);}}
 function trackCardSeen(topic,q){if(!sessionSeen[topic])sessionSeen[topic]={};sessionSeen[topic][q]=true;}
@@ -676,6 +687,16 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
       const uName=p.name||'';
       heroSub.textContent=tm.emoji+' '+tm.name+(uName?' · '+uName+"'s 11+ Prep":' · 11+ Prep');
     }
+    const ms=MASCOT_SETS[key]||MASCOT_SETS.library;
+    MASCOT_GOT=ms.got; MASCOT_HARD=ms.hard; MASCOT_START=ms.start;
+    const mascotEl=document.getElementById('mascotEmoji');
+    const heroBadgeEl=document.getElementById('heroBadge');
+    const summaryMascotEl=document.getElementById('summaryMascot');
+    if(mascotEl) mascotEl.textContent=ms.mascot;
+    if(heroBadgeEl) heroBadgeEl.textContent=ms.mascot;
+    if(summaryMascotEl) summaryMascotEl.textContent=ms.mascot;
+    const mascotBubble=document.getElementById('mascotBubble');
+    if(mascotBubble) mascotBubble.textContent=ms.start[Math.floor(Math.random()*ms.start.length)];
   }catch(e){ document.body.classList.add('theme-library'); _setTV('library'); }
 })();
 
