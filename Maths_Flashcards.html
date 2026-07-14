@@ -1119,6 +1119,12 @@ function handleSearch(val){
 
 buildTopicGrid();
 
+// ── iOS back button fix ───────────────────────────────────────────
+(function(){
+  var bb=document.querySelector('.back-btn');
+  if(bb) bb.addEventListener('touchend',function(e){e.preventDefault();goBackToTopics();},{passive:false});
+})();
+
 // ── Challenge mode ────────────────────────────────────────────────
 (function initChallenge(){
   const params = new URLSearchParams(window.location.search);
