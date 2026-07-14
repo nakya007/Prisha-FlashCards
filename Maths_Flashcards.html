@@ -921,7 +921,7 @@ function buildTopicGrid(){
 
 function _enterCardView(){window.scrollTo(0,0);
   document.getElementById("cardInner").classList.remove("flipped");
-  document.getElementById("progressBar").style.background=`linear-gradient(90deg,${activeMeta.g1},${activeMeta.g2})`;
+  const pb=document.getElementById("progressBar");if(pb)pb.style.background=`linear-gradient(90deg,${activeMeta.g1},${activeMeta.g2})`;
   sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;newlyEarnedBadges=[];updateSessionBar();
   document.getElementById("topicView").style.display="none";
   var cv=document.getElementById("cardView");cv.style.display="block";cv.classList.add('slide-in-right');
