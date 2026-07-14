@@ -111,25 +111,21 @@ body.theme-neon #themeDecor{background-image:repeating-linear-gradient(0deg,tran
 .card-view{display:none;padding:14px;max-width:680px;margin:0 auto;}
 .page-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;position:relative;z-index:5;}
 .page-header-text{flex:1;min-width:0;}
-.page-header-text h2{font-size:16px;font-weight:800;}
+.page-header-text h2{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .page-header-text p{font-size:11px;opacity:0.5;margin-top:2px;}
-.cv-toolbar{display:flex;align-items:center;gap:4px;margin-bottom:8px;flex-wrap:nowrap;overflow:hidden;}
-.font-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-weight:700;transition:background 0.15s;min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+.header-controls{display:flex;gap:4px;align-items:center;flex-shrink:0;}
+.font-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;transition:background 0.15s;min-height:36px;min-width:32px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 .font-btn.fb-active{background:rgba(100,149,237,0.35);border-color:rgba(100,149,237,0.7);}
-.quiz-row{width:100%;margin-bottom:8px;}
-.quiz-toggle-btn{width:100%;padding:14px 20px;border-radius:16px;border:2px solid var(--ta-border);background:var(--ta-dark);color:var(--ta-text);font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;transition:background 0.15s,transform 0.12s,box-shadow 0.15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.3px;}
+.mute-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 8px;font-size:13px;font-family:'Nunito',sans-serif;transition:background 0.15s;min-height:36px;min-width:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.mute-btn:hover,.font-btn:hover{background:rgba(255,255,255,0.16);}
+.quiz-row{width:100%;margin-top:4px;margin-bottom:8px;}
+.quiz-toggle-btn{width:100%;padding:12px 20px;border-radius:14px;border:1.5px solid var(--ta-border);background:var(--ta-dark);color:var(--ta-text);font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;cursor:pointer;transition:background 0.15s,transform 0.12s,box-shadow 0.15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.3px;}
 .quiz-toggle-btn.qt-active{background:var(--ta-glow);border-color:var(--ta);color:#fff;box-shadow:0 0 22px var(--ta-glow);}
 .quiz-toggle-btn:hover{transform:translateY(-1px);}
-.mute-btn,.shuffle-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
 .back-btn{display:none;position:fixed;bottom:max(22px,env(safe-area-inset-bottom,22px));left:50%;transform:translateX(-50%);background:rgba(30,30,60,0.85);border:1px solid rgba(255,255,255,0.22);color:#e8eaf6;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:12px 26px;border-radius:30px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:90;touch-action:manipulation;-webkit-tap-highlight-color:transparent;white-space:nowrap;min-height:48px;align-items:center;gap:6px;}
 .back-btn.visible{display:flex;}
 .back-btn:hover{background:rgba(50,50,90,0.9);transform:translateX(-50%) translateY(-2px);}
-.toolbar-spacer{flex:1;min-width:4px;}
-.mute-btn:hover,.shuffle-btn:hover{background:rgba(255,255,255,0.16);}
-@media(max-width:390px){
-  .font-btn,.mute-btn,.shuffle-btn{padding:4px 7px;font-size:12px;}
-  .cv-toolbar{gap:3px;}
-}
+@media(max-width:390px){.font-btn{padding:4px 6px;font-size:11px;min-width:28px;}.header-controls{gap:3px;}}
 .session-bar{display:flex;gap:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 16px;margin-bottom:10px;justify-content:center;flex-wrap:wrap;}
 .session-bar span{font-size:13px;font-weight:700;color:rgba(255,255,255,0.65);}
 .sb-got{color:#86efac !important;}
@@ -305,17 +301,12 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
       <h2 id="cvTitle"></h2>
       <p id="cvSub"></p>
     </div>
-  </div>
-  <div class="quiz-row">
-    <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz Mode</button>
-  </div>
-  <div class="cv-toolbar">
-    <button class="font-btn" onclick="setFont('sm')" id="fbSm">A-</button>
-    <button class="font-btn fb-active" onclick="setFont('md')" id="fbMd">A</button>
-    <button class="font-btn" onclick="setFont('lg')" id="fbLg">A+</button>
-    <div class="toolbar-spacer"></div>
-    <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-    <button class="shuffle-btn" onclick="shuffleCards()">🔀</button>
+    <div class="header-controls">
+      <button class="font-btn" onclick="setFont('sm')" id="fbSm">A-</button>
+      <button class="font-btn fb-active" onclick="setFont('md')" id="fbMd">A</button>
+      <button class="font-btn" onclick="setFont('lg')" id="fbLg">A+</button>
+      <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+    </div>
   </div>
   <div class="session-bar">
     <span>🃏 <span id="sbCards">0</span> seen</span>
@@ -342,6 +333,9 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   <div class="rating-wrap" id="ratingWrap">
     <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
     <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
+  </div>
+  <div class="quiz-row">
+    <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz Mode</button>
   </div>
   <div class="quiz-area" id="quizArea">
     <div class="quiz-q-box" id="quizQuestion"></div>
