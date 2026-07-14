@@ -230,24 +230,41 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <button class="back-link" onclick="showScreen('screenWelcome')">← Back</button>
 </div>
 
-<!-- PROFILE CREATION -->
+<!-- PROFILE CREATION — Step 1: Name + PIN -->
 <div class="screen" id="screenProfile">
   <div class="portal-stars" id="profileStars" aria-hidden="true"></div>
   <div class="portal-orb" style="width:70px;height:70px;font-size:30px;margin-bottom:14px;">✨</div>
-  <div class="screen-title" style="color:#fff;">Create Your Profile</div>
-  <div class="screen-sub">Just a few quick things!</div>
+  <div class="portal-badge">Step 1 of 2</div>
+  <div class="screen-title" style="color:#fff;">Who are you?</div>
+  <div class="screen-sub">Enter your name and choose a secret PIN</div>
   <div class="input-wrap">
     <label class="input-label">Your first name</label>
-    <input class="input-field" id="nameInput" type="text" placeholder="e.g. Name" maxlength="20"
-      onkeydown="if(event.key==='Enter')createProfile()">
+    <input class="input-field" id="nameInput" type="text" placeholder="e.g. Alex" maxlength="20"
+      autocomplete="off">
   </div>
-  <div class="theme-section-label">🚀 Maths theme</div>
-  <div class="theme-grid" id="themeGridMaths"></div>
-  <div class="theme-section-label">📚 English theme</div>
-  <div class="theme-grid" id="themeGridEnglish"></div>
-  <div class="err" id="profileErr"></div>
-  <button class="btn btn-primary" id="createBtn" onclick="createProfile()">Next — Set PIN 🔐</button>
+  <div class="input-label" style="display:block;font-size:12px;font-weight:700;opacity:0.6;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Your Secret PIN 🔐</div>
+  <div class="pin-dots" id="newPinDots">
+    <div class="pin-dot" id="npd0"></div><div class="pin-dot" id="npd1"></div>
+    <div class="pin-dot" id="npd2"></div><div class="pin-dot" id="npd3"></div>
+  </div>
+  <div class="pin-grid" id="newPinGrid"></div>
+  <div class="pin-note">Tip: use your lucky number or birthday digits! 🎂</div>
+  <div class="err" id="profileErr" style="margin-top:10px;"></div>
+  <button class="btn btn-primary" id="createBtn" onclick="createProfile()" style="margin-top:16px;">Next — Pick Your World 🌟</button>
   <button class="back-link" onclick="showScreen('screenInvite')">← Back</button>
+</div>
+
+<!-- THEME SELECTION — Step 2 -->
+<div class="screen" id="screenTheme">
+  <div class="portal-stars" id="themeStars" aria-hidden="true"></div>
+  <div style="font-size:52px;margin-bottom:10px;line-height:1;">🌟</div>
+  <div class="portal-badge">Step 2 of 2</div>
+  <div class="screen-title" style="color:#fff;">Pick Your World!</div>
+  <div class="screen-sub">Choose your adventure — sets the look for everything</div>
+  <div class="theme-grid" id="themeGridNew" style="margin-top:8px;"></div>
+  <div class="err" id="themeErr"></div>
+  <button class="btn btn-primary" id="startJourneyBtn" onclick="confirmThemeAndCreate()">Start My Journey 🚀</button>
+  <button class="back-link" onclick="showScreen('screenProfile')">← Back</button>
 </div>
 
 <!-- SIGN IN (new device / returning) -->
@@ -405,10 +422,12 @@ const THEMES = {
   dragon:    {name:"Dragon's Keep",     emoji:'🐉', mascot:'🐉', bodyBg:'linear-gradient(180deg,#1a0500 0%,#2d0a00 40%,#0a0200 100%)',             tint:'rgba(154,52,18,0.30)',  glow:'#fb923c', border:'rgba(251,146,60,0.4)', text:'#fed7aa', accent:'#fb923c', accentGlow:'rgba(251,146,60,0.35)',  accentBorder:'rgba(251,146,60,0.45)',  accentText:'#fed7aa', accentDark:'rgba(154,52,18,0.22)',   xp:'linear-gradient(90deg,#9a3412,#fb923c)'},
   crystal:   {name:'Crystal Cavern',    emoji:'🔮', mascot:'🔮', bodyBg:'linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%)',             tint:'rgba(109,40,217,0.30)', glow:'#a78bfa', border:'rgba(167,139,250,0.4)',text:'#e9d5ff', accent:'#a78bfa', accentGlow:'rgba(167,139,250,0.35)', accentBorder:'rgba(167,139,250,0.45)', accentText:'#e9d5ff', accentDark:'rgba(109,40,217,0.22)',   xp:'linear-gradient(90deg,#6d28d9,#a78bfa)'},
   neon:      {name:'Neon City',         emoji:'🤖', mascot:'🤖', bodyBg:'linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%)',                tint:'rgba(134,25,143,0.30)', glow:'#f0abfc', border:'rgba(240,171,252,0.4)',text:'#f0abfc', accent:'#f0abfc', accentGlow:'rgba(240,171,252,0.35)', accentBorder:'rgba(240,171,252,0.45)', accentText:'#f0abfc', accentDark:'rgba(134,25,143,0.22)',   xp:'linear-gradient(90deg,#86198f,#f0abfc)'},
+  fairy:     {name:'Fairy Garden',      emoji:'🧚', mascot:'🧚', bodyBg:'linear-gradient(160deg,#1a0a2e 0%,#2d1452 55%,#0f0520 100%)',             tint:'rgba(244,114,182,0.18)', glow:'#f9a8d4', border:'rgba(249,168,212,0.4)',text:'#fce7f3', accent:'#f9a8d4', accentGlow:'rgba(249,168,212,0.35)', accentBorder:'rgba(249,168,212,0.45)', accentText:'#fce7f3', accentDark:'rgba(190,24,93,0.22)',    xp:'linear-gradient(90deg,#9d174d,#f9a8d4)'},
 };
 
 let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
 let pendingSubject = 'maths', pendingTheme = 'space';
+let selectedTheme = 'space', _newPin = '', _pendingNewProfile = null;
 
 // ── PIN PAD builder ──────────────────────────────────────────────
 function buildPinPad(gridId, dotsPrefix, onComplete, onUpdate) {
@@ -644,7 +663,8 @@ function openPinSetOverlay(profileData) {
   document.getElementById('pinSetOverlay').classList.add('open');
 }
 async function finishCreateProfile(profileData, pin) {
-  document.getElementById('setPinErr').textContent = 'Creating your profile…';
+  const errEl = document.getElementById('themeErr') || document.getElementById('setPinErr');
+  if (errEl) errEl.textContent = 'Creating your profile…';
   const userId = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
   const profile = { ...profileData, pin, createdAt: firebase.firestore.FieldValue.serverTimestamp(), lastActive: firebase.firestore.FieldValue.serverTimestamp(), xp:0, streak:0, badges:[], ratings:{} };
   try {
@@ -657,8 +677,8 @@ async function finishCreateProfile(profileData, pin) {
     applyTheme(profile.themeMaths);
     renderHome(); showScreen('screenHome');
   } catch(e) {
-    document.getElementById('setPinErr').textContent = '⚠️ Could not save — check connection.';
-    _setPinPad.shake();
+    if (errEl) errEl.textContent = '⚠️ Could not save — check connection.';
+    if (_setPinPad) _setPinPad.shake();
   }
 }
 
@@ -731,9 +751,10 @@ async function init() {
     try { spawnStars('profileStars'); } catch(e) {}
     try { spawnStars('inviteStars'); } catch(e) {}
     try { spawnStars('signinStars'); } catch(e) {}
-    try { buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); }); } catch(e) {}
-    try { buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; }); } catch(e) {}
+    try { spawnStars('themeStars'); } catch(e) {}
+    try { buildThemeGrid('themeGridChange', selectedMaths, k => { selectedMaths=k; }); } catch(e) {}
     try { initSignInPad(); } catch(e) { console.warn('initSignInPad failed', e); }
+    try { initNewPinPad(); } catch(e) { console.warn('initNewPinPad failed', e); }
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('preview')==='1' || localStorage.getItem('gsc_admin_preview')==='1') {
@@ -781,10 +802,13 @@ async function validateInvite() {
     if (!FALLBACK_CODES.includes(code)) { err.textContent='❌ Invalid code — ask your tutor!'; return; }
   }
   err.textContent='';
-  buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); });
-  buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; });
   showScreen('screenProfile');
   setTimeout(()=>document.getElementById('nameInput').focus(),300);
+}
+
+let _newPinPad = null;
+function initNewPinPad() {
+  _newPinPad = buildPinPad('newPinGrid', 'npd', null, (digits) => { _newPin = digits; });
 }
 
 async function createProfile() {
@@ -792,14 +816,30 @@ async function createProfile() {
   const err  = document.getElementById('profileErr');
   if (!name)           { err.textContent='Please enter your name!'; return; }
   if (name.length < 2) { err.textContent='Name needs at least 2 letters.'; return; }
+  if (!_newPin || _newPin.length < 4) { err.textContent='Please choose a 4-digit PIN first! 🔐'; return; }
   err.textContent='';
-  const profileData = {
-    name, themeMaths: selectedMaths, themeEnglish: selectedEnglish,
+  _pendingNewProfile = {
+    name,
     inviteCode: (document.getElementById('inviteInput').value||'').trim().toUpperCase()
   };
-  document.getElementById('createBtn').disabled = true;
-  openPinSetOverlay(profileData);
-  setTimeout(()=>{ document.getElementById('createBtn').disabled=false; }, 500);
+  selectedTheme = 'space';
+  buildThemeGrid('themeGridNew', selectedTheme, k => { selectedTheme=k; applyTheme(k); });
+  applyTheme(selectedTheme);
+  spawnStars('themeStars');
+  showScreen('screenTheme');
+}
+
+async function confirmThemeAndCreate() {
+  if (!_pendingNewProfile) return;
+  const profileData = {
+    ..._pendingNewProfile,
+    themeMaths: selectedTheme,
+    themeEnglish: selectedTheme,
+  };
+  const btn = document.getElementById('startJourneyBtn');
+  if (btn) btn.disabled = true;
+  await finishCreateProfile(profileData, _newPin);
+  if (btn) btn.disabled = false;
 }
 
 function renderHome() {
