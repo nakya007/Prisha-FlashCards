@@ -661,6 +661,7 @@ async function finishCreateProfile(profileData, pin) {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
 function applyTheme(key) {
   const t = THEMES[key] || THEMES.space;
   document.body.style.background = t.bodyBg;
