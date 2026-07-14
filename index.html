@@ -305,7 +305,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     </div>
   </div>
   <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
-    <div class="sb-icon" id="sbMathsIcon">🧑‍🚀</div>
+    <div class="sb-icon" id="sbMathsIcon">🚀</div>
     <div class="sb-info"><div class="sb-title">Maths</div><div class="sb-sub">Numbers, Shapes &amp; More</div></div>
   </button>
   <button class="subject-btn btn-english" onclick="goToSubject('english')">
@@ -318,7 +318,6 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   </div>
   <div class="home-actions">
     <button class="home-action-btn" onclick="logOut()">🚪 Log Out</button>
-    <button class="home-action-btn" onclick="window.location.href='admin.html'">🔐 Admin</button>
   </div>
 </div>
 
@@ -391,15 +390,15 @@ const db = firebase.firestore();
 const FALLBACK_CODES = ['PREP2027'];
 
 const THEMES = {
-  space:     {name:'Space Explorer',    emoji:'🚀', mascot:'🧑‍🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6', accent:'#818cf8', accentGlow:'rgba(129,140,248,0.35)', accentBorder:'rgba(129,140,248,0.45)', accentText:'#c7d2fe', accentDark:'rgba(67,56,202,0.22)',    xp:'linear-gradient(90deg,#4338ca,#818cf8)'},
+  space:     {name:'Space Explorer',    emoji:'🚀', mascot:'🚀', bodyBg:'radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%)', tint:'rgba(30,58,138,0.30)',  glow:'#3b82f6', border:'rgba(96,165,250,0.4)',   text:'#e8eaf6', accent:'#818cf8', accentGlow:'rgba(129,140,248,0.35)', accentBorder:'rgba(129,140,248,0.45)', accentText:'#c7d2fe', accentDark:'rgba(67,56,202,0.22)',    xp:'linear-gradient(90deg,#4338ca,#818cf8)'},
   library:   {name:'Enchanted Library', emoji:'🦉', mascot:'🦉', bodyBg:'linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%)',             tint:'rgba(120,53,15,0.30)',  glow:'#d97706', border:'rgba(251,191,36,0.4)',  text:'#fde68a', accent:'#fbbf24', accentGlow:'rgba(251,191,36,0.35)',  accentBorder:'rgba(251,191,36,0.45)',  accentText:'#fde68a', accentDark:'rgba(146,64,14,0.22)',   xp:'linear-gradient(90deg,#b45309,#fbbf24)'},
-  ocean:     {name:'Ocean Deep',        emoji:'🌊', mascot:'🐬', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa', accent:'#22d3ee', accentGlow:'rgba(34,211,238,0.35)',  accentBorder:'rgba(34,211,238,0.45)',  accentText:'#a5f3fc', accentDark:'rgba(14,116,144,0.22)',   xp:'linear-gradient(90deg,#0e7490,#22d3ee)'},
+  ocean:     {name:'Ocean Deep',        emoji:'🐬', mascot:'🐬', bodyBg:'linear-gradient(180deg,#0c4a6e 0%,#082f49 50%,#041c2c 100%)',             tint:'rgba(8,145,178,0.30)',  glow:'#22d3ee', border:'rgba(34,211,238,0.4)', text:'#e0f7fa', accent:'#22d3ee', accentGlow:'rgba(34,211,238,0.35)',  accentBorder:'rgba(34,211,238,0.45)',  accentText:'#a5f3fc', accentDark:'rgba(14,116,144,0.22)',   xp:'linear-gradient(90deg,#0e7490,#22d3ee)'},
   candy:     {name:'Candy Kingdom',     emoji:'🍭', mascot:'🍭', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec', accent:'#e879f9', accentGlow:'rgba(232,121,249,0.35)', accentBorder:'rgba(232,121,249,0.45)', accentText:'#f5d0fe', accentDark:'rgba(126,34,206,0.22)',   xp:'linear-gradient(90deg,#7e22ce,#e879f9)'},
-  jungle:    {name:'Jungle Quest',      emoji:'🌿', mascot:'🐯', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7', accent:'#4ade80', accentGlow:'rgba(74,222,128,0.35)',  accentBorder:'rgba(74,222,128,0.45)',  accentText:'#bbf7d0', accentDark:'rgba(21,128,61,0.22)',    xp:'linear-gradient(90deg,#15803d,#4ade80)'},
-  superhero: {name:'Superhero HQ',      emoji:'⚡', mascot:'🦸', bodyBg:'linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#080000 100%)',             tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1', accent:'#f87171', accentGlow:'rgba(248,113,113,0.35)', accentBorder:'rgba(248,113,113,0.45)', accentText:'#fecaca', accentDark:'rgba(153,27,27,0.22)',    xp:'linear-gradient(90deg,#991b1b,#f87171)'},
+  jungle:    {name:'Jungle Quest',      emoji:'🐯', mascot:'🐯', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7', accent:'#4ade80', accentGlow:'rgba(74,222,128,0.35)',  accentBorder:'rgba(74,222,128,0.45)',  accentText:'#bbf7d0', accentDark:'rgba(21,128,61,0.22)',    xp:'linear-gradient(90deg,#15803d,#4ade80)'},
+  superhero: {name:'Superhero HQ',      emoji:'🦸', mascot:'🦸', bodyBg:'linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#080000 100%)',             tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1', accent:'#f87171', accentGlow:'rgba(248,113,113,0.35)', accentBorder:'rgba(248,113,113,0.45)', accentText:'#fecaca', accentDark:'rgba(153,27,27,0.22)',    xp:'linear-gradient(90deg,#991b1b,#f87171)'},
   dragon:    {name:"Dragon's Keep",     emoji:'🐉', mascot:'🐉', bodyBg:'linear-gradient(180deg,#1a0500 0%,#2d0a00 40%,#0a0200 100%)',             tint:'rgba(154,52,18,0.30)',  glow:'#fb923c', border:'rgba(251,146,60,0.4)', text:'#fed7aa', accent:'#fb923c', accentGlow:'rgba(251,146,60,0.35)',  accentBorder:'rgba(251,146,60,0.45)',  accentText:'#fed7aa', accentDark:'rgba(154,52,18,0.22)',   xp:'linear-gradient(90deg,#9a3412,#fb923c)'},
-  crystal:   {name:'Crystal Cavern',    emoji:'💎', mascot:'🔮', bodyBg:'linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%)',             tint:'rgba(109,40,217,0.30)', glow:'#a78bfa', border:'rgba(167,139,250,0.4)',text:'#e9d5ff', accent:'#a78bfa', accentGlow:'rgba(167,139,250,0.35)', accentBorder:'rgba(167,139,250,0.45)', accentText:'#e9d5ff', accentDark:'rgba(109,40,217,0.22)',   xp:'linear-gradient(90deg,#6d28d9,#a78bfa)'},
-  neon:      {name:'Neon City',         emoji:'🌆', mascot:'🤖', bodyBg:'linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%)',                tint:'rgba(134,25,143,0.30)', glow:'#f0abfc', border:'rgba(240,171,252,0.4)',text:'#f0abfc', accent:'#f0abfc', accentGlow:'rgba(240,171,252,0.35)', accentBorder:'rgba(240,171,252,0.45)', accentText:'#f0abfc', accentDark:'rgba(134,25,143,0.22)',   xp:'linear-gradient(90deg,#86198f,#f0abfc)'},
+  crystal:   {name:'Crystal Cavern',    emoji:'🔮', mascot:'🔮', bodyBg:'linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%)',             tint:'rgba(109,40,217,0.30)', glow:'#a78bfa', border:'rgba(167,139,250,0.4)',text:'#e9d5ff', accent:'#a78bfa', accentGlow:'rgba(167,139,250,0.35)', accentBorder:'rgba(167,139,250,0.45)', accentText:'#e9d5ff', accentDark:'rgba(109,40,217,0.22)',   xp:'linear-gradient(90deg,#6d28d9,#a78bfa)'},
+  neon:      {name:'Neon City',         emoji:'🤖', mascot:'🤖', bodyBg:'linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%)',                tint:'rgba(134,25,143,0.30)', glow:'#f0abfc', border:'rgba(240,171,252,0.4)',text:'#f0abfc', accent:'#f0abfc', accentGlow:'rgba(240,171,252,0.35)', accentBorder:'rgba(240,171,252,0.45)', accentText:'#f0abfc', accentDark:'rgba(134,25,143,0.22)',   xp:'linear-gradient(90deg,#86198f,#f0abfc)'},
 };
 
 let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
@@ -815,7 +814,7 @@ function renderHome() {
   document.getElementById('chipEnglishEmoji').textContent = te.emoji;
   document.getElementById('chipEnglishName').textContent  = te.name;
   const sbm=document.getElementById('sbMathsIcon'), sbe=document.getElementById('sbEnglishIcon');
-  if(sbm) sbm.textContent=tm.mascot||'🧑‍🚀';
+  if(sbm) sbm.textContent=tm.mascot||'🚀';
   if(sbe) sbe.textContent=te.mascot||'🦉';
   renderChallengePanel(getTodayChallenges());
 }
@@ -835,7 +834,7 @@ function closeThemeChanger() { document.getElementById('themeOverlay').classList
 function overlayClick(e) { if (e.target===document.getElementById('themeOverlay')) closeThemeChanger(); }
 async function saveThemeChange() {
   const t = THEMES[pendingTheme]||THEMES.space;
-  if (pendingSubject==='maths') { currentProfile.themeMaths=pendingTheme; document.getElementById('chipMathsEmoji').textContent=t.emoji; document.getElementById('chipMathsName').textContent=t.name; applyTheme(pendingTheme); const sbm=document.getElementById('sbMathsIcon'); if(sbm) sbm.textContent=t.mascot||'🧑‍🚀'; }
+  if (pendingSubject==='maths') { currentProfile.themeMaths=pendingTheme; document.getElementById('chipMathsEmoji').textContent=t.emoji; document.getElementById('chipMathsName').textContent=t.name; applyTheme(pendingTheme); const sbm=document.getElementById('sbMathsIcon'); if(sbm) sbm.textContent=t.mascot||'🚀'; }
   else { currentProfile.themeEnglish=pendingTheme; document.getElementById('chipEnglishEmoji').textContent=t.emoji; document.getElementById('chipEnglishName').textContent=t.name; const sbe=document.getElementById('sbEnglishIcon'); if(sbe) sbe.textContent=t.mascot||'🦉'; }
   saveProfileEntry(currentProfile.id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
   closeThemeChanger();
@@ -843,60 +842,4 @@ async function saveThemeChange() {
 }
 
 // Daily Challenges
-function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function _challengeKey(){ return 'gsc_challenges_'+(currentProfile?currentProfile.id:'shared'); }
-function getTodayChallenges(){ const s=JSON.parse(localStorage.getItem(_challengeKey())||'{}'); return s[_dateKey()]||{}; }
-function calcChallengeStreak(){
-  const s=JSON.parse(localStorage.getItem(_challengeKey())||'{}'); let streak=0; const d=new Date();
-  for(let i=0;i<365;i++){ const k=_dateKey(d),day=s[k]||{},any=day.maths15||day.english15; if(any){streak++;d.setDate(d.getDate()-1);}else if(i===0){d.setDate(d.getDate()-1);}else{break;} }
-  return streak;
-}
-function renderChallengePanel(today){
-  const configs=[
-    {key:'maths15',subject:'maths',label:'MATHS',title:'Mission',icon:'🎯',bg:'linear-gradient(145deg,#1e3a5f,#2563eb)',shadow:'rgba(37,99,235,0.25)'},
-    {key:'english15',subject:'english',label:'ENGLISH',title:'Quest',icon:'📚',bg:'linear-gradient(145deg,#134e5e,#71b280)',shadow:'rgba(113,178,128,0.25)'}
-  ];
-  const grid=document.getElementById('challengeGrid'); if(!grid)return; grid.innerHTML='';
-  configs.forEach(ch=>{
-    const done=!!(today&&today[ch.key]);
-    const extra=(today&&today[ch.key+'_extra'])||0;
-    const cell=document.createElement('div');
-    cell.style.cssText='display:flex;flex-direction:column;gap:6px;';
-    const b=document.createElement('div');
-    b.style.cssText='background:'+ch.bg+';border-radius:20px;padding:20px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px '+ch.shadow+';transition:transform 0.15s;'+(done?'opacity:0.75;':'');
-    b.innerHTML='<div style="position:absolute;top:-8px;right:-8px;font-size:48px;opacity:0.1;pointer-events:none;">'+ch.icon+'</div>'
-      +'<div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.65);letter-spacing:1.5px;margin-bottom:8px;">'+ch.label+'</div>'
-      +'<div style="font-size:30px;margin-bottom:7px;">'+(done?'✅':ch.icon)+'</div>'
-      +'<div style="font-size:13px;font-weight:900;color:#fff;">'+(done?'Done!'+(extra>0?' ×'+(extra+1):''):ch.title)+'</div>'
-      +'<div style="background:rgba(0,0,0,0.25);border-radius:20px;padding:3px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:7px;">⏱ 15 min</div>';
-    b.onmouseenter=()=>{ if(!done) b.style.transform='scale(1.04)'; };
-    b.onmouseleave=()=>{ b.style.transform='scale(1)'; };
-    b.onclick=()=>goToChallenge(ch.subject,15);
-    cell.appendChild(b);
-    if(done){
-      const more=document.createElement('button');
-      more.className='ch-more-btn';
-      more.textContent='＋ Another 15-min';
-      more.onclick=()=>goToChallenge(ch.subject,15);
-      cell.appendChild(more);
-    }
-    grid.appendChild(cell);
-  });
-  const streak=calcChallengeStreak(); const pill=document.getElementById('challengeStreakPill');
-  if(pill){ if(streak>0){pill.textContent='🔥 '+streak+(streak===1?' day':' days');pill.style.display='';}else{pill.style.display='none';} }
-}
-async function syncChallengeCompletions(userId){
-  const ck='gsc_challenges_'+userId, sk='gsc_challenges_synced_'+userId;
-  const stored=JSON.parse(localStorage.getItem(ck)||'{}');
-  const synced=JSON.parse(localStorage.getItem(sk)||'{}');
-  for(const[date,data] of Object.entries(stored)){ if(JSON.stringify(data)!==JSON.stringify(synced[date])){ try{ await db.collection('users').doc(userId).collection('dailyLogs').doc(date).set(data,{merge:true}); synced[date]=data; localStorage.setItem(sk,JSON.stringify(synced)); }catch(e){} } }
-}
-function goToChallenge(subject,mins){
-  if(currentProfile) localStorage.setItem('gsc_profile',JSON.stringify({id:currentProfile.id,name:currentProfile.name,themeMaths:currentProfile.themeMaths||'space',themeEnglish:currentProfile.themeEnglish||'library'}));
-  window.location.href=(subject==='maths'?'Maths_Flashcards.html':'English_Flashcards.html')+'?challenge='+mins;
-}
-
-init();
-</script>
-</body>
-</html>
+function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+
