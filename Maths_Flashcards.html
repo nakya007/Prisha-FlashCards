@@ -551,7 +551,7 @@ const MASCOT_SETS={
   space:    {mascot:'🧑‍🚀',got:['Stellar! ⭐','Houston, we have a genius! 🏆','Out of this world! 🌌','Perfect trajectory! 🎯'],hard:['Even astronauts need extra training! 💪','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'],start:['Mission launched! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸']},
   library:  {mascot:'🦉',got:['Brilliant! The owl is proud! 🦉','Splendid! 📖','The library glows! 🌟','Magnificently done! ✨'],hard:['Even scholars need practice! 💪','The owl believes in you! 🦉','Keep turning the pages! 📚'],start:['The library awaits! 📖','Wisdom begins here! 🦉','Open the book and begin! ✨']},
   ocean:    {mascot:'🐬',got:['Splash-tastic! 🐬','Riding the wave! 🌊','Deep knowledge! 🌊','You\'re on a roll! 🏄'],hard:['Even dolphins practise every day! 💙','Dive deeper — you\'ll get it! 🌊','Keep swimming! 🐬'],start:['Dive in! 🌊','Time to make a splash! 🐬','The ocean awaits! 🌊']},
-  candy:    {mascot:'🧚',got:['Sweet! 🍭','Deliciously correct! 🍬','Sprinkle-tastic! ✨','Sugar-rush smart! 🍭'],hard:['Every sweet takes work! 💪','The fairy believes in you! 🧚','Keep going — candy awaits! 🍬'],start:['Let\'s make magic! 🧚','The candy kingdom is ready! 🍭','Sprinkle some brilliance! ✨']},
+  candy:    {mascot:'🍭',got:['Sweet! 🍭','Deliciously correct! 🍬','Sprinkle-tastic! ✨','Sugar-rush smart! 🍭'],hard:['Every sweet takes work! 💪','The fairy believes in you! 🧚','Keep going — candy awaits! 🍬'],start:['Let\'s make magic! 🧚','The candy kingdom is ready! 🍭','Sprinkle some brilliance! ✨']},
   jungle:   {mascot:'🐯',got:['Roar-some! 🐯','Jungle genius! 🌿','Wild and brilliant! 🦁','Claws-ome! 🐯'],hard:['Even tigers miss sometimes! 💪','The jungle rewards persistence! 🌿','Keep prowling! 🐯'],start:['Into the jungle! 🌿','Unleash your inner tiger! 🐯','The wild awaits! 🦁']},
   superhero:{mascot:'🦸',got:['Heroic! ⚡','Superb, hero! 🦸','Great power, great knowledge! 💥','Outstanding! 🌟'],hard:['Every hero has setbacks! 💪','Your power is growing! ⚡','Heroes never give up! 🦸'],start:['Suit up! ⚡','Mission begins! 🦸','Time to save the day! 💥']},
   dragon:   {mascot:'🐉',got:['Scorching answer! 🔥','Dragon-level genius! 🐉','Fire! 🔥 Brilliant!','The hoard grows! 💰'],hard:['Even dragons learn to fly! 💪','The flame grows stronger! 🔥','Keep breathing fire! 🐉'],start:['The dragon awakens! 🐉','Breathe fire into your studies! 🔥','Quest begins! ⚔️']},
@@ -725,7 +725,7 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
 (function applyMathsTheme(){
   const MINI_THEMES={
     space:    {name:'Space Explorer',  emoji:'🚀', xp:'linear-gradient(90deg,#4338ca,#818cf8)', a:'#818cf8',ag:'rgba(129,140,248,0.35)',ab:'rgba(129,140,248,0.45)',at:'#c7d2fe',ad:'rgba(67,56,202,0.22)'},
-    library:  {name:'Enchanted Library',emoji:'📚', xp:'linear-gradient(90deg,#b45309,#fbbf24)', a:'#fbbf24',ag:'rgba(251,191,36,0.35)', ab:'rgba(251,191,36,0.45)', at:'#fde68a',ad:'rgba(146,64,14,0.22)'},
+    library:  {name:'Enchanted Library',emoji:'🦉', xp:'linear-gradient(90deg,#b45309,#fbbf24)', a:'#fbbf24',ag:'rgba(251,191,36,0.35)', ab:'rgba(251,191,36,0.45)', at:'#fde68a',ad:'rgba(146,64,14,0.22)'},
     ocean:    {name:'Ocean Deep',      emoji:'🌊', xp:'linear-gradient(90deg,#0e7490,#22d3ee)', a:'#22d3ee',ag:'rgba(34,211,238,0.35)', ab:'rgba(34,211,238,0.45)', at:'#a5f3fc',ad:'rgba(14,116,144,0.22)'},
     candy:    {name:'Candy Kingdom',   emoji:'🍭', xp:'linear-gradient(90deg,#7e22ce,#e879f9)', a:'#e879f9',ag:'rgba(232,121,249,0.35)',ab:'rgba(232,121,249,0.45)',at:'#f5d0fe',ad:'rgba(126,34,206,0.22)'},
     jungle:   {name:'Jungle Quest',    emoji:'🌿', xp:'linear-gradient(90deg,#15803d,#4ade80)', a:'#4ade80',ag:'rgba(74,222,128,0.35)', ab:'rgba(74,222,128,0.45)', at:'#bbf7d0',ad:'rgba(21,128,61,0.22)'},
@@ -954,184 +954,4 @@ function goBackToTopics(){window.scrollTo(0,0);
   document.getElementById("cardView").style.display="none";
   var tv=document.getElementById("topicView");tv.style.display="block";
   tv.classList.add('slide-in-left');setTimeout(function(){tv.classList.remove('slide-in-left');},300);
-  isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");
-  hideRatingBtns();isQuizMode=false;
-  var qa=document.getElementById("quizArea");if(qa)qa.classList.remove("qa-show");
-  var cw=document.getElementById("cardWrapper");if(cw)cw.style.display="";
-  var fb=document.getElementById("flipBtn");if(fb)fb.style.display="";
-  var qt=document.getElementById("quizToggle");if(qt)qt.classList.remove("qt-active");
-  sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;
-  refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
-}
-
-function syncCardHeight(){
-  var front=document.getElementById('cardFront');
-  var back=document.getElementById('cardBack');
-  var inner=document.getElementById('cardInner');
-  if(!front||!back||!inner)return;
-  inner.style.minHeight='';
-  var h=Math.max(front.offsetHeight,back.offsetHeight);
-  if(h>0)inner.style.minHeight=h+'px';
-}
-
-function renderCard(){
-  if(!filtered.length){document.getElementById("cardProgress").textContent="No cards";return;}
-  const card=filtered[current],meta=activeMeta;
-  document.getElementById("cardFront").style.background=`linear-gradient(145deg,${meta.g1},${meta.g2})`;
-  document.getElementById("cardBack").style.background=`linear-gradient(145deg,${meta.d1},${meta.d2})`;
-  const cardMeta=TOPIC_META[card.topic]||{emoji:"📚"};
-  const tag=cardMeta.emoji+" "+card.topic;
-  document.getElementById("frontTag").textContent=tag;document.getElementById("backTag").textContent=tag;
-  document.getElementById("frontSession").textContent=card.session;document.getElementById("backSession").textContent=card.session;
-  document.getElementById("cardEmoji").textContent=cardMeta.emoji+" "+FUN_EMOJIS[current%FUN_EMOJIS.length];
-  if(card.svg){document.getElementById("cardQuestion").innerHTML=card.q.replace(/\n/g,"<br>")+card.svg;}else{document.getElementById("cardQuestion").textContent=card.q;}
-  document.getElementById("cardAnswer").textContent=card.a;
-  document.getElementById("cardProgress").textContent="Card "+(current+1)+" of "+filtered.length;
-  document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===filtered.length-1;
-  const pct=filtered.length>1?(current/(filtered.length-1))*100:100;
-  document.getElementById("progressBar").style.width=pct+"%";
-  updateRatedBadge();hideRatingBtns();
-  trackCardSeen(card.topic,card.q);updateSessionBar();
-  if(isQuizMode)setTimeout(renderQuiz,0);
-  setTimeout(syncCardHeight,0);
-}
-
-function flipCard(){
-  if(isSwiping)return;
-  isFlipped=!isFlipped;
-  document.getElementById("cardInner").classList.toggle("flipped",isFlipped);
-  playFlip();
-  if(isFlipped){checkBadge('first_flip');if(!isQuizMode)showRatingBtns();}else hideRatingBtns();
-}
-
-function navigate(dir){
-  hideRatingBtns();
-  if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}
-  const n=current+dir;
-  if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
-}
-
-function shuffleCards(){
-  for(let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
-  current=0;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();
-}
-
-document.addEventListener("keydown",e=>{
-  if(document.getElementById("cardView").style.display==="none")return;
-  if(e.key==="ArrowRight")navigate(1);
-  else if(e.key==="ArrowLeft")navigate(-1);
-  else if(e.key===" "||e.key==="Enter"){e.preventDefault();flipCard();}
-  else if(e.key==="Escape")goBackToTopics();
-});
-
-function handleSearch(val){
-  var q=val.trim().toLowerCase(),allTile=document.querySelector('.all-tile'),tiles=document.querySelectorAll('.topic-tile:not(.all-tile)'),visible=0,match=new Set();
-  if(q)ALL_CARDS.forEach(function(c){if(c.topic.toLowerCase().includes(q)||c.q.toLowerCase().includes(q)||c.a.toLowerCase().includes(q))match.add(c.topic);});
-  tiles.forEach(function(tile){var ne=tile.querySelector('.tile-name'),name=ne?ne.textContent.toLowerCase():'',show=!q||name.includes(q)||match.has(ne?ne.textContent.trim():'');tile.style.display=show?'':'none';if(show)visible++;});
-  if(allTile)allTile.style.display=q?'none':'';
-  var nr=document.getElementById('noResults');if(nr)nr.style.display=(q&&visible===0)?'block':'none';
-}
-
-buildTopicGrid();
-
-// Challenge mode (launched via ?challenge=15 or ?challenge=30)
-(function initChallenge(){
-  const params = new URLSearchParams(window.location.search);
-  const dur = parseInt(params.get('challenge'));
-  if (!dur || (dur !== 15 && dur !== 30)) return;
-
-  const posKey = 'gsc_maths_pos_' + dur;
-  const startPos = Math.min(
-    Math.max(0, parseInt(localStorage.getItem(posKey) || '0')),
-    ALL_CARDS.length - 1
-  );
-
-  filtered = [...ALL_CARDS.slice(startPos), ...ALL_CARDS.slice(0, startPos)];
-  current = 0; isFlipped = false;
-  activeMeta = {emoji:'⏱️', g1:'#3b0764', g2:'#6d28d9', d1:'#1e0a3c', d2:'#4c1d95'};
-  document.getElementById('cvTitle').textContent = '⏱️ ' + dur + '-Minute Challenge';
-  document.getElementById('cvSub').textContent = 'Resuming from card ' + (startPos + 1) + ' · ' + ALL_CARDS.length + ' total';
-  _enterCardView();
-
-  const bar = document.getElementById('challengeBar');
-  if (bar) bar.classList.add('active');
-  document.getElementById('ctLabel').textContent = '⏱️ Maths ' + dur + '-min';
-  document.getElementById('cardView').style.paddingTop = '56px';
-
-  let remaining = dur * 60;
-  const fmt = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
-  document.getElementById('ctTime').textContent = fmt(remaining);
-
-  const tick = setInterval(() => {
-    remaining--;
-    document.getElementById('ctFill').style.width = ((remaining / (dur*60)) * 100) + '%';
-    document.getElementById('ctTime').textContent = fmt(remaining);
-    if (remaining <= 60) document.getElementById('ctTime').style.color = '#f87171';
-    if (remaining <= 0) { clearInterval(tick); onMathsChallengeComplete(dur, startPos, posKey); }
-  }, 1000);
-  window._chalInterval = tick;
-  window._chalDur = dur; window._chalStartPos = startPos; window._chalPosKey = posKey;
-
-  window.goBackToTopics = function(){
-    if (window._chalInterval) clearInterval(window._chalInterval);
-    localStorage.setItem(window._chalPosKey, String((window._chalStartPos + current) % ALL_CARDS.length));
-    window.location.href = 'index.html';
-  };
-})();
-
-function finishChallengeEarly(){
-  if (window._chalInterval) clearInterval(window._chalInterval);
-  onMathsChallengeComplete(window._chalDur, window._chalStartPos, window._chalPosKey);
-}
-
-function onMathsChallengeComplete(dur, startPos, posKey){
-  const cardsStudied = current + 1;
-  localStorage.setItem(posKey, String((startPos + cardsStudied) % ALL_CARDS.length));
-  const today = new Date();
-  const dateKey = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-  const _uid = localStorage.getItem('gsc_userId') || 'shared';
-  const _ck = 'gsc_challenges_' + _uid;
-  const stored = JSON.parse(localStorage.getItem(_ck) || '{}');
-  if (!stored[dateKey]) stored[dateKey] = {};
-  stored[dateKey]['maths' + dur] = true;
-  localStorage.setItem(_ck, JSON.stringify(stored));
-  document.getElementById('ccSub').textContent = 'You nailed the ' + dur + '-minute Maths challenge! 🎉';
-  document.getElementById('ccCards').textContent = '🃏 ' + cardsStudied + ' card' + (cardsStudied !== 1 ? 's' : '') + ' studied';
-  document.getElementById('challengeComplete').classList.add('show');
-  playCelebrate();
-}
-
-function continueAfterChallenge(){
-  document.getElementById('challengeComplete').classList.remove('show');
-}
-</script>
-<!-- Challenge timer bar -->
-<div id="challengeBar">
-  <div class="ct-label" id="ctLabel">⏱️ 15-min</div>
-  <div class="ct-track"><div class="ct-fill" id="ctFill"></div></div>
-  <div class="ct-time" id="ctTime">15:00</div>
-  <button class="ct-finish" onclick="finishChallengeEarly()">Done ✓</button>
-</div>
-<!-- Challenge complete overlay -->
-<div id="challengeComplete">
-  <div class="cc-orb">🎉</div>
-  <div class="cc-title">Challenge Complete!</div>
-  <div class="cc-sub" id="ccSub">You nailed the challenge!</div>
-  <div class="cc-cards" id="ccCards">🃏 0 cards studied</div>
-  <div class="cc-note">Remaining cards saved — next challenge continues here 🔖</div>
-  <button class="cc-btn cc-btn-primary" onclick="window.location.href='Maths_Flashcards.html?challenge=15'" style="background:linear-gradient(90deg,#1d4ed8,#60a5fa);">+ Another 15-min Challenge</button>
-  <button class="cc-btn cc-btn-primary" onclick="window.location.href='index.html'">🏠 Back to Home</button>
-  <button class="cc-btn cc-btn-secondary" onclick="continueAfterChallenge()">Keep going →</button>
-</div>
-<script>
-(function(){
-  var canvas=document.getElementById("starCanvas"),ctx=canvas.getContext("2d"),W,H,stars=[];
-  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-  resize();window.addEventListener("resize",resize);
-  for(var i=0;i<200;i++)stars.push({x:Math.random()*99999,y:Math.random()*99999,r:Math.random()*1.8+0.3,s:Math.random()*0.4+0.1,a:Math.random()*Math.PI*2,blink:Math.random()*Math.PI*2,bspeed:Math.random()*0.02+0.005});
-  function draw(){ctx.clearRect(0,0,W,H);stars.forEach(function(s){var ox=((s.x+s.a*s.s*120)%W+W)%W,oy=((s.y+s.a*s.s*60)%H+H)%H,alpha=0.45+0.55*Math.sin(s.blink);ctx.beginPath();ctx.arc(ox,oy,s.r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,"+alpha+")";ctx.fill();s.a+=s.s*0.005;s.blink+=s.bspeed;});requestAnimationFrame(draw);}
-  draw();
-})();
-</script>
-</body>
-</html>
+  isFlipped=false
