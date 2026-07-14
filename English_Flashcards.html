@@ -42,8 +42,6 @@ body.theme-neon #themeDecor{background-image:repeating-linear-gradient(0deg,tran
 .level-badge{color:var(--ta-text) !important;}
 .mascot-bubble{border-color:var(--ta-border) !important;}
 .stat-pill{border-color:var(--ta-border) !important;}
-.flip-btn{box-shadow:0 4px 20px var(--ta-glow) !important;}
-.flip-btn:hover{box-shadow:0 6px 28px var(--ta-glow) !important;}
 @keyframes twinkleStar{0%,100%{opacity:0.7;transform:scale(1);}50%{opacity:0.1;transform:scale(0.4);}}
 @keyframes flicker{0%{opacity:1;}100%{opacity:0.55;transform:scale(0.95);}}
 @keyframes moteDrift{0%{transform:translateY(0) translateX(0);opacity:0;}20%{opacity:0.65;}80%{opacity:0.35;}100%{transform:translateY(-130px) translateX(10px);opacity:0;}}
@@ -118,15 +116,18 @@ body.theme-neon #themeDecor{background-image:repeating-linear-gradient(0deg,tran
 .cv-toolbar{display:flex;align-items:center;gap:4px;margin-bottom:8px;flex-wrap:nowrap;overflow:hidden;}
 .font-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-weight:700;transition:background 0.15s;min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
 .font-btn.fb-active{background:rgba(100,149,237,0.35);border-color:rgba(100,149,237,0.7);}
-.quiz-toggle-btn{background:rgba(100,149,237,0.12);border:1px solid rgba(100,149,237,0.3);border-radius:8px;color:#90caf9;cursor:pointer;padding:5px 10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;transition:background 0.15s;min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
-.quiz-toggle-btn.qt-active{background:rgba(100,149,237,0.4);border-color:#6495ed;}
-.mute-btn,.shuffle-btn,.back-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
-.back-btn{border-radius:10px;padding:7px 14px;min-height:44px;min-width:44px;position:relative;z-index:10;}
+.quiz-row{width:100%;margin-bottom:8px;}
+.quiz-toggle-btn{width:100%;padding:14px 20px;border-radius:16px;border:2px solid var(--ta-border);background:var(--ta-dark);color:var(--ta-text);font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;transition:background 0.15s,transform 0.12s,box-shadow 0.15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.3px;}
+.quiz-toggle-btn.qt-active{background:var(--ta-glow);border-color:var(--ta);color:#fff;box-shadow:0 0 22px var(--ta-glow);}
+.quiz-toggle-btn:hover{transform:translateY(-1px);}
+.mute-btn,.shuffle-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#e8eaf6;cursor:pointer;padding:5px 10px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+.back-btn{display:none;position:fixed;bottom:max(22px,env(safe-area-inset-bottom,22px));left:50%;transform:translateX(-50%);background:rgba(30,30,60,0.85);border:1px solid rgba(255,255,255,0.22);color:#e8eaf6;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:12px 26px;border-radius:30px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:90;touch-action:manipulation;-webkit-tap-highlight-color:transparent;white-space:nowrap;min-height:48px;align-items:center;gap:6px;}
+.back-btn.visible{display:flex;}
+.back-btn:hover{background:rgba(50,50,90,0.9);transform:translateX(-50%) translateY(-2px);}
 .toolbar-spacer{flex:1;min-width:4px;}
-.mute-btn:hover,.shuffle-btn:hover,.back-btn:hover{background:rgba(255,255,255,0.16);}
+.mute-btn:hover,.shuffle-btn:hover{background:rgba(255,255,255,0.16);}
 @media(max-width:390px){
   .font-btn,.mute-btn,.shuffle-btn{padding:4px 7px;font-size:12px;}
-  .quiz-toggle-btn{padding:4px 7px;font-size:12px;}
   .cv-toolbar{gap:3px;}
 }
 .session-bar{display:flex;gap:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 16px;margin-bottom:10px;justify-content:center;flex-wrap:wrap;}
@@ -147,10 +148,8 @@ body.admin-preview .card-session{display:block;}
 .card-emoji-big{font-size:44px;margin:6px 0 14px;line-height:1;}
 #cardQuestion{font-size:18px;font-weight:800;line-height:1.55;white-space:pre-wrap;}
 #cardAnswer{font-size:15px;line-height:1.78;white-space:pre-wrap;}
-.flip-hint{font-size:12px;opacity:0.4;margin-top:auto;text-align:center;padding-top:14px;}
-.flip-btn{width:100%;padding:13px;border-radius:14px;border:1.5px solid var(--ta-border);color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px;background:rgba(0,0,0,0.35);box-shadow:0 4px 20px var(--ta-glow);transition:transform 0.12s,box-shadow 0.12s;}
-.flip-btn:active{transform:scale(0.96)!important;}
-.flip-btn:hover{transform:translateY(-2px);box-shadow:0 6px 26px rgba(66,165,245,0.55);}
+.flip-hint{display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:800;color:var(--ta-text);background:var(--ta-dark);border:1.5px solid var(--ta-border);border-radius:24px;padding:9px 20px;margin-top:auto;align-self:center;animation:hintPulse 2.2s ease-in-out infinite;}
+@keyframes hintPulse{0%,100%{opacity:0.65;transform:scale(1);}50%{opacity:1;transform:scale(1.03);}}
 .rating-wrap{display:none;flex-direction:row;gap:10px;margin-bottom:10px;}
 .rating-wrap.rw-show{display:flex;}
 .btn-got,.btn-hard{flex:1;padding:12px;border-radius:14px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.12s,box-shadow 0.12s;min-height:50px;}
@@ -222,7 +221,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   .tile-name{font-size:11px;}
   .card-face-front,.card-face-back{padding:20px 16px;min-height:260px;}
   #cardQuestion{font-size:16px;}
-  .nav-btn,.flip-btn,.btn-got,.btn-hard{min-height:52px;font-size:15px;}
+  .nav-btn,.btn-got,.btn-hard{min-height:52px;font-size:15px;}
   .session-bar{gap:8px;}
   .session-bar span{font-size:12px;}
   .summary-card{padding:24px 16px;}
@@ -296,21 +295,25 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   <a href="index.html" class="home-link">🏠 Back to Home</a>
 </div>
 
+<!-- floating back button (shown only in card view) -->
+<button class="back-btn" id="cvBackBtn" onclick="goBackToTopics()">← Topics</button>
+
 <!-- ══ CARD VIEW ══ -->
 <div class="page card-view" id="cardView">
   <div class="page-header">
-    <button class="back-btn" onclick="goBackToTopics()">← Back</button>
     <div class="page-header-text">
       <h2 id="cvTitle"></h2>
       <p id="cvSub"></p>
     </div>
+  </div>
+  <div class="quiz-row">
+    <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz Mode</button>
   </div>
   <div class="cv-toolbar">
     <button class="font-btn" onclick="setFont('sm')" id="fbSm">A-</button>
     <button class="font-btn fb-active" onclick="setFont('md')" id="fbMd">A</button>
     <button class="font-btn" onclick="setFont('lg')" id="fbLg">A+</button>
     <div class="toolbar-spacer"></div>
-    <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz</button>
     <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
     <button class="shuffle-btn" onclick="shuffleCards()">🔀</button>
   </div>
@@ -327,7 +330,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
         <div class="card-session" id="frontSession"></div>
         <div class="card-emoji-big" id="cardEmoji"></div>
         <div id="cardQuestion"></div>
-        <div class="flip-hint">Tap to reveal answer ✨</div>
+        <div class="flip-hint">👆 Tap to reveal answer</div>
       </div>
       <div class="card-face-back" id="cardBack">
         <div class="card-tag" id="backTag"></div>
@@ -336,7 +339,6 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
       </div>
     </div>
   </div>
-  <button class="flip-btn" id="flipBtn" onclick="flipCard()">Tap to Flip 🦉</button>
   <div class="rating-wrap" id="ratingWrap">
     <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
     <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
@@ -919,6 +921,7 @@ function _enterCardView(){window.scrollTo(0,0);
   document.getElementById("topicView").style.display="none";
   var cv=document.getElementById("cardView");cv.style.display="block";cv.classList.add('slide-in-right');
   setTimeout(function(){cv.classList.remove('slide-in-right');},300);
+  var bb=document.getElementById("cvBackBtn");if(bb)bb.classList.add("visible");
   mascotSay(_pick(MASCOT_START),false);
   renderCard();
 }
@@ -945,6 +948,7 @@ function enterTopic(topic){
 }
 
 function goBackToTopics(){window.scrollTo(0,0);
+  var bb=document.getElementById("cvBackBtn");if(bb)bb.classList.remove("visible");
   document.getElementById("cardView").style.display="none";
   var tv=document.getElementById("topicView");tv.style.display="block";
   tv.classList.add('slide-in-left');setTimeout(function(){tv.classList.remove('slide-in-left');},300);
@@ -1042,7 +1046,7 @@ buildTopicGrid();
 
 // ── iOS back button fix ───────────────────────────────────────────
 (function(){
-  var bb=document.querySelector('.back-btn');
+  var bb=document.getElementById('cvBackBtn');
   if(bb) bb.addEventListener('touchend',function(e){e.preventDefault();goBackToTopics();},{passive:false});
 })();
 
