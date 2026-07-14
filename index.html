@@ -842,4 +842,58 @@ async function saveThemeChange() {
 }
 
 // Daily Challenges
-function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+
+function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+
+function getTodayChallenges(){
+  try { return JSON.parse(localStorage.getItem('gsc_challenges')||'{}')[_dateKey()]||{}; } catch(e){ return {}; }
+}
+
+async function syncChallengeCompletions(userId){
+  try {
+    const snap = await db.collection('users').doc(userId).get();
+    if (!snap.exists) return;
+    const d = snap.data();
+    if (d.challenges) {
+      const local = JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
+      Object.keys(d.challenges).forEach(k => { if (!local[k]) local[k]={}; Object.assign(local[k], d.challenges[k]); });
+      localStorage.setItem('gsc_challenges', JSON.stringify(local));
+      renderChallengePanel(getTodayChallenges());
+    }
+  } catch(e) {}
+}
+
+function _getChallengeStreak(){
+  try {
+    const stored = JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
+    let streak=0, d=new Date();
+    while(streak<365){
+      const key=_dateKey(d), day=stored[key]||{};
+      if(Object.keys(day).length===0) break;
+      streak++; d.setDate(d.getDate()-1);
+    }
+    return streak;
+  } catch(e){ return 0; }
+}
+
+function renderChallengePanel(done){
+  const streak = _getChallengeStreak();
+  const sp = document.getElementById('challengeStreakPill');
+  if(sp){ if(streak>0){ sp.textContent='🔥 '+streak; sp.style.display=''; } else { sp.style.display='none'; } }
+  const grid = document.getElementById('challengeGrid');
+  if(!grid) return;
+  const tiles = grid.querySelectorAll('[onclick]');
+  const mDone = done['maths15']||done['maths30'];
+  const eDone = done['english15']||done['english30'];
+  if(tiles[0]){ tiles[0].style.opacity = mDone ? '0.55' : '1'; tiles[0].style.outline = mDone ? '2px solid rgba(74,222,128,0.6)' : 'none'; }
+  if(tiles[1]){ tiles[1].style.opacity = eDone ? '0.55' : '1'; tiles[1].style.outline = eDone ? '2px solid rgba(74,222,128,0.6)' : 'none'; }
+}
+
+function goToChallenge(subject, mins){
+  if(currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
+  window.location.href = (subject==='maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html') + '?challenge='+mins;
+}
+
+init();
+</script>
+</body>
+</html>
