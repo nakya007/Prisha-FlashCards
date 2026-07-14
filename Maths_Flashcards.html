@@ -32,6 +32,7 @@ body.theme-superhero{background:linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#0
 body.theme-dragon   {background:linear-gradient(180deg,#1a0500 0%,#2d0a00 40%,#0a0200 100%);color:#fed7aa;}
 body.theme-crystal  {background:linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%);color:#e9d5ff;}
 body.theme-neon     {background:linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%);color:#f0abfc;}
+body.theme-fairy    {background:linear-gradient(160deg,#1a0a2e 0%,#2d1452 55%,#0f0520 100%);color:#fce7f3;}
 body.theme-candy   #themeDecor{background-image:radial-gradient(circle,rgba(244,114,182,0.09) 1px,transparent 1px);background-size:24px 24px;}
 body.theme-superhero #themeDecor{background:repeating-linear-gradient(0deg,transparent,transparent 29px,rgba(239,68,68,0.06) 29px,rgba(239,68,68,0.06) 30px),repeating-linear-gradient(90deg,transparent,transparent 29px,rgba(239,68,68,0.03) 29px,rgba(239,68,68,0.03) 30px);}
 body.theme-superhero #themeDecor::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#dc2626,#b91c1c,#dc2626);}
@@ -583,6 +584,7 @@ const MASCOT_SETS={
   dragon:   {mascot:'🐉',got:['Scorching answer! 🔥','Dragon-level genius! 🐉','Fire! 🔥 Brilliant!','The hoard grows! 💰'],hard:['Even dragons learn to fly! 💪','The flame grows stronger! 🔥','Keep breathing fire! 🐉'],start:['The dragon awakens! 🐉','Breathe fire into your studies! 🔥','Quest begins! ⚔️']},
   crystal:  {mascot:'🔮',got:['Crystal clear! 💎','Dazzling! 🔮','Brilliantly faceted! 💎','The crystal glows! 🔮'],hard:['Even gems need polishing! 💎','The crystal sees your potential! 🔮','Keep shining! ✨'],start:['The crystal magic begins! 🔮','Unlock your power! 💎','Shine bright! ✨']},
   neon:     {mascot:'🤖',got:['Error rate: 0%! 🤖','System optimal! ⚡','Data processed! 💡','Upgrade complete! 🌆'],hard:['Recalibrating... 🔄','Every glitch is fixable! 🤖','System learning... ⚡'],start:['Booting up! 🤖','Initialising genius mode! 💡','System online! 🌆']},
+  fairy:    {mascot:'🧚',got:['Magical! 🌟','Sparkling genius! 🧚','Fairy-tale perfect! ✨','You cast a spell of brilliance! 💫'],hard:['Even fairies practise their magic! 💪','Sprinkle more effort! 🧚','Your wings are growing! ✨'],start:['The fairy garden awakens! 🌸','Sprinkle some magic! 🧚','Your quest begins! ✨']},
 };
 var MASCOT_GOT=MASCOT_SETS.space.got;
 var MASCOT_HARD=MASCOT_SETS.space.hard;
@@ -805,6 +807,7 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
     dragon:   {name:"Dragon's Keep",   emoji:'🐉', xp:'linear-gradient(90deg,#9a3412,#fb923c)', a:'#fb923c',ag:'rgba(251,146,60,0.35)', ab:'rgba(251,146,60,0.45)', at:'#fed7aa',ad:'rgba(154,52,18,0.22)'},
     crystal:  {name:'Crystal Cavern',  emoji:'🔮', xp:'linear-gradient(90deg,#6d28d9,#a78bfa)', a:'#a78bfa',ag:'rgba(167,139,250,0.35)',ab:'rgba(167,139,250,0.45)',at:'#e9d5ff',ad:'rgba(109,40,217,0.22)'},
     neon:     {name:'Neon City',       emoji:'🤖', xp:'linear-gradient(90deg,#86198f,#f0abfc)', a:'#f0abfc',ag:'rgba(240,171,252,0.35)',ab:'rgba(240,171,252,0.45)',at:'#f0abfc',ad:'rgba(134,25,143,0.22)'},
+    fairy:    {name:'Fairy Garden',    emoji:'🧚', xp:'linear-gradient(90deg,#9d174d,#f9a8d4)', a:'#f9a8d4',ag:'rgba(249,168,212,0.35)',ab:'rgba(249,168,212,0.45)',at:'#fce7f3',ad:'rgba(190,24,93,0.22)'},
   };
   function _setTV(key){
     const t=MINI_THEMES[key]||MINI_THEMES.space, r=document.documentElement;
@@ -927,6 +930,21 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
       [{l:'18%',t:'12%',c:'rgba(240,171,252,0.08)'},{l:'62%',t:'42%',c:'rgba(34,211,238,0.07)'},{l:'38%',t:'72%',c:'rgba(240,171,252,0.06)'}].forEach(p=>{
         const el=document.createElement('div');
         el.style.cssText=`position:absolute;left:${p.l};top:${p.t};width:110px;height:65px;background:radial-gradient(ellipse,${p.c},transparent 70%);border-radius:50%;animation:cosmicPulse ${(2+Math.random()*2).toFixed(1)}s ease-in-out infinite alternate;`;
+        d.appendChild(el);
+      });
+    } else if(key==='fairy'){
+      const shapes=['✨','⋆','✦','✧','✺','★'];
+      const cols=['#f9a8d4','#fbcfe8','#e9d5ff','#fde68a','#f0abfc','#fce7f3'];
+      for(let i=0;i<26;i++){
+        const el=document.createElement('div');
+        el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+        const sz=9+Math.random()*16, col=cols[Math.floor(Math.random()*cols.length)];
+        el.style.cssText=`position:absolute;left:${(Math.random()*95).toFixed(1)}%;bottom:${(Math.random()*80).toFixed(1)}%;font-size:${sz.toFixed(0)}px;color:${col};opacity:${(0.18+Math.random()*0.5).toFixed(2)};animation:moteDrift ${(3.5+Math.random()*4).toFixed(1)}s ${(Math.random()*5).toFixed(1)}s ease-in infinite;text-shadow:0 0 10px ${col};pointer-events:none;`;
+        d.appendChild(el);
+      }
+      [{l:'15%',t:'8%',c:'rgba(249,168,212,0.10)'},{l:'60%',t:'25%',c:'rgba(233,213,255,0.09)'},{l:'38%',t:'65%',c:'rgba(244,114,182,0.08)'},{l:'80%',t:'55%',c:'rgba(249,168,212,0.07)'}].forEach(p=>{
+        const el=document.createElement('div');
+        el.style.cssText=`position:absolute;left:${p.l};top:${p.t};width:100px;height:60px;background:radial-gradient(ellipse,${p.c},transparent 70%);border-radius:50%;animation:cosmicPulse ${(2.5+Math.random()*3).toFixed(1)}s ease-in-out infinite alternate;`;
         d.appendChild(el);
       });
     }
