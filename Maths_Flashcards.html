@@ -7,6 +7,12 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎯 Maths Flashcards — 11+ Exam Prep</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GSPrep">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#5a46dc">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -1132,6 +1138,11 @@ function continueAfterChallenge(){
   function draw(){ctx.clearRect(0,0,W,H);stars.forEach(function(l){var ox=((l.x+l.s*300)%W+W)%W,oy=((l.y+l.s*200)%H+H)%H,alpha=0.2+0.6*Math.abs(Math.sin(l.blink));ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=l.color;ctx.beginPath();ctx.arc(ox,oy,l.r,0,Math.PI*2);ctx.fill();ctx.restore();l.x+=l.s*0.5;l.blink+=l.bspeed;});requestAnimationFrame(draw);}
   draw();
 })();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
 </script>
 </body>
 </html>
