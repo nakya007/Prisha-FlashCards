@@ -456,6 +456,20 @@ function _ratings(){return lsGet(_uk('gsc_ratings'),{});}
 function _key(t,q){return t+'||'+q;}
 function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;lsSet(_uk('gsc_ratings'),r);}
 function getCardRating(t,q){return _ratings()[_key(t,q)]||null;}
+/* ── Spaced repetition: hard cards appear every 3rd slot ── */
+function _weightedOrder(cards){
+  var r=_ratings();
+  var hard=cards.filter(function(c){return r[_key(c.topic,c.q)]==='hard';});
+  var easy=cards.filter(function(c){return r[_key(c.topic,c.q)]!=='hard';});
+  if(!hard.length) return cards;
+  var out=[],hi=0,ei=0,total=cards.length;
+  for(var i=0;i<total;i++){
+    if(hi<hard.length&&i%3===0) out.push(hard[hi++]);
+    else if(ei<easy.length) out.push(easy[ei++]);
+    else out.push(hard[hi++]);
+  }
+  return out;
+}
 function showRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.add('rw-show');}
 function hideRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.remove('rw-show');}
 function rateCard(val){
@@ -953,6 +967,7 @@ function enterTopic(topic){
     var bC=/formula card|formula|what is|what are|how do|rules|definition/i.test(b.q)?0:1;
     return aC-bC;
   });
+  filtered=_weightedOrder(filtered);
   current=0;isFlipped=false;_enterCardView();
 }
 
@@ -1018,7 +1033,18 @@ function navigate(dir){
 }
 
 function shuffleCards(){
-  for(let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
+  var r=_ratings();
+  var hard=filtered.filter(function(c){return r[_key(c.topic,c.q)]==='hard';});
+  var easy=filtered.filter(function(c){return r[_key(c.topic,c.q)]!=='hard';});
+  hard.sort(function(){return Math.random()-0.5;});
+  easy.sort(function(){return Math.random()-0.5;});
+  var out=[],hi=0,ei=0,total=filtered.length;
+  for(var i=0;i<total;i++){
+    if(hi<hard.length&&i%3===0) out.push(hard[hi++]);
+    else if(ei<easy.length) out.push(easy[ei++]);
+    else out.push(hard[hi++]);
+  }
+  filtered=out;
   current=0;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();
 }
 
