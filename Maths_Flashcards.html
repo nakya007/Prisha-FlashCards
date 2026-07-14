@@ -298,9 +298,9 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 <!-- ══ TOPIC VIEW ══ -->
 <div class="page topic-view" id="topicView">
   <div class="hero-header">
-    <span class="hero-badge" id="heroBadge">🧑‍🚀</span>
+    <span class="hero-badge" id="heroBadge">🚀</span>
     <h1 class="hero-title">Maths Flashcards</h1>
-    <p class="hero-sub" id="heroSubMaths">🌌 Space Explorer · 11+ Prep</p>
+    <p class="hero-sub" id="heroSubMaths">🚀 Space Explorer · 11+ Prep</p>
     <div class="streak-badge" id="streakBadge"></div>
   </div>
   <div class="xp-bar-wrap">
@@ -314,7 +314,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
     <div class="stat-pill"><span class="stat-val" id="statXPTotal">0</span><span class="stat-lbl">Total XP</span></div>
   </div>
   <div class="mascot-wrap">
-    <span class="mascot-emoji" id="mascotEmoji">🧑‍🚀</span>
+    <span class="mascot-emoji" id="mascotEmoji">🚀</span>
     <div class="mascot-bubble" id="mascotBubble">Ready to explore the cosmos of knowledge? 🌌</div>
   </div>
   <div class="focus-section" id="focusSection">
@@ -390,7 +390,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 <div class="summary-screen" id="summaryScreen">
   <canvas id="confettiCanvas"></canvas>
   <div class="summary-card">
-    <span class="summary-mascot" id="summaryMascot">🧑‍🚀</span>
+    <span class="summary-mascot" id="summaryMascot">🚀</span>
     <div class="summary-title" id="summaryTitle">Mission Complete!</div>
     <div class="summary-sub" id="summarySub">You're out of this world! 🌌</div>
     <div class="summary-stats">
@@ -548,7 +548,7 @@ function hideBadges(){document.getElementById('badgesModal').classList.remove('b
 
 /* ── Mascot ── */
 const MASCOT_SETS={
-  space:    {mascot:'🧑‍🚀',got:['Stellar! ⭐','Houston, we have a genius! 🏆','Out of this world! 🌌','Perfect trajectory! 🎯'],hard:['Even astronauts need extra training! 💪','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'],start:['Mission launched! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸']},
+  space:    {mascot:'🚀',got:['Stellar! ⭐','Houston, we have a genius! 🏆','Out of this world! 🌌','Perfect trajectory! 🎯'],hard:['Even astronauts need extra training! 💪','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'],start:['Mission launched! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸']},
   library:  {mascot:'🦉',got:['Brilliant! The owl is proud! 🦉','Splendid! 📖','The library glows! 🌟','Magnificently done! ✨'],hard:['Even scholars need practice! 💪','The owl believes in you! 🦉','Keep turning the pages! 📚'],start:['The library awaits! 📖','Wisdom begins here! 🦉','Open the book and begin! ✨']},
   ocean:    {mascot:'🐬',got:['Splash-tastic! 🐬','Riding the wave! 🌊','Deep knowledge! 🌊','You\'re on a roll! 🏄'],hard:['Even dolphins practise every day! 💙','Dive deeper — you\'ll get it! 🌊','Keep swimming! 🐬'],start:['Dive in! 🌊','Time to make a splash! 🐬','The ocean awaits! 🌊']},
   candy:    {mascot:'🍭',got:['Sweet! 🍭','Deliciously correct! 🍬','Sprinkle-tastic! ✨','Sugar-rush smart! 🍭'],hard:['Every sweet takes work! 💪','The fairy believes in you! 🧚','Keep going — candy awaits! 🍬'],start:['Let\'s make magic! 🧚','The candy kingdom is ready! 🍭','Sprinkle some brilliance! ✨']},
@@ -726,13 +726,13 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
   const MINI_THEMES={
     space:    {name:'Space Explorer',  emoji:'🚀', xp:'linear-gradient(90deg,#4338ca,#818cf8)', a:'#818cf8',ag:'rgba(129,140,248,0.35)',ab:'rgba(129,140,248,0.45)',at:'#c7d2fe',ad:'rgba(67,56,202,0.22)'},
     library:  {name:'Enchanted Library',emoji:'🦉', xp:'linear-gradient(90deg,#b45309,#fbbf24)', a:'#fbbf24',ag:'rgba(251,191,36,0.35)', ab:'rgba(251,191,36,0.45)', at:'#fde68a',ad:'rgba(146,64,14,0.22)'},
-    ocean:    {name:'Ocean Deep',      emoji:'🌊', xp:'linear-gradient(90deg,#0e7490,#22d3ee)', a:'#22d3ee',ag:'rgba(34,211,238,0.35)', ab:'rgba(34,211,238,0.45)', at:'#a5f3fc',ad:'rgba(14,116,144,0.22)'},
+    ocean:    {name:'Ocean Deep',      emoji:'🐬', xp:'linear-gradient(90deg,#0e7490,#22d3ee)', a:'#22d3ee',ag:'rgba(34,211,238,0.35)', ab:'rgba(34,211,238,0.45)', at:'#a5f3fc',ad:'rgba(14,116,144,0.22)'},
     candy:    {name:'Candy Kingdom',   emoji:'🍭', xp:'linear-gradient(90deg,#7e22ce,#e879f9)', a:'#e879f9',ag:'rgba(232,121,249,0.35)',ab:'rgba(232,121,249,0.45)',at:'#f5d0fe',ad:'rgba(126,34,206,0.22)'},
-    jungle:   {name:'Jungle Quest',    emoji:'🌿', xp:'linear-gradient(90deg,#15803d,#4ade80)', a:'#4ade80',ag:'rgba(74,222,128,0.35)', ab:'rgba(74,222,128,0.45)', at:'#bbf7d0',ad:'rgba(21,128,61,0.22)'},
-    superhero:{name:'Superhero HQ',    emoji:'⚡', xp:'linear-gradient(90deg,#991b1b,#f87171)', a:'#f87171',ag:'rgba(248,113,113,0.35)',ab:'rgba(248,113,113,0.45)',at:'#fecaca',ad:'rgba(153,27,27,0.22)'},
+    jungle:   {name:'Jungle Quest',    emoji:'🐯', xp:'linear-gradient(90deg,#15803d,#4ade80)', a:'#4ade80',ag:'rgba(74,222,128,0.35)', ab:'rgba(74,222,128,0.45)', at:'#bbf7d0',ad:'rgba(21,128,61,0.22)'},
+    superhero:{name:'Superhero HQ',    emoji:'🦸', xp:'linear-gradient(90deg,#991b1b,#f87171)', a:'#f87171',ag:'rgba(248,113,113,0.35)',ab:'rgba(248,113,113,0.45)',at:'#fecaca',ad:'rgba(153,27,27,0.22)'},
     dragon:   {name:"Dragon's Keep",   emoji:'🐉', xp:'linear-gradient(90deg,#9a3412,#fb923c)', a:'#fb923c',ag:'rgba(251,146,60,0.35)', ab:'rgba(251,146,60,0.45)', at:'#fed7aa',ad:'rgba(154,52,18,0.22)'},
-    crystal:  {name:'Crystal Cavern',  emoji:'💎', xp:'linear-gradient(90deg,#6d28d9,#a78bfa)', a:'#a78bfa',ag:'rgba(167,139,250,0.35)',ab:'rgba(167,139,250,0.45)',at:'#e9d5ff',ad:'rgba(109,40,217,0.22)'},
-    neon:     {name:'Neon City',       emoji:'🌆', xp:'linear-gradient(90deg,#86198f,#f0abfc)', a:'#f0abfc',ag:'rgba(240,171,252,0.35)',ab:'rgba(240,171,252,0.45)',at:'#f0abfc',ad:'rgba(134,25,143,0.22)'},
+    crystal:  {name:'Crystal Cavern',  emoji:'🔮', xp:'linear-gradient(90deg,#6d28d9,#a78bfa)', a:'#a78bfa',ag:'rgba(167,139,250,0.35)',ab:'rgba(167,139,250,0.45)',at:'#e9d5ff',ad:'rgba(109,40,217,0.22)'},
+    neon:     {name:'Neon City',       emoji:'🤖', xp:'linear-gradient(90deg,#86198f,#f0abfc)', a:'#f0abfc',ag:'rgba(240,171,252,0.35)',ab:'rgba(240,171,252,0.45)',at:'#f0abfc',ad:'rgba(134,25,143,0.22)'},
   };
   function _setTV(key){
     const t=MINI_THEMES[key]||MINI_THEMES.space, r=document.documentElement;
