@@ -835,8 +835,8 @@ function closeThemeChanger() { document.getElementById('themeOverlay').classList
 function overlayClick(e) { if (e.target===document.getElementById('themeOverlay')) closeThemeChanger(); }
 async function saveThemeChange() {
   const t = THEMES[pendingTheme]||THEMES.space;
-  if (pendingSubject==='maths') { currentProfile.themeMaths=pendingTheme; document.getElementById('chipMathsEmoji').textContent=t.emoji; document.getElementById('chipMathsName').textContent=t.name; applyTheme(pendingTheme); }
-  else { currentProfile.themeEnglish=pendingTheme; document.getElementById('chipEnglishEmoji').textContent=t.emoji; document.getElementById('chipEnglishName').textContent=t.name; }
+  if (pendingSubject==='maths') { currentProfile.themeMaths=pendingTheme; document.getElementById('chipMathsEmoji').textContent=t.emoji; document.getElementById('chipMathsName').textContent=t.name; applyTheme(pendingTheme); const sbm=document.getElementById('sbMathsIcon'); if(sbm) sbm.textContent=t.mascot||'🧑‍🚀'; }
+  else { currentProfile.themeEnglish=pendingTheme; document.getElementById('chipEnglishEmoji').textContent=t.emoji; document.getElementById('chipEnglishName').textContent=t.name; const sbe=document.getElementById('sbEnglishIcon'); if(sbe) sbe.textContent=t.mascot||'🦉'; }
   saveProfileEntry(currentProfile.id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
   closeThemeChanger();
   try { await db.collection('users').doc(currentProfile.id).update(pendingSubject==='maths' ? {themeMaths:pendingTheme} : {themeEnglish:pendingTheme}); } catch(e) {}
