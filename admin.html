@@ -255,6 +255,17 @@ const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 
 // ── Auth (Google Sign-In via Firebase) ──────────────────────────────
 const auth = firebase.auth();
+const _isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// Handle redirect result on page load (for mobile flow)
+firebase.auth().getRedirectResult().then(result => {
+  // onAuthStateChanged handles the actual sign-in
+}).catch(err => {
+  if (err.code !== 'auth/no-auth-event') {
+    const errEl = document.getElementById('signinErr');
+    if (errEl) errEl.textContent = '❌ Sign-in failed: ' + err.message;
+  }
+});
 
 firebase.auth().onAuthStateChanged(user => {
   if (user && user.email === ADMIN_EMAIL) {
@@ -268,12 +279,17 @@ firebase.auth().onAuthStateChanged(user => {
 
 function adminSignIn() {
   const errEl = document.getElementById('signinErr');
-  errEl.textContent = '';
+  errEl.textContent = 'Signing in…';
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
-  auth.signInWithPopup(provider).catch(err => {
-    errEl.textContent = '❌ Sign-in failed: ' + err.message;
-  });
+  if (_isMobile) {
+    // Redirect is more reliable on iOS Safari (avoids sessionStorage popup issues)
+    auth.signInWithRedirect(provider);
+  } else {
+    auth.signInWithPopup(provider).catch(err => {
+      errEl.textContent = '❌ Sign-in failed: ' + err.message;
+    });
+  }
 }
 
 function signOut() {
@@ -410,7 +426,7 @@ function buildStudentCard(s) {
   // Strengths/weaknesses from ratings
   const topicStats = {};
   Object.entries(ratings).forEach(([key, val]) => {
-    const parts = key.split('__');
+    const parts = key.split('||');
     const topic = parts[0] || 'Unknown';
     if (!topicStats[topic]) topicStats[topic] = {got:0, hard:0, total:0};
     topicStats[topic].total++;
@@ -487,7 +503,7 @@ function openReport(sJson) {
   // Topic breakdown
   const topicStats = {};
   Object.entries(ratings).forEach(([key, val]) => {
-    const topic = key.split('__')[0] || 'Unknown';
+    const topic = key.split('||')[0] || 'Unknown';
     if (!topicStats[topic]) topicStats[topic] = {got:0, hard:0, total:0};
     topicStats[topic].total++;
     if (val === 'got')  topicStats[topic].got++;
