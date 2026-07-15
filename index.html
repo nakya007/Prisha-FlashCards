@@ -520,6 +520,39 @@ async function _loadProfile(id) {
       saveProfileEntry(id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
       localStorage.setItem('gsc_userId', id);
       sessionStorage.setItem('gsc_session_user', id); // PIN verified — remember for this session
+
+      // ── Merge Firestore → localStorage (take the higher value so no data is lost) ──
+      const fsData = snap.data();
+      const lsXp = parseInt(localStorage.getItem('gsc_xp_'+id)||'0')||0;
+      const fsXp = fsData.xp || 0;
+      const mergedXp = Math.max(lsXp, fsXp);
+      localStorage.setItem('gsc_xp_'+id, JSON.stringify(mergedXp));
+
+      // Streak: take the higher count; keep today's date so streak logic doesn't break
+      const lsStreak = JSON.parse(localStorage.getItem('gsc_streak_'+id)||'{"day":"","count":0}');
+      const fsStreakCount = fsData.streak || 0;
+      if (fsStreakCount > (lsStreak.count || 0)) {
+        const today = (function(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();})();
+        localStorage.setItem('gsc_streak_'+id, JSON.stringify({day: today, count: fsStreakCount}));
+      }
+
+      // Ratings: merge (Firestore wins for keys not in localStorage)
+      const lsRatings = JSON.parse(localStorage.getItem('gsc_ratings_'+id)||'{}');
+      const fsRatings = fsData.ratings || {};
+      const mergedRatings = Object.assign({}, fsRatings, lsRatings); // localStorage wins on conflict (more recent)
+      localStorage.setItem('gsc_ratings_'+id, JSON.stringify(mergedRatings));
+
+      // If localStorage had higher values, push them back to Firestore now
+      if (mergedXp > fsXp || Object.keys(mergedRatings).length > Object.keys(fsRatings).length) {
+        const lsStreakFinal = JSON.parse(localStorage.getItem('gsc_streak_'+id)||'{"count":0}');
+        db.collection('users').doc(id).update({
+          xp: mergedXp,
+          streak: lsStreakFinal.count || 0,
+          ratings: mergedRatings
+        }).catch(()=>{});
+      }
+      // ── End merge ──
+
       applyTheme(currentProfile.themeMaths || 'space');
       renderHome(); showScreen('screenHome');
       db.collection('users').doc(id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
@@ -849,6 +882,18 @@ async function createProfile() {
   if (!name)           { err.textContent='Please enter your name!'; return; }
   if (name.length < 2) { err.textContent='Name needs at least 2 letters.'; return; }
   if (!_newPin || _newPin.length < 4) { err.textContent='Please choose a 4-digit PIN first! 🔐'; return; }
+  const createBtn = document.getElementById('createBtn');
+  if (createBtn) createBtn.disabled = true;
+  err.textContent = 'Checking name…';
+  try {
+    const snap = await db.collection('users').get();
+    const taken = snap.docs.some(doc => {
+      const d = doc.data();
+      return d.name && d.name.toLowerCase() === name.toLowerCase();
+    });
+    if (taken) { err.textContent = '❌ That name is already taken — try a different one!'; if (createBtn) createBtn.disabled = false; return; }
+  } catch(e) { /* offline — proceed anyway */ }
+  if (createBtn) createBtn.disabled = false;
   err.textContent='';
   _pendingNewProfile = {
     name,
@@ -879,9 +924,9 @@ function renderHome() {
   const tm = THEMES[p.themeMaths]||THEMES.space, te = THEMES[p.themeEnglish]||THEMES.library;
   document.getElementById('homeGreeting').textContent = 'Hi, '+p.name+'! 👋';
   const _uid = p.id || localStorage.getItem('gsc_userId') || 'shared';
-  const xp      = parseInt(localStorage.getItem('gsc_xp_'+_uid)||'0')||p.xp||0;
+  const xp      = Math.max(parseInt(localStorage.getItem('gsc_xp_'+_uid)||'0')||0, p.xp||0);
   const _streakObj = JSON.parse(localStorage.getItem('gsc_streak_'+_uid)||'{"count":0}');
-  const streak  = (_streakObj.count||0) || p.streak || 0;
+  const streak  = Math.max(_streakObj.count||0, p.streak||0);
   const ratings = JSON.parse(localStorage.getItem('gsc_ratings_'+_uid)||'{}');
   const mastered = Object.values(ratings).filter(v=>v==='got').length;
   document.getElementById('statXP').textContent       = xp;
