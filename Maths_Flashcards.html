@@ -22,6 +22,8 @@ canvas#starCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-eve
 body:not(.theme-space) canvas{opacity:0!important;}
 /* ══ Theme system ══ */
 #themeDecor{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+/* Freeze all themeDecor animations during card view to reduce GPU load */
+body.cv-active #themeDecor *{animation-play-state:paused!important;}
 :root{--ta:#818cf8;--ta-glow:rgba(129,140,248,0.35);--ta-border:rgba(129,140,248,0.45);--ta-text:#c7d2fe;--ta-dark:rgba(67,56,202,0.22);--ta-xp:linear-gradient(90deg,#4338ca,#818cf8);}
 body.theme-space   {background:radial-gradient(ellipse at 50% 0%,#1a237e 0%,#060620 55%,#030310 100%);color:#e8eaf6;}
 body.theme-library {background:linear-gradient(180deg,#2c1810 0%,#1a0f08 55%,#0d0804 100%);color:#fde68a;}
@@ -119,7 +121,7 @@ body.theme-neon #themeDecor{background-image:repeating-linear-gradient(0deg,tran
 .tile-name{font-size:12px;font-weight:700;line-height:1.3;margin-bottom:4px;}
 .tile-count{font-size:11px;opacity:0.65;}
 .tile-progress{font-size:10px;margin-top:4px;opacity:0.8;color:#90caf9;}
-.home-link{position:fixed;bottom:max(22px,env(safe-area-inset-bottom,22px));left:22px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);color:#7986cb;text-decoration:none;font-size:13px;font-weight:700;padding:10px 16px;border-radius:24px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 16px rgba(0,0,0,0.35);z-index:40;transition:background 0.15s,transform 0.15s;}
+.home-link{position:fixed;bottom:max(22px,env(safe-area-inset-bottom,22px));left:22px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);color:#7986cb;text-decoration:none;font-size:13px;font-weight:700;padding:10px 16px;border-radius:24px;box-shadow:0 4px 16px rgba(0,0,0,0.35);z-index:40;transition:background 0.15s,transform 0.15s;}
 .home-link:hover{background:rgba(255,255,255,0.18);transform:translateY(-2px);}
 
 /* ── Badges FAB ── */
@@ -142,7 +144,7 @@ body.theme-neon #themeDecor{background-image:repeating-linear-gradient(0deg,tran
 .quiz-toggle-btn{width:100%;padding:12px 20px;border-radius:14px;border:1.5px solid var(--ta-border);background:var(--ta-dark);color:var(--ta-text);font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;cursor:pointer;transition:background 0.15s,transform 0.12s,box-shadow 0.15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.3px;}
 .quiz-toggle-btn.qt-active{background:var(--ta-glow);border-color:var(--ta);color:#fff;box-shadow:0 0 22px var(--ta-glow);}
 .quiz-toggle-btn:hover{transform:translateY(-1px);}
-.back-btn{display:none;position:fixed;bottom:max(22px,env(safe-area-inset-bottom,22px));left:50%;transform:translateX(-50%);background:rgba(30,30,60,0.85);border:1px solid rgba(255,255,255,0.22);color:#e8eaf6;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:12px 26px;border-radius:30px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:90;touch-action:manipulation;-webkit-tap-highlight-color:transparent;white-space:nowrap;min-height:48px;align-items:center;gap:6px;}
+.back-btn{display:none;position:fixed;bottom:max(22px,env(safe-area-inset-bottom,22px));left:50%;transform:translateX(-50%);background:rgba(30,30,60,0.85);border:1px solid rgba(255,255,255,0.22);color:#e8eaf6;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:12px 26px;border-radius:30px;cursor:pointer;background:rgba(20,20,50,0.95);box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:90;touch-action:manipulation;-webkit-tap-highlight-color:transparent;white-space:nowrap;min-height:48px;align-items:center;gap:6px;}
 .back-btn.visible{display:flex;}
 .back-btn:hover{background:rgba(50,50,90,0.9);transform:translateX(-50%) translateY(-2px);}
 @media(max-width:390px){.font-btn{padding:4px 6px;font-size:11px;min-width:28px;}.header-controls{gap:3px;}}
@@ -271,7 +273,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 }
 
 /* ── Challenge timer bar ── */
-#challengeBar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(10,8,30,0.97);backdrop-filter:blur(12px);padding:10px 14px;display:none;align-items:center;gap:10px;border-bottom:1px solid rgba(124,58,237,0.3);}
+#challengeBar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(10,8,30,0.97);padding:10px 14px;display:none;align-items:center;gap:10px;border-bottom:1px solid rgba(124,58,237,0.3);}
 #challengeBar.active{display:flex;}
 .ct-label{font-size:11px;font-weight:800;color:#a78bfa;white-space:nowrap;flex-shrink:0;}
 .ct-track{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
@@ -483,10 +485,11 @@ function _today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'
 function updateStreak(){var s=lsGet(_uk('gsc_streak'),{day:'',count:0}),today=_today();if(s.day===today){_showStreak(s.count);return;}var yest=new Date();yest.setDate(yest.getDate()-1);var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();var nc=s.day===ys?s.count+1:1;s={day:today,count:nc};lsSet(_uk('gsc_streak'),s);_showStreak(nc);if(nc>=3)checkBadge('streak3');if(nc>=7)checkBadge('streak7');_syncToFirestore();}
 function _showStreak(n){var b=document.getElementById('streakBadge');if(!b)return;if(n>0){b.textContent='🔥 '+n+' day streak';b.style.display='flex';}else{b.style.display='none';}}
 
-/* ── Ratings ── */
-function _ratings(){return lsGet(_uk('gsc_ratings'),{});}
+/* ── Ratings (in-memory cache — avoids JSON.parse on every card flip) ── */
+var _ratingsCache=null;
+function _ratings(){if(!_ratingsCache)_ratingsCache=lsGet(_uk('gsc_ratings'),{});return _ratingsCache;}
 function _key(t,q){return t+'||'+q;}
-function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;lsSet(_uk('gsc_ratings'),r);_syncToFirestore();}
+function saveRating(t,q,v){var r=_ratings();r[_key(t,q)]=v;_ratingsCache=r;lsSet(_uk('gsc_ratings'),r);_syncToFirestore();}
 function getCardRating(t,q){return _ratings()[_key(t,q)]||null;}
 /* ── Spaced repetition: hard cards appear every 3rd slot ── */
 function _weightedOrder(cards){
@@ -980,6 +983,8 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
     const key=p.themeMaths||'space';
     document.body.classList.add('theme-'+key);
     _setTV(key);
+    // Start/stop star canvas based on theme
+    if(key==='space'){if(window._starResume)window._starResume();}else{if(window._starPause)window._starPause();}
     const d=document.getElementById('themeDecor');
     if(d) buildDecoration(key,d);
     const tm=MINI_THEMES[key]||MINI_THEMES.space;
@@ -1036,6 +1041,8 @@ function buildTopicGrid(){
 }
 
 function _enterCardView(){window.scrollTo(0,0);
+  document.body.classList.add('cv-active'); // pauses themeDecor animations
+  if(window._starPause) window._starPause();
   document.getElementById("cardInner").classList.remove("flipped");
   const pb=document.getElementById("progressBar");if(pb)pb.style.background=`linear-gradient(90deg,${activeMeta.g1},${activeMeta.g2})`;
   sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;newlyEarnedBadges=[];updateSessionBar();
@@ -1069,6 +1076,9 @@ function enterTopic(topic){
 }
 
 function goBackToTopics(){window.scrollTo(0,0);
+  document.body.classList.remove('cv-active'); // resumes themeDecor animations
+  var isSpace=document.body.classList.contains('theme-space');
+  if(window._starResume&&isSpace) window._starResume(); else if(window._starPause) window._starPause();
   var bb=document.getElementById("cvBackBtn");if(bb)bb.classList.remove("visible");
   document.getElementById("cardView").style.display="none";
   var tv=document.getElementById("topicView");tv.style.display="block";
@@ -1266,12 +1276,27 @@ function continueAfterChallenge(){
 (function(){
   var canvas=document.getElementById("starCanvas"),ctx=canvas?canvas.getContext("2d"):null;
   if(!ctx)return;
-  var W,H,stars=[];
+  var W,H,stars=[],_paused=false,_rafId=null;
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
   resize();window.addEventListener("resize",resize);
   for(var i=0;i<120;i++)stars.push({x:Math.random()*99999,y:Math.random()*99999,r:Math.random()*1.5+0.3,s:Math.random()*0.15+0.02,blink:Math.random()*Math.PI*2,bspeed:Math.random()*0.01+0.002,color:['#fff','#c4b5fd','#93c5fd','#fff','#fff'][Math.floor(Math.random()*5)]});
-  function draw(){ctx.clearRect(0,0,W,H);stars.forEach(function(l){var ox=((l.x+l.s*300)%W+W)%W,oy=((l.y+l.s*200)%H+H)%H,alpha=0.2+0.6*Math.abs(Math.sin(l.blink));ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=l.color;ctx.beginPath();ctx.arc(ox,oy,l.r,0,Math.PI*2);ctx.fill();ctx.restore();l.x+=l.s*0.5;l.blink+=l.bspeed;});requestAnimationFrame(draw);}
-  draw();
+  function draw(){
+    if(_paused){_rafId=null;return;}
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(function(l){var ox=((l.x+l.s*300)%W+W)%W,oy=((l.y+l.s*200)%H+H)%H,alpha=0.2+0.6*Math.abs(Math.sin(l.blink));ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=l.color;ctx.beginPath();ctx.arc(ox,oy,l.r,0,Math.PI*2);ctx.fill();ctx.restore();l.x+=l.s*0.5;l.blink+=l.bspeed;});
+    _rafId=requestAnimationFrame(draw);
+  }
+  function _resume(){if(!_paused&&!_rafId){_rafId=requestAnimationFrame(draw);}}
+  // Pause when tab is hidden or when not on space theme
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){_paused=true;}else{_paused=!document.body.classList.contains('theme-space');_resume();}
+  });
+  // Let applyTheme() control this: expose start/stop on window
+  window._starPause=function(){_paused=true;};
+  window._starResume=function(){_paused=false;_resume();};
+  // Only run for space theme
+  _paused=!document.body.classList.contains('theme-space');
+  if(!_paused) draw();
 })();
 </script>
 <script>
