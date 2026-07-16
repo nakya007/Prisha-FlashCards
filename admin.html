@@ -276,19 +276,28 @@ firebase.auth().onAuthStateChanged(user => {
 
 async function adminSignIn() {
   const errEl = document.getElementById('signinErr');
-  if (errEl) errEl.textContent = 'Signing in…';
+  const btn = document.querySelector('.btn-google');
+  // Prevent double-click / re-entry while popup is open
+  if (btn && btn.disabled) return;
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.55'; }
+  if (errEl) errEl.textContent = 'Opening sign-in popup…';
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
   try {
     await auth.signInWithPopup(provider);
-    // onAuthStateChanged handles the rest
+    // onAuthStateChanged handles the rest; leave button disabled until page transitions
   } catch(err) {
+    // Re-enable button so the user can try again
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
     if (err.code === 'auth/popup-blocked') {
-      if (errEl) errEl.textContent = '⚠️ Popup was blocked. Please allow popups for this site in your browser, then try again.';
-    } else if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-      if (errEl) errEl.textContent = '';  // user closed the popup — silent
+      if (errEl) errEl.textContent = '⚠️ Popup was blocked — allow popups for this site, then try again.';
+    } else if (err.code === 'auth/popup-closed-by-user') {
+      if (errEl) errEl.textContent = 'Sign-in cancelled — tap the button to try again.';
+    } else if (err.code === 'auth/cancelled-popup-request') {
+      // Previous popup was still open; the new one took over — just wait
+      if (errEl) errEl.textContent = 'Opening sign-in popup…';
     } else if (err.code === 'auth/network-request-failed') {
-      if (errEl) errEl.textContent = '❌ No internet connection. Please check your network and try again.';
+      if (errEl) errEl.textContent = '❌ No internet connection — check your network and try again.';
     } else {
       if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
     }
@@ -390,16 +399,28 @@ async function resetPin(id, name) {
 
 async function deleteStudent(id, name) {
   if (!confirm(`Delete ${name}'s profile and ALL their progress? This cannot be undone.`)) return;
+  // Show loading state on the card
+  const card = document.getElementById('scard_' + id);
+  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+  const grid = document.getElementById('studentsGrid');
   try {
-    // Delete dailyLogs subcollection first
-    const logs = await db.collection('users').doc(id).collection('dailyLogs').get();
-    const batch = db.batch();
-    logs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
+    // Delete dailyLogs subcollection in chunks of 499 (Firestore batch limit is 500)
+    let logsSnap = await db.collection('users').doc(id).collection('dailyLogs').limit(499).get();
+    while (!logsSnap.empty) {
+      const batch = db.batch();
+      logsSnap.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      if (logsSnap.size < 499) break;
+      logsSnap = await db.collection('users').doc(id).collection('dailyLogs').limit(499).get();
+    }
     // Delete the user document
     await db.collection('users').doc(id).delete();
+    // Remove card from DOM immediately — no need to reload everything
+    if (card) card.remove();
+    // Refresh counts
     loadStudents();
   } catch(e) {
+    if (card) { card.style.opacity = ''; card.style.pointerEvents = ''; }
     alert('Failed to delete student: ' + e.message);
   }
 }
@@ -436,6 +457,7 @@ function updateSummaryBar(students) {
 
 function buildStudentCard(s) {
   const card = document.createElement('div');
+  card.id = 'scard_' + s.id;
   card.className = 'student-card' + (s.suspended ? ' suspended' : '');
 
   const theme    = s.themeMaths || s.theme || 'space';
