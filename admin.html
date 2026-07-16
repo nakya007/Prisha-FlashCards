@@ -177,6 +177,9 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
     <div class="sum-card"><div class="sum-val" id="sumXP">—</div><div class="sum-lbl">Total XP Earned</div></div>
   </div>
 
+  <!-- Attention banner: profiles needing parent code -->
+  <div id="attentionBanner" style="display:none;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.35);border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.6;"></div>
+
   <div class="students-grid" id="studentsGrid">
     <div class="empty-state"><div class="loading-spinner"></div></div>
   </div>
@@ -255,40 +258,40 @@ const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 
 // ── Auth (Google Sign-In via Firebase) ──────────────────────────────
 const auth = firebase.auth();
-const _isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-// Handle redirect result on page load (for mobile flow)
-firebase.auth().getRedirectResult().then(result => {
-  // onAuthStateChanged handles the actual sign-in
-}).catch(err => {
-  if (err.code !== 'auth/no-auth-event') {
-    const errEl = document.getElementById('signinErr');
-    if (errEl) errEl.textContent = '❌ Sign-in failed: ' + err.message;
-  }
-});
+// Ignore stale redirect results on page load — we always use popup now
+firebase.auth().getRedirectResult().catch(() => {});
 
 firebase.auth().onAuthStateChanged(user => {
   if (user && user.email === ADMIN_EMAIL) {
     showDashboard();
   } else if (user) {
     // Signed in but wrong account
-    document.getElementById('signinErr').textContent = '❌ ' + user.email + ' is not authorised. Please use grammarschooladmin@gmail.com.';
+    const errEl = document.getElementById('signinErr');
+    if (errEl) errEl.textContent = '❌ ' + user.email + ' is not authorised. Please use grammarschooladmin@gmail.com.';
     auth.signOut();
   }
+  // user === null → stay on sign-in screen, do nothing
 });
 
-function adminSignIn() {
+async function adminSignIn() {
   const errEl = document.getElementById('signinErr');
-  errEl.textContent = 'Signing in…';
+  if (errEl) errEl.textContent = 'Signing in…';
   const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
-  if (_isMobile) {
-    // Redirect is more reliable on iOS Safari (avoids sessionStorage popup issues)
-    auth.signInWithRedirect(provider);
-  } else {
-    auth.signInWithPopup(provider).catch(err => {
-      errEl.textContent = '❌ Sign-in failed: ' + err.message;
-    });
+  provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
+  try {
+    await auth.signInWithPopup(provider);
+    // onAuthStateChanged handles the rest
+  } catch(err) {
+    if (err.code === 'auth/popup-blocked') {
+      if (errEl) errEl.textContent = '⚠️ Popup was blocked. Please allow popups for this site in your browser, then try again.';
+    } else if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+      if (errEl) errEl.textContent = '';  // user closed the popup — silent
+    } else if (err.code === 'auth/network-request-failed') {
+      if (errEl) errEl.textContent = '❌ No internet connection. Please check your network and try again.';
+    } else {
+      if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
+    }
   }
 }
 
@@ -331,6 +334,20 @@ async function loadStudents() {
     document.getElementById('dashSub').textContent = students.length + ' student' + (students.length !== 1 ? 's' : '') + ' registered';
     grid.innerHTML = '';
     students.forEach(s => grid.appendChild(buildStudentCard(s)));
+
+    // Attention banner: show students without a parent code
+    const noCodes = students.filter(s => !s.parentCode);
+    const banner = document.getElementById('attentionBanner');
+    if (banner) {
+      if (noCodes.length) {
+        banner.style.display = '';
+        banner.innerHTML = '<strong>⚠️ ' + noCodes.length + ' student' + (noCodes.length !== 1 ? 's' : '') + ' missing a Parent Code:</strong> '
+          + noCodes.map(s => '<strong>' + escHtml(s.name||'Unknown') + '</strong>').join(', ')
+          + '<br><span style="opacity:0.7;font-size:11px;">Set their Parent Code in the student card below so parents can verify flashcard answers.</span>';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
 
   } catch(e) {
     grid.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load. Check your connection.</div></div>';
