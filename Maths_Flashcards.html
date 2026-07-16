@@ -264,13 +264,19 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 .badges-modal.bm-show{display:flex;}
 .badges-inner{background:linear-gradient(145deg,#0f1535,#1e2a5e);border:1px solid rgba(100,149,237,0.25);border-radius:24px;padding:24px 20px 0;max-width:420px;width:100%;flex-shrink:0;animation:sumPop 0.3s ease;display:flex;flex-direction:column;}
 .badges-inner h3{font-size:20px;font-weight:900;text-align:center;margin-bottom:16px;}
-.badges-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.badge-card{border-radius:14px;padding:14px 10px;text-align:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);}
-.badge-card.earned{background:rgba(249,212,35,0.12);border-color:rgba(249,212,35,0.35);}
-.badge-card.locked{opacity:0.36;filter:grayscale(1);}
-.badge-icon{font-size:28px;margin-bottom:6px;}
-.badge-name{font-size:12px;font-weight:800;}
-.badge-desc{font-size:10px;opacity:0.6;margin-top:3px;line-height:1.3;}
+.badges-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.badge-family-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px 14px 8px;}
+.badge-family-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.badge-family-icon{font-size:20px;}
+.badge-family-name{font-size:14px;font-weight:900;color:var(--ta-text);}
+.badge-tier{display:flex;align-items:center;gap:12px;padding:8px 6px;border-radius:10px;margin-bottom:6px;}
+.badge-tier.bt-earned{background:rgba(249,212,35,0.1);border:1px solid rgba(249,212,35,0.2);}
+.badge-tier.bt-locked{opacity:0.45;}
+.bt-medal{font-size:22px;min-width:30px;text-align:center;}
+.bt-info{flex:1;}
+.bt-name{font-size:12px;font-weight:800;}
+.bt-desc{font-size:10px;opacity:0.65;margin-top:2px;line-height:1.3;}
+.bt-unlock{font-size:10px;color:#fbbf24;font-weight:700;margin-top:2px;}
 .close-modal-btn{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.22);background:linear-gradient(145deg,#0f1535,#1e2a5e);color:rgba(255,255,255,0.65);font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:12px;position:sticky;bottom:0;}
 
 /* ── Transitions ── */
@@ -532,6 +538,10 @@ function _syncToFirestore(){
       xp:xp,
       streak:streak.count||0,
       ratings:ratings,
+      badges:lsGet(_uk('gsc_badges'),[]),
+      quizCorrect:lsGet(_uk('gsc_quiz_correct'),0),
+      aceTopics:lsGet(_uk('gsc_ace_topics'),[]),
+      masteredTopics:lsGet(_uk('gsc_mastered_topics'),[]),
       lastActive:firebase.firestore.FieldValue.serverTimestamp()
     }).catch(function(){});
   },2000);
@@ -557,7 +567,19 @@ function _updMute(){var b=document.getElementById('muteBtn');if(b)b.textContent=
 
 /* ── Streak ── */
 function _today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-function updateStreak(){var s=lsGet(_uk('gsc_streak'),{day:'',count:0}),today=_today();if(s.day===today){_showStreak(s.count);return;}var yest=new Date();yest.setDate(yest.getDate()-1);var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();var nc=s.day===ys?s.count+1:1;s={day:today,count:nc};lsSet(_uk('gsc_streak'),s);_showStreak(nc);if(nc>=3)checkBadge('streak3');if(nc>=7)checkBadge('streak7');_syncToFirestore();}
+function _initStreakDisplay(){var s=lsGet(_uk('gsc_streak'),{day:'',count:0});_showStreak(s.count);}
+function recordStudyDay(){
+  var s=lsGet(_uk('gsc_streak'),{day:'',count:0}),today=_today();
+  if(s.day===today)return;
+  var yest=new Date();yest.setDate(yest.getDate()-1);
+  var ys=yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();
+  var nc=s.day===ys?s.count+1:1;
+  s={day:today,count:nc};lsSet(_uk('gsc_streak'),s);_showStreak(nc);
+  if(nc>=3)checkBadgeTier('streak','b');
+  if(nc>=7)checkBadgeTier('streak','s');
+  if(nc>=21)checkBadgeTier('streak','g');
+  _syncToFirestore();
+}
 function _showStreak(n){var b=document.getElementById('streakBadge');if(!b)return;if(n>0){b.textContent='🔥 '+n+' day streak';b.style.display='flex';}else{b.style.display='none';}}
 
 /* ── Ratings (in-memory cache — avoids JSON.parse on every card flip) ── */
@@ -660,16 +682,15 @@ function rateCard(val){
     playGot(); sessionGot++; sessionXP+=20; sessionCards++;
     addXP(20); showXPFloat(20);
     var totalGot=Object.values(_ratings()).filter(function(v){return v==='got';}).length;
-    if(sessionGot>=5)checkBadge('got5');
-    if(totalGot>=20)checkBadge('cards20got');
+    if(totalGot>=10)checkBadgeTier('mastery','b');
+    if(totalGot>=30)checkBadgeTier('mastery','s');
+    if(totalGot>=75)checkBadgeTier('mastery','g');
     mascotSay(_pick(MASCOT_GOT),true);
   } else {
     playHard(); sessionXP+=3; sessionCards++;
     addXP(3); showXPFloat(3);
     mascotSay(_pick(MASCOT_HARD),false);
   }
-  var totalRated=Object.keys(_ratings()).length;
-  if(totalRated>=50)checkBadge('cards50');
   updateSessionBar();
   hideRatingBtns();
 }
@@ -723,34 +744,67 @@ function updateSessionBar(){
 }
 
 /* ── Badges ── */
-var BADGES=[
-  {id:'first_flip',icon:'🚀',name:'First Launch',desc:'Flip your first card'},
-  {id:'got5',icon:'✅',name:'Quick Learner',desc:'5 parent-verified cards in one session'},
-  {id:'streak3',icon:'🔥',name:'Streak Starter',desc:'Study 3 days in a row'},
-  {id:'streak7',icon:'💫',name:'Streak Master',desc:'Study 7 days in a row'},
-  {id:'topic_ace',icon:'🎯',name:'Topic Ace',desc:'Finish a topic with 80%+ mastered'},
-  {id:'five_topics',icon:'🌟',name:'Explorer',desc:'Complete 5 different topics'},
-  {id:'cards50',icon:'📚',name:'Card Champion',desc:'Have 50 rated cards'},
-  {id:'cards20got',icon:'💪',name:'Mastery Master',desc:'Master 20 cards'},
-  {id:'quiz10',icon:'🧠',name:'Quiz Whiz',desc:'Ace 10 quiz questions'},
-  {id:'level_scholar',icon:'⭐',name:'Scholar',desc:'Reach Scholar level'},
-  {id:'level_champion',icon:'🏆',name:'Champion',desc:'Reach Champion level'},
+var BADGE_FAMILIES=[
+  {id:'streak',name:'Daily Streak',icon:'🔥',tiers:[
+    {id:'streak_b',level:'b',medal:'🥉',name:'Streak Starter',desc:'Flip a card 3 days in a row'},
+    {id:'streak_s',level:'s',medal:'🥈',name:'Streak Builder',desc:'Flip a card 7 days in a row'},
+    {id:'streak_g',level:'g',medal:'🥇',name:'Streak Legend',desc:'Flip a card 21 days in a row'},
+  ]},
+  {id:'mastery',name:'Mastery',icon:'✅',tiers:[
+    {id:'mastery_b',level:'b',medal:'🥉',name:'Quick Learner',desc:'10 parent-verified cards total'},
+    {id:'mastery_s',level:'s',medal:'🥈',name:'Knowledge Builder',desc:'30 parent-verified cards total'},
+    {id:'mastery_g',level:'g',medal:'🥇',name:'Mastery Master',desc:'75 parent-verified cards total'},
+  ]},
+  {id:'explorer',name:'Explorer',icon:'🗺️',tiers:[
+    {id:'explorer_b',level:'b',medal:'🥉',name:'Explorer',desc:'Master 3 different topics'},
+    {id:'explorer_s',level:'s',medal:'🥈',name:'Trailblazer',desc:'Master 8 different topics'},
+    {id:'explorer_g',level:'g',medal:'🥇',name:'Topic Champion',desc:'Master 15 different topics'},
+  ]},
+  {id:'ace',name:'Topic Ace',icon:'🎯',tiers:[
+    {id:'ace_b',level:'b',medal:'🥉',name:'Topic Ace',desc:'1 topic with 80%+ parent-verified'},
+    {id:'ace_s',level:'s',medal:'🥈',name:'Double Ace',desc:'3 topics with 80%+ parent-verified'},
+    {id:'ace_g',level:'g',medal:'🥇',name:'Ace of Aces',desc:'5 topics with 80%+ parent-verified'},
+  ]},
+  {id:'quiz',name:'Quiz',icon:'🧠',tiers:[
+    {id:'quiz_b',level:'b',medal:'🥉',name:'Quiz Starter',desc:'10 quiz answers correct'},
+    {id:'quiz_s',level:'s',medal:'🥈',name:'Quiz Scholar',desc:'50 quiz answers correct'},
+    {id:'quiz_g',level:'g',medal:'🥇',name:'Quiz Master',desc:'100 quiz answers correct'},
+  ]},
 ];
-function checkBadge(id){var earned=lsGet('gsc_badges',[]);if(earned.indexOf(id)===-1){earned.push(id);lsSet('gsc_badges',earned);newlyEarnedBadges.push(id);showBadgeToast(id);}}
-function showBadgeToast(id){var b=BADGES.find(function(x){return x.id===id;});if(!b)return;var t=document.getElementById('badgeToast');if(!t)return;t.textContent=b.icon+' Badge unlocked: '+b.name+'!';t.classList.add('bt-show');setTimeout(function(){t.classList.remove('bt-show');},3000);}
+var XP_BADGES=[
+  {id:'first_flip',icon:'🚀',name:'First Launch',desc:'Flip your very first card'},
+  {id:'level_scholar',icon:'⭐',name:'Scholar',desc:'Reach Scholar level (400+ XP)'},
+  {id:'level_champion',icon:'🏆',name:'Champion',desc:'Reach Champion level (1200+ XP)'},
+];
+function getBadgeById(id){
+  var xp=XP_BADGES.find(function(b){return b.id===id;});if(xp)return xp;
+  for(var i=0;i<BADGE_FAMILIES.length;i++){var fam=BADGE_FAMILIES[i];var t=fam.tiers.find(function(x){return x.id===id;});if(t)return{icon:fam.icon+t.medal,name:t.name,desc:t.desc};}
+  return null;
+}
+function checkBadge(id){var earned=lsGet(_uk('gsc_badges'),[]);if(earned.indexOf(id)===-1){earned.push(id);lsSet(_uk('gsc_badges'),earned);newlyEarnedBadges.push(id);showBadgeToast(id);}}
+function checkBadgeTier(famId,tier){var fam=BADGE_FAMILIES.find(function(f){return f.id===famId;});if(!fam)return;var t=fam.tiers.find(function(x){return x.level===tier;});if(t)checkBadge(t.id);}
+function showBadgeToast(id){var b=getBadgeById(id);if(!b)return;var t=document.getElementById('badgeToast');if(!t)return;t.textContent=b.icon+' Badge unlocked: '+b.name+'!';t.classList.add('bt-show');setTimeout(function(){t.classList.remove('bt-show');},3000);}
 function showBadges(){
-  var earned=lsGet('gsc_badges',[]),grid=document.getElementById('badgesGrid');
+  var earned=lsGet(_uk('gsc_badges'),[]),grid=document.getElementById('badgesGrid');
   if(!grid)return;grid.innerHTML='';
-  BADGES.forEach(function(b){
-    var isE=earned.indexOf(b.id)!==-1;
-    var c=document.createElement('div');
-    c.className='badge-card '+(isE?'earned':'locked');
-    c.style.opacity=isE?'':'0.75';
-    c.style.filter=isE?'':'none';
-    var descHtml=isE?b.desc:'<span style="font-size:9px;font-weight:900;color:#fbbf24;display:block;margin-bottom:2px;">🔓 TO UNLOCK:</span>'+b.desc;
-    c.innerHTML='<div class="badge-icon">'+(isE?b.icon:'🔒')+'</div><div class="badge-name">'+b.name+'</div><div class="badge-desc">'+descHtml+'</div>';
-    grid.appendChild(c);
+  BADGE_FAMILIES.forEach(function(fam){
+    var fc=document.createElement('div');fc.className='badge-family-card';
+    var tiers=fam.tiers.map(function(t){
+      var isE=earned.indexOf(t.id)!==-1;
+      if(isE)return '<div class="badge-tier bt-earned"><span class="bt-medal">'+t.medal+'</span><div class="bt-info"><div class="bt-name">'+t.name+'</div><div class="bt-desc">'+t.desc+'</div></div></div>';
+      return '<div class="badge-tier bt-locked"><span class="bt-medal">🔒</span><div class="bt-info"><div class="bt-name">'+t.name+'</div><div class="bt-unlock">🔓 '+t.desc+'</div></div></div>';
+    }).join('');
+    fc.innerHTML='<div class="badge-family-hdr"><span class="badge-family-icon">'+fam.icon+'</span><span class="badge-family-name">'+fam.name+'</span></div>'+tiers;
+    grid.appendChild(fc);
   });
+  var xpFc=document.createElement('div');xpFc.className='badge-family-card';
+  var xpTiers=XP_BADGES.map(function(b){
+    var isE=earned.indexOf(b.id)!==-1;
+    if(isE)return '<div class="badge-tier bt-earned"><span class="bt-medal">'+b.icon+'</span><div class="bt-info"><div class="bt-name">'+b.name+'</div><div class="bt-desc">'+b.desc+'</div></div></div>';
+    return '<div class="badge-tier bt-locked"><span class="bt-medal">🔒</span><div class="bt-info"><div class="bt-name">'+b.name+'</div><div class="bt-unlock">🔓 '+b.desc+'</div></div></div>';
+  }).join('');
+  xpFc.innerHTML='<div class="badge-family-hdr"><span class="badge-family-icon">⚡</span><span class="badge-family-name">Milestones</span></div>'+xpTiers;
+  grid.appendChild(xpFc);
   document.getElementById('badgesModal').classList.add('bm-show');
 }
 function hideBadges(){document.getElementById('badgesModal').classList.remove('bm-show');}
@@ -834,8 +888,8 @@ function answerQuiz(chosen,correct,container,card){
   });
   if(chosen===correct){
     playGot();sessionQuizCorrect++;
-    var tqc=lsGet('gsc_quiz_correct',0)+1;lsSet('gsc_quiz_correct',tqc);
-    if(tqc>=10)checkBadge('quiz10');
+    var tqc=lsGet(_uk('gsc_quiz_correct'),0)+1;lsSet(_uk('gsc_quiz_correct'),tqc);
+    if(tqc>=10)checkBadgeTier('quiz','b');if(tqc>=50)checkBadgeTier('quiz','s');if(tqc>=100)checkBadgeTier('quiz','g');
     if(card)saveRating(card.topic,card.q,'got');
   }else{
     playHard();
@@ -853,8 +907,20 @@ function showSessionSummary(){
   var totalSeen=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);
   if(totalSeen===0&&sessionCards===0)return;
   playCelebrate();_startConf();
-  if(filtered&&filtered.length){var gotCount=filtered.filter(function(c){return getCardRating(c.topic,c.q)==='got';}).length;if(gotCount/filtered.length>=0.8)checkBadge('topic_ace');}
-  if(filtered&&filtered.length&&filtered[0].topic){var ct=lsGet('gsc_completed_topics',[]),tn=filtered[0].topic;if(ct.indexOf(tn)===-1){ct.push(tn);lsSet('gsc_completed_topics',ct);if(ct.length>=5)checkBadge('five_topics');}}
+  if(filtered&&filtered.length&&filtered[0].topic){
+    var _tn=filtered[0].topic;
+    var gotCount=filtered.filter(function(c){return getCardRating(c.topic,c.q)==='got';}).length;
+    // Topic Ace: 80%+ parent-verified in this topic
+    if(gotCount/filtered.length>=0.8){
+      var at=lsGet(_uk('gsc_ace_topics'),[]);if(at.indexOf(_tn)===-1){at.push(_tn);lsSet(_uk('gsc_ace_topics'),at);}
+      if(at.length>=1)checkBadgeTier('ace','b');if(at.length>=3)checkBadgeTier('ace','s');if(at.length>=5)checkBadgeTier('ace','g');
+    }
+    // Explorer: topic counts when 2+ cards parent-verified (stops drive-by visits)
+    if(gotCount>=2){
+      var mt=lsGet(_uk('gsc_mastered_topics'),[]);if(mt.indexOf(_tn)===-1){mt.push(_tn);lsSet(_uk('gsc_mastered_topics'),mt);}
+      if(mt.length>=3)checkBadgeTier('explorer','b');if(mt.length>=8)checkBadgeTier('explorer','s');if(mt.length>=15)checkBadgeTier('explorer','g');
+    }
+  }
   addXP(50);var xpEarned=sessionXP+50;
   var e;e=document.getElementById('statSeen');if(e)e.textContent=totalSeen;
   e=document.getElementById('statGot');if(e)e.textContent=sessionGot;
@@ -864,7 +930,7 @@ function showSessionSummary(){
   var sbtn=document.getElementById('summaryBtn');
   var curMascot=(document.getElementById('mascotEmoji')||{}).textContent||'🚀';
   if(sbtn)sbtn.textContent='Keep Going! '+curMascot;
-  var nb=document.getElementById('newBadgesWrap');if(nb){nb.innerHTML='';newlyEarnedBadges.forEach(function(id){var b=BADGES.find(function(x){return x.id===id;});if(b){var chip=document.createElement('div');chip.className='new-badge-chip';chip.textContent=b.icon+' '+b.name;nb.appendChild(chip);}});}
+  var nb=document.getElementById('newBadgesWrap');if(nb){nb.innerHTML='';newlyEarnedBadges.forEach(function(id){var b=getBadgeById(id);if(b){var chip=document.createElement('div');chip.className='new-badge-chip';chip.textContent=b.icon+' '+b.name;nb.appendChild(chip);}});}
   newlyEarnedBadges=[];sessionXP=0;sessionGot=0;sessionCards=0;sessionQuizCorrect=0;
   document.getElementById('summaryScreen').classList.add('ss-show');
 }
@@ -876,7 +942,7 @@ function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=nul
 /* ── Swipe ── */
 (function(){var sx=0,sy=0,th=50,_mt=false;window.addEventListener('touchstart',function(e){if(e.touches.length>1){_mt=true;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){if(_mt){if(e.touches.length===0)_mt=false;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
 
-initFont(); initMute(); updateStreak(); _syncToFirestore();
+initFont(); initMute(); _initStreakDisplay(); _syncToFirestore();
 </script>
 <!-- ══ MAIN SCRIPT ══ -->
 <script>
@@ -1214,7 +1280,6 @@ function _enterCardView(){window.scrollTo(0,0);
 }
 
 function enterTopic(topic){
-  updateStreak();
   if(topic==="__all__"){
     filtered=[...ALL_CARDS];activeMeta={emoji:"⭐",g1:"#1a1a3a",g2:"#2d2d60",d1:"#0d0d1e",d2:"#1a1a3a"};
     document.getElementById("cvTitle").textContent="⭐ All Topics";
@@ -1289,7 +1354,7 @@ function flipCard(){
   isFlipped=!isFlipped;
   document.getElementById("cardInner").classList.toggle("flipped",isFlipped);
   playFlip();
-  if(isFlipped){checkBadge('first_flip');if(!isQuizMode)showRatingBtns();}else hideRatingBtns();
+  if(isFlipped){checkBadge('first_flip');recordStudyDay();if(!isQuizMode)showRatingBtns();}else hideRatingBtns();
 }
 
 function navigate(dir){
