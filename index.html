@@ -332,6 +332,16 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="stat-pill" onclick="showStatTip('streak')"><div class="stat-val" id="statStreak">—</div><div class="stat-lbl">Streak</div></div>
     <div class="stat-pill" onclick="showStatTip('mastered')"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
   </div>
+  <!-- XP level progress bar -->
+  <div id="xpProgressWrap" style="margin:6px 0 10px;padding:0 2px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:800;opacity:0.55;margin-bottom:4px;">
+      <span id="xpLevelName">🌱 Seedling</span>
+      <span id="xpProgressLabel">0 / 150 XP to next level</span>
+    </div>
+    <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;">
+      <div id="xpProgressFill" style="height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#4338ca,#818cf8);transition:width 0.5s ease;"></div>
+    </div>
+  </div>
 
   <!-- Flashcards section -->
   <div class="home-section">
@@ -456,6 +466,21 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   </div>
 </div>
 
+<!-- EmailJS — client-side email (free tier, no server needed) -->
+<!-- TO ACTIVATE: sign up at emailjs.com, create a Gmail service + template, then replace the 3 IDs below -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function(){
+  // Replace with your EmailJS public key from emailjs.com → Account → API Keys
+  var EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+  // Replace with your EmailJS service ID and template ID
+  window._EMAILJS_SERVICE  = 'YOUR_SERVICE_ID';
+  window._EMAILJS_TEMPLATE = 'YOUR_TEMPLATE_ID';
+  if(EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY'){
+    try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); window._emailjsReady = true; } catch(e) {}
+  }
+})();
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -574,6 +599,13 @@ async function _loadProfile(id) {
       const fsRatings = fsData.ratings || {};
       const mergedRatings = Object.assign({}, fsRatings, lsRatings); // localStorage wins on conflict (more recent)
       localStorage.setItem('gsc_ratings_'+id, JSON.stringify(mergedRatings));
+
+      // Sync parentCode to localStorage so flashcard pages can read it
+      if (fsData.parentCode) {
+        localStorage.setItem('gsc_parentCode_'+id, fsData.parentCode);
+      } else {
+        localStorage.removeItem('gsc_parentCode_'+id);
+      }
 
       // If localStorage had higher values, push them back to Firestore now
       if (mergedXp > fsXp || Object.keys(mergedRatings).length > Object.keys(fsRatings).length) {
@@ -774,6 +806,16 @@ async function finishCreateProfile(profileData, pin) {
     document.getElementById('pinSetOverlay').classList.remove('open');
     applyTheme(profile.themeMaths);
     renderHome(); showScreen('screenHome');
+    // Notify admin via EmailJS (silent — fails gracefully if not configured)
+    if (window._emailjsReady) {
+      emailjs.send(window._EMAILJS_SERVICE, window._EMAILJS_TEMPLATE, {
+        to_email: 'grammarschooladmin@gmail.com',
+        student_name: profile.name,
+        student_id: userId,
+        joined_at: new Date().toLocaleString('en-GB'),
+        message: 'New profile created: ' + profile.name + '. Please set their Parent Code in the admin dashboard.'
+      }).catch(function(){}); // never block profile creation if email fails
+    }
   } catch(e) {
     if (errEl) errEl.textContent = '⚠️ Could not save — check connection.';
     if (_setPinPad) _setPinPad.shake();
@@ -957,7 +999,7 @@ const STAT_TIPS = {
   xp: {
     icon: '⭐',
     title: 'XP — Experience Points',
-    body: 'You earn <strong>10 XP</strong> every time you tap "Got it!" on a card, and <strong>3 XP</strong> for "Need practice." XP never goes down — it shows how much work you\'ve put in! The more XP you earn, the higher your level. 🏆'
+    body: 'You earn <strong>20 XP</strong> when a parent verifies you know a card ✋, and <strong>3 XP</strong> for "Need practice." XP never goes down — it shows how much work you\'ve put in! The more XP you earn, the higher your level. 🏆'
   },
   streak: {
     icon: '🔥',
@@ -967,7 +1009,7 @@ const STAT_TIPS = {
   mastered: {
     icon: '✅',
     title: 'Mastered Cards',
-    body: 'A card is <strong>Mastered</strong> when you tap "Got it! ✅" on it. This tells the app you know it well. Mastered cards still come up sometimes so you don\'t forget them — but harder cards get more practice. Try to master all the cards in a topic! 💪'
+    body: 'A card is <strong>Mastered</strong> when a parent verifies you know it ✋✅. This tells the app you really know it! Mastered cards still come up sometimes so you don\'t forget them — but harder cards get more practice. Try to master all the cards in a topic! 💪'
   }
 };
 function showStatTip(type) {
@@ -1012,6 +1054,18 @@ function renderHome() {
   document.getElementById('statXP').textContent       = xp+' ⭐';
   document.getElementById('statStreak').textContent   = streak>0 ? streak+' 🔥' : '—';
   document.getElementById('statMastered').textContent = mastered>0 ? mastered+' ✅' : mastered;
+  // XP level progress bar
+  const XP_LEVELS_HOME=[{name:'🌱 Seedling',min:0,max:149},{name:'🔭 Explorer',min:150,max:399},{name:'📖 Scholar',min:400,max:749},{name:'⭐ Achiever',min:750,max:1199},{name:'🏆 Champion',min:1200,max:1999},{name:'👑 Legend',min:2000,max:Infinity}];
+  let lvlIdx=0;for(let i=XP_LEVELS_HOME.length-1;i>=0;i--){if(xp>=XP_LEVELS_HOME[i].min){lvlIdx=i;break;}}
+  const lvl=XP_LEVELS_HOME[lvlIdx];
+  const isMax=lvlIdx===XP_LEVELS_HOME.length-1;
+  const pct=isMax?100:Math.round((xp-lvl.min)/(lvl.max-lvl.min)*100);
+  const nextLvl=isMax?null:XP_LEVELS_HOME[lvlIdx+1];
+  const xpLN=document.getElementById('xpLevelName');if(xpLN)xpLN.textContent=lvl.name;
+  const xpPL=document.getElementById('xpProgressLabel');if(xpPL)xpPL.textContent=isMax?'Max level reached! 👑':(xp+' / '+nextLvl.min+' XP to '+nextLvl.name);
+  const xpPF=document.getElementById('xpProgressFill');if(xpPF)xpPF.style.width=pct+'%';
+  // Tint progress bar to current theme accent colour
+  if(xpPF)xpPF.style.background=tm.xp||'linear-gradient(90deg,#4338ca,#818cf8)';
   document.getElementById('chipMathsEmoji').textContent   = tm.emoji;
   document.getElementById('chipMathsName').textContent    = tm.name;
   document.getElementById('chipEnglishEmoji').textContent = te.emoji;
