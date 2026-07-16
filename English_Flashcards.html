@@ -891,10 +891,12 @@ initFont(); initMute(); _initStreakDisplay();
   var _u=localStorage.getItem('gsc_userId');
   if(!_u||_u==='shared'||_isAdminPreview||typeof window.db==='undefined')return;
   window.db.collection('users').doc(_u).update({lastActive:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
-  /* Pre-fetch parent code if not cached locally (admin may have set it on a different device) */
-  if(!localStorage.getItem('gsc_parentCode_'+_u)){
+  /* Pre-fetch parent code if not cached locally — skip if already checked this session */
+  var _pcKey='gsc_parentCode_'+_u;
+  if(!localStorage.getItem(_pcKey)&&!sessionStorage.getItem('gsc_pc_checked_'+_u)){
+    sessionStorage.setItem('gsc_pc_checked_'+_u,'1');
     window.db.collection('users').doc(_u).get().then(function(d){
-      if(d.exists&&d.data().parentCode)localStorage.setItem('gsc_parentCode_'+_u,d.data().parentCode);
+      if(d.exists&&d.data().parentCode)localStorage.setItem(_pcKey,d.data().parentCode);
     }).catch(function(){});
   }
 })();
