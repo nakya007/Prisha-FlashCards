@@ -826,8 +826,9 @@ function answerQuiz(chosen,correct,container,card){
 
 /* ── Summary / Celebration ── */
 function showSessionSummary(){
-  playCelebrate();_startConf();
   var totalSeen=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);
+  if(totalSeen===0&&sessionCards===0)return;
+  playCelebrate();_startConf();
   if(filtered&&filtered.length){var gotCount=filtered.filter(function(c){return getCardRating(c.topic,c.q)==='got';}).length;if(gotCount/filtered.length>=0.8)checkBadge('topic_ace');}
   if(filtered&&filtered.length&&filtered[0].topic){var ct=lsGet('gsc_completed_topics',[]),tn=filtered[0].topic;if(ct.indexOf(tn)===-1){ct.push(tn);lsSet('gsc_completed_topics',ct);if(ct.length>=5)checkBadge('five_topics');}}
   addXP(50);var xpEarned=sessionXP+50;
@@ -849,7 +850,7 @@ function _startConf(){var cv=document.getElementById('confettiCanvas');if(!cv)re
 function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=null;}var cv=document.getElementById('confettiCanvas');if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}}
 
 /* ── Swipe ── */
-(function(){var sx=0,sy=0,th=50;window.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
+(function(){var sx=0,sy=0,th=50,_mt=false;window.addEventListener('touchstart',function(e){if(e.touches.length>1){_mt=true;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){if(_mt){if(e.touches.length===0)_mt=false;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
 
 initFont(); initMute(); updateStreak(); _syncToFirestore();
 </script>
@@ -1270,7 +1271,7 @@ function flipCard(){
 function navigate(dir){
   clearTimeout(window._quizAdvTimer);
   hideRatingBtns();
-  if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}
+  if(dir>0&&current>=filtered.length-1){if(filtered.length>0)showSessionSummary();return;}
   const n=current+dir;
   if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
 }
