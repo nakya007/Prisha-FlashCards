@@ -18,7 +18,8 @@
 :root{--ta:#818cf8;--ta-glow:rgba(129,140,248,0.35);--ta-border:rgba(129,140,248,0.45);--ta-text:#c7d2fe;--ta-dark:rgba(67,56,202,0.22);--ta-xp:linear-gradient(90deg,#4338ca,#818cf8);}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{min-height:100%;background:#060618;}
-body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%);background-attachment:fixed;color:#e8eaf6;min-height:100vh;min-height:100dvh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px env(safe-area-inset-bottom,16px);transition:background 0.3s,color 0.4s;}
+body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%);background-attachment:fixed;color:#e8eaf6;min-height:100vh;min-height:100dvh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px env(safe-area-inset-bottom,16px);transition:background 0.3s,color 0.4s;animation:_pgFadeIn 0.18s ease both;}
+@keyframes _pgFadeIn{from{opacity:0}to{opacity:1}}
 .screen{display:none;width:100%;max-width:460px;flex-direction:column;align-items:center;animation:fadeUp 0.3s ease;margin:auto 0;}
 .screen.active{display:flex;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
@@ -605,6 +606,8 @@ async function _loadProfile(id) {
       } else {
         localStorage.removeItem('gsc_parentCode_'+id);
       }
+      // Cache PIN for offline login fallback
+      if (fsData.pin) localStorage.setItem('gsc_pin_cache_'+id, fsData.pin);
 
       // Badges: union merge — never lose earned badges from either side
       const lsBadges = JSON.parse(localStorage.getItem('gsc_badges_'+id)||'[]');
@@ -689,8 +692,24 @@ async function submitVerifyPin() {
       btn.disabled = true; btn.style.opacity = '0.4';
     }
   } catch(e) {
-    errEl.textContent = '⚠️ Connection error — try again';
-    _verifyPad.shake();
+    // Offline fallback: check locally cached PIN
+    const cachedPin = localStorage.getItem('gsc_pin_cache_'+_verifyTargetId);
+    if (cachedPin && pin === cachedPin) {
+      const id = _verifyTargetId;
+      localStorage.setItem('gsc_userId', id);
+      sessionStorage.setItem('gsc_session_user', id);
+      const saved = getSavedProfiles().find(function(p){return p.id===id;}) || {};
+      currentProfile = { id, name: saved.name || 'Student', themeMaths: saved.themeMaths || 'space', themeEnglish: saved.themeEnglish || 'space' };
+      errEl.textContent = '📶 Offline — using saved profile';
+      setTimeout(function() {
+        document.getElementById('pinVerifyOverlay').classList.remove('open');
+        applyTheme(currentProfile.themeMaths || 'space');
+        renderHome(); showScreen('screenHome');
+      }, 600);
+    } else {
+      errEl.textContent = '⚠️ No internet — connect to sign in';
+      _verifyPad.shake();
+    }
   }
 }
 function closeVerifyPin() {
