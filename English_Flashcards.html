@@ -156,6 +156,32 @@ body.admin-preview .card-session{display:block;}
 .btn-hard:active{transform:scale(0.93);box-shadow:0 2px 8px rgba(248,113,113,0.5);}
 .btn-got:hover,.btn-hard:hover{transform:scale(1.03);}
 .btn-got:active,.btn-hard:active{transform:scale(0.97);}
+.btn-parent{flex:1;padding:12px;border-radius:14px;border:1px solid var(--ta-border);font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.12s,box-shadow 0.12s;min-height:50px;background:linear-gradient(90deg,#1e3a5f,#3b82f6);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,0.35),0 0 12px var(--ta-glow);}
+.btn-parent:hover{transform:scale(1.03);}
+.btn-parent:active{transform:scale(0.93);box-shadow:0 2px 8px rgba(59,130,246,0.5);}
+.btn-xp-tag{font-size:11px;font-weight:800;opacity:0.85;margin-left:3px;}
+/* ── Parent PIN modal ── */
+.parent-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;justify-content:center;align-items:center;padding:20px;-webkit-tap-highlight-color:transparent;}
+.parent-modal.pm-show{display:flex;}
+.parent-modal-inner{background:linear-gradient(145deg,#0d1433,#1a2a5e);border:1.5px solid rgba(100,149,237,0.35);border-radius:24px;padding:28px 24px;max-width:340px;width:100%;text-align:center;animation:sumPop 0.3s ease;}
+.pm-icon{font-size:40px;margin-bottom:6px;}
+.pm-title{font-size:19px;font-weight:900;margin-bottom:4px;}
+.pm-sub{font-size:12px;opacity:0.6;margin-bottom:20px;line-height:1.5;}
+.pm-dots{display:flex;justify-content:center;gap:12px;margin-bottom:18px;}
+.pm-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.28);transition:background 0.15s,border-color 0.15s;}
+.pm-dot.filled{background:#3b82f6;border-color:#60a5fa;}
+.pm-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.pm-num{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#e8eaf6;font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;cursor:pointer;padding:14px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background 0.1s,transform 0.1s;}
+.pm-num:active{background:rgba(59,130,246,0.35);transform:scale(0.92);}
+.pm-err{font-size:12px;color:#f87171;min-height:18px;margin-bottom:12px;}
+.pm-cancel{background:none;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;font-size:12px;padding:8px 20px;border-radius:12px;cursor:pointer;touch-action:manipulation;}
+.pm-judge-q{font-size:15px;font-weight:800;margin:16px 0;line-height:1.45;}
+.pm-yes{width:100%;background:linear-gradient(90deg,#166534,#4ade80);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;padding:14px;cursor:pointer;touch-action:manipulation;margin-bottom:8px;}
+.pm-yes:active{transform:scale(0.95);}
+.pm-no{width:100%;background:linear-gradient(90deg,#7f1d1d,#f87171);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;padding:14px;cursor:pointer;touch-action:manipulation;}
+.pm-no:active{transform:scale(0.95);}
+@keyframes pmShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-6px);}80%{transform:translateX(6px);}}
+.pm-shake{animation:pmShake 0.4s ease;}
 .nav-area{display:flex;gap:10px;margin-bottom:10px;}
 .nav-btn{flex:1;padding:12px;border-radius:14px;border:1px solid var(--ta-border);background:rgba(255,255,255,0.07);color:var(--ta-text);font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.15s,transform 0.1s;min-height:50px;}
 .nav-btn:active{transform:scale(0.94);}
@@ -218,7 +244,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   .tile-name{font-size:11px;}
   .card-face-front,.card-face-back{padding:20px 16px;min-height:260px;}
   #cardQuestion{font-size:16px;}
-  .nav-btn,.btn-got,.btn-hard{min-height:52px;font-size:15px;}
+  .nav-btn,.btn-got,.btn-parent,.btn-hard{min-height:52px;font-size:15px;}
   .session-bar{gap:8px;}
   .session-bar span{font-size:12px;}
   .summary-card{padding:24px 16px;}
@@ -332,8 +358,8 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
     </div>
   </div>
   <div class="rating-wrap" id="ratingWrap">
-    <button class="btn-got" onclick="rateCard('got')">✅ Got it!</button>
-    <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice</button>
+    <button class="btn-parent" onclick="openParentModal()">✋ Ask Parent <span class="btn-xp-tag">+20 ⭐</span></button>
+    <button class="btn-hard" onclick="rateCard('hard')">😅 Need practice <span class="btn-xp-tag">+3 ⭐</span></button>
   </div>
   <div class="quiz-row">
     <button class="quiz-toggle-btn" id="quizToggle" onclick="toggleQuizMode()">🧠 Quiz Mode</button>
@@ -346,6 +372,32 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   <div class="nav-area">
     <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Previous</button>
     <button class="nav-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<!-- ══ PARENT PIN MODAL ══ -->
+<div class="parent-modal" id="parentModal">
+  <div class="parent-modal-inner" id="parentModalInner">
+    <div id="pmPinStep">
+      <div class="pm-icon">✋</div>
+      <div class="pm-title">Parent Check!</div>
+      <div class="pm-sub" id="pmSub">Ask Mum or Dad to enter their code</div>
+      <div class="pm-dots" id="pmDots">
+        <div class="pm-dot" id="pmd0"></div><div class="pm-dot" id="pmd1"></div>
+        <div class="pm-dot" id="pmd2"></div><div class="pm-dot" id="pmd3"></div>
+      </div>
+      <div class="pm-numpad" id="pmNumpad"></div>
+      <div class="pm-err" id="pmErr"></div>
+      <button class="pm-cancel" onclick="closeParentModal()">Cancel</button>
+    </div>
+    <div id="pmJudge" style="display:none;">
+      <div class="pm-icon">🤔</div>
+      <div class="pm-title">Parent's Call</div>
+      <div class="pm-judge-q" id="pmJudgeQ">Did they explain it well?</div>
+      <button class="pm-yes" onclick="parentJudge('got')">✅ Yes, they got it! <span class="btn-xp-tag">+20 ⭐</span></button>
+      <button class="pm-no" onclick="parentJudge('hard')">😅 Keep practising</button>
+      <br><button class="pm-cancel" style="margin-top:10px;" onclick="closeParentModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -390,6 +442,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 <script>
 var isQuizMode=false,soundMuted=false,sessionSeen={},isSwiping=false,_confAnim=null,_audioCtx=null;
 var sessionXP=0,sessionGot=0,sessionCards=0,newlyEarnedBadges=[],sessionQuizCorrect=0;
+var _pmDigits=[];
 
 function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
@@ -455,14 +508,83 @@ function _weightedOrder(cards){
 }
 function showRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.add('rw-show');}
 function hideRatingBtns(){var w=document.getElementById('ratingWrap');if(w)w.classList.remove('rw-show');}
+
+/* ── Parent PIN modal ── */
+function openParentModal(){
+  if(!filtered||!filtered.length)return;
+  var uid=localStorage.getItem('gsc_userId');
+  var code=uid&&uid!=='shared'?localStorage.getItem('gsc_parentCode_'+uid):null;
+  _pmDigits=[];
+  _pmUpdateDots();
+  var pmErr=document.getElementById('pmErr');if(pmErr)pmErr.textContent='';
+  var pmPinStep=document.getElementById('pmPinStep');if(pmPinStep)pmPinStep.style.display='';
+  var pmJudge=document.getElementById('pmJudge');if(pmJudge)pmJudge.style.display='none';
+  var np=document.getElementById('pmNumpad');
+  if(np&&!np.dataset.built){
+    [1,2,3,4,5,6,7,8,9,'_',0,'⌫'].forEach(function(k){
+      var b=document.createElement('button');
+      b.className='pm-num';
+      if(k==='_'){b.disabled=true;b.style.opacity='0';b.style.pointerEvents='none';}
+      else{b.textContent=String(k);b.onclick=(function(dk){return function(){_pmKey(dk);};})(k);}
+      np.appendChild(b);
+    });
+    np.dataset.built='1';
+  }
+  var sub=document.getElementById('pmSub'),dots=document.getElementById('pmDots');
+  if(!code){
+    if(sub)sub.textContent='No parent code yet — ask your teacher! 📝';
+    if(np)np.style.display='none';
+    if(dots)dots.style.display='none';
+  } else {
+    if(sub)sub.textContent='Ask Mum or Dad to enter their code';
+    if(np)np.style.display='';
+    if(dots)dots.style.display='';
+  }
+  document.getElementById('parentModal').classList.add('pm-show');
+}
+function closeParentModal(){
+  var m=document.getElementById('parentModal');if(m)m.classList.remove('pm-show');
+  _pmDigits=[];_pmUpdateDots();
+}
+function _pmKey(k){
+  if(k==='⌫'){_pmDigits.pop();}
+  else if(_pmDigits.length<4){_pmDigits.push(String(k));}
+  _pmUpdateDots();
+  var pmErr=document.getElementById('pmErr');if(pmErr)pmErr.textContent='';
+  if(_pmDigits.length===4){setTimeout(_pmSubmit,120);}
+}
+function _pmUpdateDots(){
+  for(var i=0;i<4;i++){var d=document.getElementById('pmd'+i);if(d)d.classList.toggle('filled',i<_pmDigits.length);}
+}
+function _pmSubmit(){
+  var uid=localStorage.getItem('gsc_userId');
+  var code=uid&&uid!=='shared'?localStorage.getItem('gsc_parentCode_'+uid):null;
+  if(code&&_pmDigits.join('')===code){
+    var p=JSON.parse(localStorage.getItem('gsc_profile')||'{}');
+    var q=document.getElementById('pmJudgeQ');
+    if(q)q.textContent='Did '+(p.name||'they')+' explain it well?';
+    var step=document.getElementById('pmPinStep');if(step)step.style.display='none';
+    var judge=document.getElementById('pmJudge');if(judge)judge.style.display='';
+  } else {
+    var inner=document.getElementById('parentModalInner');
+    if(inner){inner.classList.add('pm-shake');setTimeout(function(){inner.classList.remove('pm-shake');},450);}
+    _pmDigits=[];_pmUpdateDots();
+    var pmErr=document.getElementById('pmErr');if(pmErr)pmErr.textContent='❌ Wrong code — try again';
+  }
+}
+function parentJudge(val){
+  closeParentModal();
+  rateCard(val);
+}
+
 function rateCard(val){
   if(!filtered||!filtered.length)return;
   var card=filtered[current];
   saveRating(card.topic,card.q,val);
   updateRatedBadge();
   if(val==='got'){
-    playGot(); sessionGot++; sessionXP+=10; sessionCards++;
-    addXP(10); showXPFloat(10);
+    playGot(); sessionGot++; sessionXP+=20; sessionCards++;
+    addXP(20); showXPFloat(20);
     var totalGot=Object.values(_ratings()).filter(function(v){return v==='got';}).length;
     if(sessionGot>=5)checkBadge('got5');
     if(totalGot>=20)checkBadge('cards20got');
@@ -525,10 +647,10 @@ function updateSessionBar(){
 
 var BADGES=[
   {id:'first_flip',icon:'📖',name:'First Page',desc:'Flip your first card'},
-  {id:'got5',icon:'✅',name:'Quick Scholar',desc:'5 Got it! in one session'},
+  {id:'got5',icon:'✅',name:'Quick Scholar',desc:'5 parent-verified cards in one session'},
   {id:'streak3',icon:'🔥',name:'Streak Starter',desc:'Study 3 days in a row'},
   {id:'streak7',icon:'💫',name:'Streak Master',desc:'Study 7 days in a row'},
-  {id:'topic_ace',icon:'🎯',name:'Topic Ace',desc:'Finish a topic with 80%+ Got it!'},
+  {id:'topic_ace',icon:'🎯',name:'Topic Ace',desc:'Finish a topic with 80%+ mastered'},
   {id:'five_topics',icon:'🌟',name:'Explorer',desc:'Complete 5 different topics'},
   {id:'cards50',icon:'📚',name:'Bookworm',desc:'Have 50 rated cards'},
   {id:'cards20got',icon:'💪',name:'Word Master',desc:'Master 20 cards'},
@@ -541,7 +663,16 @@ function showBadgeToast(id){var b=BADGES.find(function(x){return x.id===id;});if
 function showBadges(){
   var earned=lsGet('gsc_badges',[]),grid=document.getElementById('badgesGrid');
   if(!grid)return;grid.innerHTML='';
-  BADGES.forEach(function(b){var isE=earned.indexOf(b.id)!==-1;var c=document.createElement('div');c.className='badge-card '+(isE?'earned':'locked');c.innerHTML='<div class="badge-icon">'+b.icon+'</div><div class="badge-name">'+b.name+'</div><div class="badge-desc">'+b.desc+'</div>';grid.appendChild(c);});
+  BADGES.forEach(function(b){
+    var isE=earned.indexOf(b.id)!==-1;
+    var c=document.createElement('div');
+    c.className='badge-card '+(isE?'earned':'locked');
+    c.style.opacity=isE?'':'0.75';
+    c.style.filter=isE?'':'none';
+    var descHtml=isE?b.desc:'<span style="font-size:9px;font-weight:900;color:#fbbf24;display:block;margin-bottom:2px;">🔓 TO UNLOCK:</span>'+b.desc;
+    c.innerHTML='<div class="badge-icon">'+(isE?b.icon:'🔒')+'</div><div class="badge-name">'+b.name+'</div><div class="badge-desc">'+descHtml+'</div>';
+    grid.appendChild(c);
+  });
   document.getElementById('badgesModal').classList.add('bm-show');
 }
 function hideBadges(){document.getElementById('badgesModal').classList.remove('bm-show');}
