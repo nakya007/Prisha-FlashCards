@@ -348,6 +348,23 @@ function togglePin(id, pin) {
   else { el.textContent = '••••'; btn.textContent = 'Show'; }
 }
 
+async function setParentCode(id, name) {
+  const newCode = prompt(`Set Parent Code for ${name}\n\nEnter a 4-digit code for the parent to use when verifying cards\n(leave blank to cancel):`);
+  if (!newCode && newCode !== '') return;
+  if (newCode === '') {
+    if (!confirm(`Remove parent code for ${name}?`)) return;
+    try { await db.collection('users').doc(id).update({ parentCode: firebase.firestore.FieldValue.delete() }); loadStudents(); } catch(e) { alert('Error: ' + e.message); }
+    return;
+  }
+  const clean = newCode.trim().replace(/\D/g, '');
+  if (clean.length !== 4) { alert('Parent code must be exactly 4 digits.'); return; }
+  try {
+    await db.collection('users').doc(id).update({ parentCode: clean });
+    alert(`✅ Parent code for ${name} set to ${clean}\nShare this code with the parent privately.`);
+    loadStudents();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
 async function resetPin(id, name) {
   const newPin = prompt(`Reset PIN for ${name}\n\nEnter a new 4-digit PIN (or leave blank to cancel):`);
   if (!newPin) return;
@@ -476,6 +493,11 @@ function buildStudentCard(s) {
         <span style="font-size:14px;font-weight:900;letter-spacing:4px;color:#c4b5fd;" id="pin_${s.id}">${s.pin ? '••••' : '—'}</span>
         ${s.pin ? `<button onclick="togglePin('${s.id}','${s.pin}')" style="background:none;border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;" id="pinBtn_${s.id}">Show</button>` : ''}
         <button onclick="resetPin('${s.id}','${escHtml(s.name||'Student')}')" style="background:none;border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;">Reset</button>
+      </div>
+      <div style="width:100%;background:${s.parentCode?'rgba(59,130,246,0.08)':'rgba(251,191,36,0.08)'};border:1px solid ${s.parentCode?'rgba(59,130,246,0.25)':'rgba(251,191,36,0.35)'};border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:11px;color:${s.parentCode?'rgba(96,165,250,0.8)':'rgba(251,191,36,0.85)'};font-weight:800;">${s.parentCode?'✋ Parent Code':'⚠️ No Parent Code'}</span>
+        <span style="font-size:14px;font-weight:900;letter-spacing:4px;color:${s.parentCode?'#93c5fd':'#fbbf24'};">${s.parentCode?'••••':'Not set'}</span>
+        <button onclick="setParentCode('${s.id}','${escHtml(s.name||'Student')}')" style="background:none;border:1px solid ${s.parentCode?'rgba(96,165,250,0.3)':'rgba(251,191,36,0.4)'};color:${s.parentCode?'#60a5fa':'#fbbf24'};font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;">${s.parentCode?'Change':'Set'}</button>
       </div>
       <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Report</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;" onclick='showHabitReport("${s.id}","${escHtml(s.name||'Student')}")'>📅 Habits</button>
