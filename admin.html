@@ -357,14 +357,6 @@ async function loadStudents() {
 
 function refreshStudents() { loadStudents(); }
 
-function togglePin(id, pin) {
-  const el = document.getElementById('pin_' + id);
-  const btn = document.getElementById('pinBtn_' + id);
-  if (!el || !btn) return;
-  if (el.textContent === '••••') { el.textContent = pin; btn.textContent = 'Hide'; }
-  else { el.textContent = '••••'; btn.textContent = 'Show'; }
-}
-
 async function setParentCode(id, name) {
   const newCode = prompt(`Set Parent Code for ${name}\n\nEnter a 4-digit code for the parent to use when verifying cards\n(leave blank to cancel):`);
   if (!newCode && newCode !== '') return;
@@ -507,8 +499,7 @@ function buildStudentCard(s) {
     <div style="display:flex;gap:6px;margin-top:2px;flex-wrap:wrap;">
       <div style="width:100%;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="font-size:11px;color:rgba(167,139,250,0.7);font-weight:800;">🔐 PIN</span>
-        <span style="font-size:14px;font-weight:900;letter-spacing:4px;color:#c4b5fd;" id="pin_${s.id}">${s.pin ? '••••' : '—'}</span>
-        ${s.pin ? `<button onclick="togglePin('${s.id}','${s.pin}')" style="background:none;border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;" id="pinBtn_${s.id}">Show</button>` : ''}
+        <span style="font-size:14px;font-weight:900;letter-spacing:4px;color:#c4b5fd;">${s.pin ? '••••' : '—'}</span>
         <button onclick="resetPin('${s.id}','${escHtml(s.name||'Student')}')" style="background:none;border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;">Reset</button>
       </div>
       <div style="width:100%;background:${s.parentCode?'rgba(59,130,246,0.08)':'rgba(251,191,36,0.08)'};border:1px solid ${s.parentCode?'rgba(59,130,246,0.25)':'rgba(251,191,36,0.35)'};border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
