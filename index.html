@@ -606,13 +606,41 @@ async function _loadProfile(id) {
         localStorage.removeItem('gsc_parentCode_'+id);
       }
 
-      // If localStorage had higher values, push them back to Firestore now
-      if (mergedXp > fsXp || Object.keys(mergedRatings).length > Object.keys(fsRatings).length) {
+      // Badges: union merge — never lose earned badges from either side
+      const lsBadges = JSON.parse(localStorage.getItem('gsc_badges_'+id)||'[]');
+      const fsBadges = fsData.badges || [];
+      const mergedBadges = Array.from(new Set([...fsBadges, ...lsBadges]));
+      localStorage.setItem('gsc_badges_'+id, JSON.stringify(mergedBadges));
+
+      // Quiz correct: take the higher count
+      const lsQuizCorrect = parseInt(localStorage.getItem('gsc_quiz_correct_'+id)||'0')||0;
+      const fsQuizCorrect = fsData.quizCorrect || 0;
+      const mergedQuiz = Math.max(lsQuizCorrect, fsQuizCorrect);
+      localStorage.setItem('gsc_quiz_correct_'+id, JSON.stringify(mergedQuiz));
+
+      // Ace topics & mastered topics: union merge
+      const lsAceTopics = JSON.parse(localStorage.getItem('gsc_ace_topics_'+id)||'[]');
+      const fsAceTopics = fsData.aceTopics || [];
+      const mergedAceTopics = Array.from(new Set([...fsAceTopics, ...lsAceTopics]));
+      localStorage.setItem('gsc_ace_topics_'+id, JSON.stringify(mergedAceTopics));
+
+      const lsMasteredTopics = JSON.parse(localStorage.getItem('gsc_mastered_topics_'+id)||'[]');
+      const fsMasteredTopics = fsData.masteredTopics || [];
+      const mergedMasteredTopics = Array.from(new Set([...fsMasteredTopics, ...lsMasteredTopics]));
+      localStorage.setItem('gsc_mastered_topics_'+id, JSON.stringify(mergedMasteredTopics));
+
+      // If localStorage had higher values on any field, push full merged state back to Firestore
+      if (mergedXp > fsXp || Object.keys(mergedRatings).length > Object.keys(fsRatings).length
+          || mergedBadges.length > fsBadges.length || mergedQuiz > fsQuizCorrect) {
         const lsStreakFinal = JSON.parse(localStorage.getItem('gsc_streak_'+id)||'{"count":0}');
         db.collection('users').doc(id).update({
           xp: mergedXp,
           streak: lsStreakFinal.count || 0,
-          ratings: mergedRatings
+          ratings: mergedRatings,
+          badges: mergedBadges,
+          quizCorrect: mergedQuiz,
+          aceTopics: mergedAceTopics,
+          masteredTopics: mergedMasteredTopics
         }).catch(()=>{});
       }
       // ── End merge ──
