@@ -366,7 +366,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 </div>
 
 <!-- floating back button (shown only in card view) -->
-<button class="back-btn" id="cvBackBtn" onclick="goBackToTopics()">← Topics</button>
+<button class="back-btn" id="cvBackBtn" onclick="cvBack()">← Topics</button>
 
 <!-- ══ CARD VIEW ══ -->
 <div class="page card-view" id="cardView">
@@ -490,6 +490,25 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 
 <!-- ══ FEATURE SCRIPT (loads before main) ══ -->
 <script>
+/* ── Session guard ── */
+(function(){
+  var isPreview=localStorage.getItem('gsc_admin_preview')==='1';
+  if(!isPreview){
+    var uid=localStorage.getItem('gsc_userId');
+    var sess=sessionStorage.getItem('gsc_session_user');
+    // If process was killed (sessionStorage cleared) or no user, go home
+    if(!uid||uid==='shared'||sess!==uid){window.location.replace('index.html');return;}
+  }
+  // If app comes back from background after 15 min, go home
+  var _bgTime=0;
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='hidden'){_bgTime=Date.now();}
+    else if(_bgTime>0){
+      if(!isPreview&&Date.now()-_bgTime>15*60*1000){window.location.replace('index.html');}
+      _bgTime=0;
+    }
+  });
+})();
 var isQuizMode=false,soundMuted=false,sessionSeen={},isSwiping=false,_confAnim=null,_audioCtx=null;
 var sessionXP=0,sessionGot=0,sessionCards=0,newlyEarnedBadges=[],sessionQuizCorrect=0;
 var _pmDigits=[];
@@ -774,10 +793,15 @@ function updateProgressSection(){
 }
 
 /* ── Quiz ── */
+function cvBack(){
+  if(isQuizMode){toggleQuizMode();return;}
+  goBackToTopics();
+}
 function toggleQuizMode(){
   clearTimeout(window._quizAdvTimer);
   isQuizMode=!isQuizMode;
   var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);
+  var bb=document.getElementById('cvBackBtn');if(bb)bb.textContent=isQuizMode?'← Cards':'← Topics';
   var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');
   if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}
   else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}
@@ -1297,7 +1321,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="ArrowRight")navigate(1);
   else if(e.key==="ArrowLeft")navigate(-1);
   else if(e.key===" "||e.key==="Enter"){e.preventDefault();flipCard();}
-  else if(e.key==="Escape")goBackToTopics();
+  else if(e.key==="Escape")cvBack();
 });
 
 function handleSearch(val){
@@ -1313,7 +1337,7 @@ buildTopicGrid();
 // ── iOS back button fix ───────────────────────────────────────────
 (function(){
   var bb=document.getElementById('cvBackBtn');
-  if(bb) bb.addEventListener('touchend',function(e){e.preventDefault();goBackToTopics();},{passive:false});
+  if(bb) bb.addEventListener('touchend',function(e){e.preventDefault();cvBack();},{passive:false});
 })();
 
 // ── Challenge mode ────────────────────────────────────────────────
