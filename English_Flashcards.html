@@ -17,7 +17,8 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html{min-height:100%;background:#060618;}
-body{font-family:'Nunito',sans-serif;background:#060618;color:#e8eaf6;min-height:100dvh;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px);}
+body{font-family:'Nunito',sans-serif;background:#060618;color:#e8eaf6;min-height:100dvh;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px);animation:_pgFadeIn 0.18s ease both;}
+@keyframes _pgFadeIn{from{opacity:0}to{opacity:1}}
 canvas#leafCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;transition:opacity 0.5s;}
 body:not(.theme-jungle) canvas{opacity:0!important;}
 /* ══ Theme system ══ */
@@ -303,9 +304,9 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
     <span class="xp-label" id="xpLabel">0 XP</span>
   </div>
   <div class="stats-row">
-    <div class="stat-pill"><span class="stat-val" id="statTotalCards">0</span><span class="stat-lbl">Rated</span></div>
-    <div class="stat-pill"><span class="stat-val" id="statMastered">0</span><span class="stat-lbl">Mastered</span></div>
-    <div class="stat-pill"><span class="stat-val" id="statXPTotal">0</span><span class="stat-lbl">Total XP</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statTotalCards">0</span><span class="stat-lbl">📋 Rated</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statMastered">0</span><span class="stat-lbl">✅ Mastered</span></div>
+    <div class="stat-pill"><span class="stat-val" id="statXPTotal">0</span><span class="stat-lbl">⭐ Total XP</span></div>
   </div>
   <div class="mascot-wrap">
     <span class="mascot-emoji" id="mascotEmoji">🦉</span>
@@ -321,11 +322,11 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   </div>
   <div class="topic-grid" id="topicGrid"></div>
   <p class="no-results" id="noResults">No topics match — try a different search!</p>
-  <a href="index.html" class="home-link">🏠 Back to Home</a>
+  <button class="home-link" onclick="_goHome()">🏠 Back to Home</button>
 </div>
 
 <!-- floating back button (shown only in card view) -->
-<button class="back-btn" id="cvBackBtn" onclick="cvBack()">← Topics</button>
+<button class="back-btn" id="cvBackBtn" onclick="cvBack()">← All Topics</button>
 
 <!-- ══ CARD VIEW ══ -->
 <div class="page card-view" id="cardView">
@@ -473,6 +474,7 @@ var _isAdminPreview=localStorage.getItem('gsc_admin_preview')==='1';
 function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function _uk(b){return b+'_'+(localStorage.getItem('gsc_userId')||'shared');}
+function _goHome(){document.body.style.transition='opacity 0.15s ease';document.body.style.opacity='0';setTimeout(function(){window.location.href='index.html';},160);}
 
 /* ── Firestore sync (keeps admin dashboard up to date) ── */
 var _syncTimer=null;
@@ -674,7 +676,11 @@ function showLevelUpToast(name){
   setTimeout(function(){t.classList.remove('lt-show');},2800);
 }
 function updateStatsRow(){
-  var r=_ratings(),total=Object.keys(r).length,mastered=Object.values(r).filter(function(v){return v==='got';}).length,xp=lsGet(_uk('gsc_xp'),0);
+  var r=_ratings();
+  /* Filter to only cards belonging to THIS subject (English) */
+  var _ts=ALL_CARDS.reduce(function(s,c){s[c.topic]=1;return s;},{});
+  var _sr=Object.keys(r).reduce(function(a,k){if(_ts[k.split('||')[0]])a[k]=r[k];return a;},{});
+  var total=Object.keys(_sr).length,mastered=Object.values(_sr).filter(function(v){return v==='got';}).length,xp=lsGet(_uk('gsc_xp'),0);
   var e;e=document.getElementById('statTotalCards');if(e)e.textContent=total;
   e=document.getElementById('statMastered');if(e)e.textContent=mastered;
   e=document.getElementById('statXPTotal');if(e)e.textContent=xp;
@@ -786,7 +792,10 @@ function updateProgressSection(){
   weak.forEach(function(t){var meta=typeof TOPIC_META!=='undefined'?(TOPIC_META[t]||{emoji:'📚'}):{emoji:'📚'};var chip=document.createElement('span');chip.className='weak-chip';chip.textContent=meta.emoji+' '+t+' ('+topicHard[t]+')';chip.onclick=function(){enterTopic(t);};wrap.appendChild(chip);});
 }
 
+var _cvBackLock=false;
 function cvBack(){
+  if(_cvBackLock)return;
+  _cvBackLock=true;setTimeout(function(){_cvBackLock=false;},400);
   if(isQuizMode){toggleQuizMode();return;}
   goBackToTopics();
 }
@@ -794,7 +803,7 @@ function toggleQuizMode(){
   clearTimeout(window._quizAdvTimer);
   isQuizMode=!isQuizMode;
   var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);
-  var bb=document.getElementById('cvBackBtn');if(bb)bb.textContent=isQuizMode?'← Cards':'← Topics';
+  var bb=document.getElementById('cvBackBtn');if(bb)bb.textContent=isQuizMode?'← Cards':'← All Topics';
   var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');
   if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}
   else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}
@@ -837,7 +846,7 @@ function answerQuiz(chosen,correct,container,card){
   clearTimeout(window._quizAdvTimer);
   window._quizAdvTimer=setTimeout(function(){
     if(!isQuizMode)return;
-    if(current>=filtered.length-1)showSessionSummary();else navigate(1);
+    if(current>=filtered.length-1){current=0;isFlipped=false;var ci=document.getElementById('cardInner');if(ci)ci.classList.remove('flipped');renderCard();}else navigate(1);
   },1500);
 }
 
@@ -857,7 +866,7 @@ function showSessionSummary(){
       if(mt.length>=3)checkBadgeTier('explorer','b');if(mt.length>=8)checkBadgeTier('explorer','s');if(mt.length>=15)checkBadgeTier('explorer','g');
     }
   }
-  addXP(50);var xpEarned=sessionXP+50;
+  var bonus=isQuizMode?0:50;if(bonus)addXP(bonus);var xpEarned=sessionXP+bonus;
   var e;e=document.getElementById('statSeen');if(e)e.textContent=totalSeen;
   e=document.getElementById('statGot');if(e)e.textContent=sessionGot;
   e=document.getElementById('statXP');if(e)e.textContent='+'+xpEarned+' XP';
@@ -876,7 +885,19 @@ function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=nul
 
 (function(){var sx=0,sy=0,th=50,_mt=false;window.addEventListener('touchstart',function(e){if(e.touches.length>1){_mt=true;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){if(_mt){if(e.touches.length===0)_mt=false;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
 
-initFont(); initMute(); _initStreakDisplay(); _syncToFirestore();
+initFont(); initMute(); _initStreakDisplay();
+/* On page load: only update lastActive — never write all fields (would wipe Firestore with empty localStorage before data loads) */
+(function(){
+  var _u=localStorage.getItem('gsc_userId');
+  if(!_u||_u==='shared'||_isAdminPreview||typeof window.db==='undefined')return;
+  window.db.collection('users').doc(_u).update({lastActive:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+  /* Pre-fetch parent code if not cached locally (admin may have set it on a different device) */
+  if(!localStorage.getItem('gsc_parentCode_'+_u)){
+    window.db.collection('users').doc(_u).get().then(function(d){
+      if(d.exists&&d.data().parentCode)localStorage.setItem('gsc_parentCode_'+_u,d.data().parentCode);
+    }).catch(function(){});
+  }
+})();
 </script>
 <!-- ══ MAIN SCRIPT ══ -->
 <script>
@@ -1238,6 +1259,7 @@ function renderCard(){
   if(card.svg){document.getElementById("cardQuestion").innerHTML=card.q.replace(/\n/g,"<br>")+card.svg;}else{document.getElementById("cardQuestion").textContent=card.q;}
   document.getElementById("cardAnswer").textContent=card.a;
   document.getElementById("cardProgress").textContent="Card "+(current+1)+" of "+filtered.length;
+  var _sub=document.getElementById("cvSub");if(_sub)_sub.textContent=(current+1)+" of "+filtered.length;
   document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===filtered.length-1;
   const pct=filtered.length>1?(current/(filtered.length-1))*100:100;
   var pbr=document.getElementById("progressBar");if(pbr)pbr.style.width=pct+"%";
@@ -1258,7 +1280,7 @@ function flipCard(){
 function navigate(dir){
   clearTimeout(window._quizAdvTimer);
   hideRatingBtns();
-  if(dir>0&&current>=filtered.length-1){if(filtered.length>0)showSessionSummary();return;}
+  if(dir>0&&current>=filtered.length-1){if(filtered.length>0&&!isQuizMode)showSessionSummary();return;}
   const n=current+dir;
   if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
 }
@@ -1349,7 +1371,7 @@ buildTopicGrid();
   window.goBackToTopics = function(){
     if (window._chalInterval) clearInterval(window._chalInterval);
     localStorage.setItem(window._chalPosKey, String((window._chalStartPos + current) % ALL_CARDS.length));
-    window.location.href = 'index.html';
+    _goHome();
   };
 })();
 
@@ -1391,7 +1413,7 @@ function continueAfterChallenge(){
   <div class="cc-sub" id="ccSub">You nailed the challenge!</div>
   <div class="cc-cards" id="ccCards">🃏 0 cards studied</div>
   <div class="cc-note">Remaining cards saved — next challenge continues here 📖</div>
-  <button class="cc-btn cc-btn-primary" onclick="window.location.href='index.html'">🏠 Back to Home</button>
+  <button class="cc-btn cc-btn-primary" onclick="_goHome()">🏠 Back to Home</button>
   <button class="cc-btn cc-btn-secondary" onclick="continueAfterChallenge()">Keep going →</button>
 </div>
 <script>
