@@ -518,6 +518,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 })();
 var isQuizMode=false,soundMuted=false,sessionSeen={},isSwiping=false,_confAnim=null,_audioCtx=null;
 var sessionXP=0,sessionGot=0,sessionCards=0,newlyEarnedBadges=[],sessionQuizCorrect=0;
+var _quizWrongCards=[],_quizOrigFiltered=null,_quizPassNum=0;
 var _pmDigits=[];
 var _isAdminPreview=localStorage.getItem('gsc_admin_preview')==='1';
 
@@ -538,6 +539,7 @@ function _syncToFirestore(){
     var ratings=lsGet(_uk('gsc_ratings'),{});
     window.db.collection('users').doc(uid).update({
       xp:xp,
+      xpMaths:lsGet(_uk('gsc_xp_maths'),0),
       streak:streak.count||0,
       ratings:ratings,
       badges:lsGet(_uk('gsc_badges'),[]),
@@ -714,6 +716,8 @@ function getLevelIdx(xp){for(var i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS
 function addXP(amt){
   var xp=lsGet(_uk('gsc_xp'),0),oldLvl=getLevelIdx(xp);
   xp+=amt; lsSet(_uk('gsc_xp'),xp);
+  /* Also track Maths-specific XP for the subject stat bar */
+  lsSet(_uk('gsc_xp_maths'),lsGet(_uk('gsc_xp_maths'),0)+amt);
   var newLvl=getLevelIdx(xp);
   if(newLvl>oldLvl&&!_isAdminPreview){showLevelUpToast(XP_LEVELS[newLvl].name);if(newLvl>=3)checkBadge('level_scholar');if(newLvl>=4)checkBadge('level_champion');}
   updateXPBar();
@@ -737,7 +741,7 @@ function updateStatsRow(){
   /* Filter to only cards belonging to THIS subject (Maths) */
   var _ts=ALL_CARDS.reduce(function(s,c){s[c.topic]=1;return s;},{});
   var _sr=Object.keys(r).reduce(function(a,k){if(_ts[k.split('||')[0]])a[k]=r[k];return a;},{});
-  var total=Object.keys(_sr).length,mastered=Object.values(_sr).filter(function(v){return v==='got';}).length,xp=lsGet(_uk('gsc_xp'),0);
+  var total=Object.keys(_sr).length,mastered=Object.values(_sr).filter(function(v){return v==='got';}).length,xp=lsGet(_uk('gsc_xp_maths'),0);
   var e;e=document.getElementById('statTotalCards');if(e)e.textContent=total;
   e=document.getElementById('statMastered');if(e)e.textContent=mastered;
   e=document.getElementById('statXPTotal');if(e)e.textContent=xp;
@@ -866,8 +870,20 @@ function toggleQuizMode(){
   var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);
   var bb=document.getElementById('cvBackBtn');if(bb)bb.textContent=isQuizMode?'← Cards':'← All Topics';
   var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');
-  if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}
-  else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}
+  if(isQuizMode){
+    /* Starting quiz — save original filtered list and reset state */
+    _quizOrigFiltered=filtered.slice();
+    _quizWrongCards=[];_quizPassNum=1;
+    current=0;
+    if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');
+    renderCard();renderQuiz();
+  } else {
+    /* Ending quiz — restore original filtered list */
+    if(_quizOrigFiltered)filtered=_quizOrigFiltered;
+    _quizOrigFiltered=null;_quizWrongCards=[];_quizPassNum=0;
+    current=0;renderCard();
+    if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';
+  }
 }
 function renderQuiz(){
   if(!filtered||!filtered.length)return;
@@ -895,20 +911,56 @@ function answerQuiz(chosen,correct,container,card){
     var t=b.textContent,c=correct.length>70?correct.substring(0,67)+'…':correct,ch=chosen.length>70?chosen.substring(0,67)+'…':chosen;
     if(t===c)b.classList.add('qo-correct');else if(t===ch)b.classList.add('qo-wrong');
   });
-  if(chosen===correct){
+  var isCorrect=chosen===correct;
+  if(isCorrect){
     playGot();sessionQuizCorrect++;
     var tqc=lsGet(_uk('gsc_quiz_correct'),0)+1;lsSet(_uk('gsc_quiz_correct'),tqc);
     if(tqc>=10)checkBadgeTier('quiz','b');if(tqc>=50)checkBadgeTier('quiz','s');if(tqc>=100)checkBadgeTier('quiz','g');
     if(card)saveRating(card.topic,card.q,'got');
   }else{
     playHard();
-    if(card)saveRating(card.topic,card.q,'hard');
+    if(card){saveRating(card.topic,card.q,'hard');_quizWrongCards.push(card);}
   }
   clearTimeout(window._quizAdvTimer);
   window._quizAdvTimer=setTimeout(function(){
     if(!isQuizMode)return;
-    if(current>=filtered.length-1){current=0;isFlipped=false;var ci=document.getElementById('cardInner');if(ci)ci.classList.remove('flipped');renderCard();}else navigate(1);
+    if(current>=filtered.length-1){
+      showQuizScore();
+    }else{
+      navigate(1);
+    }
   },1500);
+}
+function showQuizScore(){
+  clearTimeout(window._quizAdvTimer);
+  var total=filtered.length;
+  var wrong=_quizWrongCards.length;
+  var correct=total-wrong;
+  var isPerfect=wrong===0;
+  var qb=document.getElementById('quizQuestion');
+  var ob=document.getElementById('quizOpts');
+  if(!ob)return;
+  if(isPerfect){playCelebrate();}else{playHard();}
+  var headline=isPerfect
+    ?(_quizPassNum>1?'All fixed! ':'Perfect! ')+correct+' / '+total+' correct 🎉'
+    :correct+' / '+total+' correct';
+  var subline=isPerfect
+    ?'Great job — you nailed every question!'
+    :'You got '+wrong+' question'+(wrong===1?'':'s')+' wrong. Want to try those again?';
+  if(qb)qb.textContent=headline;
+  ob.innerHTML='<div style="text-align:center;padding:8px 0 4px"><p style="margin:0 0 18px;font-size:14px;opacity:0.75">'+subline+'</p>'
+    +(isPerfect
+      ?'<button class="quiz-opt qo-correct" style="width:100%;margin-bottom:0" onclick="toggleQuizMode()">Done ✓</button>'
+      :'<button class="quiz-opt qo-correct" style="width:100%;margin-bottom:10px" onclick="retryWrongQuiz()">Retry '+wrong+' wrong card'+(wrong===1?'':'s')+'</button>'
+       +'<button class="quiz-opt" style="width:100%;opacity:0.7" onclick="toggleQuizMode()">Done (exit quiz)</button>'
+    )+'</div>';
+}
+function retryWrongQuiz(){
+  filtered=_quizWrongCards.slice();
+  _quizWrongCards=[];
+  _quizPassNum++;
+  current=0;
+  renderCard();renderQuiz();
 }
 
 /* ── Summary / Celebration ── */
