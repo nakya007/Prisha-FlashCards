@@ -392,11 +392,10 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     </div>
   </div>
 
-  <!-- Footer: themes + logout -->
+  <!-- Footer: theme + logout -->
   <div class="home-footer">
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-      <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><span class="theme-chip-muted"><span id="chipMathsName">Space</span></span></div>
-      <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><span class="theme-chip-muted"><span id="chipEnglishName">Library</span></span></div>
+      <div class="theme-chip" onclick="openThemeChanger()"><span id="chipThemeEmoji">🚀</span><span class="theme-chip-muted">🎨 <span id="chipThemeName">Space</span></span></div>
     </div>
     <button class="logout-btn" onclick="logOut()">🚪 Log out</button>
   </div>
@@ -405,8 +404,8 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 <!-- THEME OVERLAY -->
 <div class="overlay" id="themeOverlay" onclick="overlayClick(event)">
   <div class="overlay-sheet">
-    <div class="overlay-title" id="overlayTitle">Change Maths Theme</div>
-    <div class="overlay-sub">Pick a new look for this subject</div>
+    <div class="overlay-title" id="overlayTitle">🎨 Change Theme</div>
+    <div class="overlay-sub">Applies to both Maths and English</div>
     <div class="theme-grid" id="themeGridChange"></div>
     <button class="btn btn-primary" onclick="saveThemeChange()">Save Theme</button>
     <button class="btn btn-ghost" style="margin-bottom:0" onclick="closeThemeChanger()">Cancel</button>
@@ -1066,13 +1065,12 @@ function renderHome() {
   const xpPF=document.getElementById('xpProgressFill');if(xpPF)xpPF.style.width=pct+'%';
   // Tint progress bar to current theme accent colour
   if(xpPF)xpPF.style.background=tm.xp||'linear-gradient(90deg,#4338ca,#818cf8)';
-  document.getElementById('chipMathsEmoji').textContent   = tm.emoji;
-  document.getElementById('chipMathsName').textContent    = tm.name;
-  document.getElementById('chipEnglishEmoji').textContent = te.emoji;
-  document.getElementById('chipEnglishName').textContent  = te.name;
+  const chipE=document.getElementById('chipThemeEmoji'), chipN=document.getElementById('chipThemeName');
+  if(chipE) chipE.textContent=tm.emoji;
+  if(chipN) chipN.textContent=tm.name;
   const sbm=document.getElementById('sbMathsIcon'), sbe=document.getElementById('sbEnglishIcon');
   if(sbm) sbm.textContent=tm.mascot||'🚀';
-  if(sbe) sbe.textContent=te.mascot||'🦉';
+  if(sbe) sbe.textContent=tm.mascot||'🚀';
   renderChallengePanel(getTodayChallenges());
   // Show mascot tip on first visit for this profile
   showHomeMascotTip(_uid, tm.mascot||'🚀');
@@ -1081,23 +1079,29 @@ function goToSubject(subject) {
   if (currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
   window.location.href = subject==='maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
 }
-function openThemeChanger(subject) {
-  pendingSubject = subject||'maths';
-  const currentKey = pendingSubject==='maths' ? (currentProfile.themeMaths||'space') : (currentProfile.themeEnglish||'library');
+function openThemeChanger() {
+  const currentKey = currentProfile.themeMaths||'space';
   pendingTheme = currentKey;
-  document.getElementById('overlayTitle').textContent = pendingSubject==='maths' ? '🚀 Change Maths Theme' : '📚 Change English Theme';
-  buildThemeGrid('themeGridChange', currentKey, k=>{ pendingTheme=k; });
+  buildThemeGrid('themeGridChange', currentKey, k=>{ pendingTheme=k; applyTheme(k); });
   document.getElementById('themeOverlay').classList.add('open');
 }
-function closeThemeChanger() { document.getElementById('themeOverlay').classList.remove('open'); }
+function closeThemeChanger() { document.getElementById('themeOverlay').classList.remove('open'); applyTheme(currentProfile.themeMaths||'space'); }
 function overlayClick(e) { if (e.target===document.getElementById('themeOverlay')) closeThemeChanger(); }
 async function saveThemeChange() {
   const t = THEMES[pendingTheme]||THEMES.space;
-  if (pendingSubject==='maths') { currentProfile.themeMaths=pendingTheme; document.getElementById('chipMathsEmoji').textContent=t.emoji; document.getElementById('chipMathsName').textContent=t.name; applyTheme(pendingTheme); const sbm=document.getElementById('sbMathsIcon'); if(sbm) sbm.textContent=t.mascot||'🚀'; }
-  else { currentProfile.themeEnglish=pendingTheme; document.getElementById('chipEnglishEmoji').textContent=t.emoji; document.getElementById('chipEnglishName').textContent=t.name; const sbe=document.getElementById('sbEnglishIcon'); if(sbe) sbe.textContent=t.mascot||'🦉'; }
-  saveProfileEntry(currentProfile.id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
+  currentProfile.themeMaths = pendingTheme;
+  currentProfile.themeEnglish = pendingTheme;
+  const chipE=document.getElementById('chipThemeEmoji'), chipN=document.getElementById('chipThemeName');
+  if(chipE) chipE.textContent=t.emoji;
+  if(chipN) chipN.textContent=t.name;
+  applyTheme(pendingTheme);
+  const sbm=document.getElementById('sbMathsIcon'); if(sbm) sbm.textContent=t.mascot||'🚀';
+  const sbe=document.getElementById('sbEnglishIcon'); if(sbe) sbe.textContent=t.mascot||'🚀';
+  // Update progress bar tint
+  const xpPF=document.getElementById('xpProgressFill'); if(xpPF) xpPF.style.background=t.xp||'linear-gradient(90deg,#4338ca,#818cf8)';
+  saveProfileEntry(currentProfile.id, currentProfile.name, pendingTheme, pendingTheme);
   closeThemeChanger();
-  try { await db.collection('users').doc(currentProfile.id).update(pendingSubject==='maths' ? {themeMaths:pendingTheme} : {themeEnglish:pendingTheme}); } catch(e) {}
+  try { await db.collection('users').doc(currentProfile.id).update({themeMaths:pendingTheme, themeEnglish:pendingTheme}); } catch(e) {}
 }
 
 // Daily Challenges
