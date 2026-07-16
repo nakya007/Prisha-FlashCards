@@ -764,8 +764,9 @@ function answerQuiz(chosen,correct,container,card){
 }
 
 function showSessionSummary(){
-  playCelebrate();_startConf();
   var totalSeen=Object.values(sessionSeen).reduce(function(a,b){return a+Object.keys(b).length;},0);
+  if(totalSeen===0&&sessionCards===0)return;
+  playCelebrate();_startConf();
   if(filtered&&filtered.length){var gotCount=filtered.filter(function(c){return getCardRating(c.topic,c.q)==='got';}).length;if(gotCount/filtered.length>=0.8)checkBadge('topic_ace');}
   if(filtered&&filtered.length&&filtered[0].topic){var ct=lsGet('gsc_completed_topics',[]),tn=filtered[0].topic;if(ct.indexOf(tn)===-1){ct.push(tn);lsSet('gsc_completed_topics',ct);if(ct.length>=5)checkBadge('five_topics');}}
   addXP(50);var xpEarned=sessionXP+50;
@@ -785,7 +786,7 @@ function closeSummaryAndBack(){closeSummary();goBackToTopics();}
 function _startConf(){var cv=document.getElementById('confettiCanvas');if(!cv)return;var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;var p=[];for(var i=0;i<130;i++)p.push({x:Math.random()*cv.width,y:Math.random()*-cv.height,vx:(Math.random()-0.5)*4.5,vy:Math.random()*4+2,color:'hsl('+(Math.random()*360)+',80%,60%)',size:Math.random()*8+4,angle:Math.random()*Math.PI*2,spin:(Math.random()-0.5)*0.2});function step(){ctx.clearRect(0,0,cv.width,cv.height);p.forEach(function(pt){ctx.save();ctx.translate(pt.x,pt.y);ctx.rotate(pt.angle);ctx.fillStyle=pt.color;ctx.fillRect(-pt.size/2,-pt.size/2,pt.size,pt.size);ctx.restore();pt.x+=pt.vx;pt.y+=pt.vy;pt.angle+=pt.spin;if(pt.y>cv.height)pt.y=-20;});_confAnim=requestAnimationFrame(step);}step();}
 function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=null;}var cv=document.getElementById('confettiCanvas');if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}}
 
-(function(){var sx=0,sy=0,th=50;window.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
+(function(){var sx=0,sy=0,th=50,_mt=false;window.addEventListener('touchstart',function(e){if(e.touches.length>1){_mt=true;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){if(_mt){if(e.touches.length===0)_mt=false;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
 
 initFont(); initMute(); updateStreak(); _syncToFirestore();
 </script>
@@ -1170,7 +1171,7 @@ function flipCard(){
 function navigate(dir){
   clearTimeout(window._quizAdvTimer);
   hideRatingBtns();
-  if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}
+  if(dir>0&&current>=filtered.length-1){if(filtered.length>0)showSessionSummary();return;}
   const n=current+dir;
   if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
 }
