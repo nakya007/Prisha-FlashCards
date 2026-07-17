@@ -793,10 +793,22 @@ function initSignInPad() {
     }
     document.getElementById('signinErr').textContent = 'Looking up your profile…';
     try {
-      const snap = await db.collection('users').get();
-      let found = null;
-      let suspended = null;
-      snap.forEach(doc => { const d=doc.data(); if (d.name && d.name.toLowerCase()===name.toLowerCase() && d.pin===pin) { if(d.suspended) suspended=d; else found = { id: doc.id, ...d }; } });
+      // Check local profile cache first (O(1)) before falling back to full collection scan
+      let found = null, suspended = null;
+      const cachedProfiles = getSavedProfiles();
+      const cachedMatch = cachedProfiles.find(p => p.name && p.name.toLowerCase() === name.toLowerCase());
+      if (cachedMatch) {
+        const docSnap = await db.collection('users').doc(cachedMatch.id).get();
+        if (docSnap.exists) {
+          const d = docSnap.data();
+          if (d.pin === pin) { if (d.suspended) suspended = d; else found = { id: cachedMatch.id, ...d }; }
+        }
+      }
+      if (!found && !suspended) {
+        // Fallback: full scan (new device, no local cache)
+        const snap = await db.collection('users').get();
+        snap.forEach(doc => { const d=doc.data(); if (d.name && d.name.toLowerCase()===name.toLowerCase() && d.pin===pin) { if(d.suspended) suspended=d; else found = { id: doc.id, ...d }; } });
+      }
       if (suspended) {
         document.getElementById('signinErr').textContent = '⚠️ This account has been suspended. Please contact your admin.';
         _signinPad.shake(); return;
