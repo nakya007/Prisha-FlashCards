@@ -259,8 +259,21 @@ const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 // ── Auth (Google Sign-In via Firebase) ──────────────────────────────
 const auth = firebase.auth();
 
-// Ignore stale redirect results on page load — we always use popup now
-firebase.auth().getRedirectResult().catch(() => {});
+// Detect iOS / Safari — popup is unreliable there; use redirect instead
+function _useRedirect() {
+  var ua = navigator.userAgent;
+  return /iPhone|iPad|iPod/i.test(ua) || (/Safari/i.test(ua) && !/Chrome|CriOS|FxiOS/i.test(ua));
+}
+
+// Handle redirect result on page load (fires after signInWithRedirect returns)
+firebase.auth().getRedirectResult().then(function(result) {
+  // onAuthStateChanged handles the session — nothing extra needed
+}).catch(function(err) {
+  if (err.code && err.code !== 'auth/no-auth-event') {
+    const errEl = document.getElementById('signinErr');
+    if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
+  }
+});
 
 firebase.auth().onAuthStateChanged(user => {
   if (user && user.email === ADMIN_EMAIL) {
@@ -277,27 +290,37 @@ firebase.auth().onAuthStateChanged(user => {
 async function adminSignIn() {
   const errEl = document.getElementById('signinErr');
   const btn = document.querySelector('.btn-google');
-  // Prevent double-click / re-entry while popup is open
   if (btn && btn.disabled) return;
   if (btn) { btn.disabled = true; btn.style.opacity = '0.55'; }
-  if (errEl) errEl.textContent = 'Opening sign-in popup…';
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
+
+  if (_useRedirect()) {
+    // iOS / Safari: redirect is reliable; popup is not
+    if (errEl) errEl.textContent = 'Redirecting to Google sign-in…';
+    try {
+      await auth.signInWithRedirect(provider);
+      // Page navigates away — onAuthStateChanged handles it on return
+    } catch(err) {
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+      if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
+    }
+    return;
+  }
+
+  // Desktop Chrome / Firefox: popup works fine
+  if (errEl) errEl.textContent = 'Opening sign-in popup…';
   try {
     await auth.signInWithPopup(provider);
-    // onAuthStateChanged handles the rest; leave button disabled until page transitions
+    // onAuthStateChanged handles the rest
   } catch(err) {
-    // Re-enable button so the user can try again
     if (btn) { btn.disabled = false; btn.style.opacity = ''; }
     if (err.code === 'auth/popup-blocked') {
-      if (errEl) errEl.textContent = '⚠️ Popup was blocked — allow popups for this site, then try again.';
+      if (errEl) errEl.textContent = '⚠️ Popup blocked — allow popups for this site, then try again.';
     } else if (err.code === 'auth/popup-closed-by-user') {
-      if (errEl) errEl.textContent = 'Sign-in cancelled — tap the button to try again.';
-    } else if (err.code === 'auth/cancelled-popup-request') {
-      // Previous popup was still open; the new one took over — just wait
-      if (errEl) errEl.textContent = 'Opening sign-in popup…';
+      if (errEl) errEl.textContent = 'Sign-in cancelled — tap to try again.';
     } else if (err.code === 'auth/network-request-failed') {
-      if (errEl) errEl.textContent = '❌ No internet connection — check your network and try again.';
+      if (errEl) errEl.textContent = '❌ No internet — check your connection and try again.';
     } else {
       if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
     }
