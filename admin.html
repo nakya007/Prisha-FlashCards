@@ -477,10 +477,10 @@ function buildStudentCard(s) {
     if (val === 'hard') topicStats[topic].hard++;
   });
   const strengths = Object.entries(topicStats)
-    .filter(([, v]) => v.total >= 2 && (v.got / v.total) >= 0.75)
+    .filter(([, v]) => v.total >= 1 && (v.got / v.total) >= 0.75)
     .map(([k]) => k).slice(0, 3);
   const weaknesses = Object.entries(topicStats)
-    .filter(([, v]) => v.total >= 2 && (v.hard / v.total) >= 0.4)
+    .filter(([, v]) => v.total >= 1 && (v.hard / v.total) >= 0.4)
     .map(([k]) => k).slice(0, 3);
 
   const badges = (s.badges || []).slice(0, 4);
