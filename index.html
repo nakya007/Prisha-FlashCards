@@ -570,9 +570,9 @@ function renderSavedProfilesOnWelcome() {
 }
 
 // Called after PIN verified — actually loads the profile
-async function _loadProfile(id) {
+async function _loadProfile(id, snapOverride, backgroundSync) {
   try {
-    const snap = await db.collection('users').doc(id).get();
+    const snap = snapOverride || await db.collection('users').doc(id).get();
     if (snap.exists) {
       currentProfile = { id, ...snap.data() };
       saveProfileEntry(id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
@@ -654,7 +654,8 @@ async function _loadProfile(id) {
       // ── End merge ──
 
       applyTheme(currentProfile.themeMaths || 'space');
-      renderHome(); showScreen('screenHome');
+      renderHome();
+      if (!backgroundSync) showScreen('screenHome');
       db.collection('users').doc(id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
       syncChallengeCompletions(id).catch(()=>{});
     }
@@ -684,12 +685,30 @@ function selectProfile(id, name) {
 async function submitVerifyPin() {
   const pin = _verifyPad.value;
   const errEl = document.getElementById('verifyPinErr');
+  const id = _verifyTargetId;
+
+  // ── Fast path: cached PIN matches → home screen instantly ──
+  const cachedPin = localStorage.getItem('gsc_pin_cache_'+id);
+  if (cachedPin && pin === cachedPin) {
+    document.getElementById('pinVerifyOverlay').classList.remove('open');
+    localStorage.setItem('gsc_userId', id);
+    sessionStorage.setItem('gsc_session_user', id);
+    const saved = getSavedProfiles().find(p => p.id === id) || {};
+    currentProfile = { id, name: saved.name||'Student', themeMaths: saved.themeMaths||'space', themeEnglish: saved.themeEnglish||'library' };
+    applyTheme(currentProfile.themeMaths||'space');
+    renderHome(); showScreen('screenHome');
+    // Background: sync Firestore data and refresh home stats silently
+    _loadProfile(id, null, true).catch(()=>{});
+    return;
+  }
+
+  // ── Slow path: no cached PIN (first login on this device) ──
   errEl.textContent = 'Checking…';
   try {
-    const snap = await db.collection('users').doc(_verifyTargetId).get();
+    const snap = await db.collection('users').doc(id).get();
     if (snap.exists && snap.data().pin === pin) {
       document.getElementById('pinVerifyOverlay').classList.remove('open');
-      await _loadProfile(_verifyTargetId);
+      await _loadProfile(id, snap); // reuse snap — eliminates second Firestore read
     } else {
       errEl.textContent = '❌ Wrong PIN — try again';
       _verifyPad.shake();
@@ -697,24 +716,8 @@ async function submitVerifyPin() {
       btn.disabled = true; btn.style.opacity = '0.4';
     }
   } catch(e) {
-    // Offline fallback: check locally cached PIN
-    const cachedPin = localStorage.getItem('gsc_pin_cache_'+_verifyTargetId);
-    if (cachedPin && pin === cachedPin) {
-      const id = _verifyTargetId;
-      localStorage.setItem('gsc_userId', id);
-      sessionStorage.setItem('gsc_session_user', id);
-      const saved = getSavedProfiles().find(function(p){return p.id===id;}) || {};
-      currentProfile = { id, name: saved.name || 'Student', themeMaths: saved.themeMaths || 'space', themeEnglish: saved.themeEnglish || 'space' };
-      errEl.textContent = '📶 Offline — using saved profile';
-      setTimeout(function() {
-        document.getElementById('pinVerifyOverlay').classList.remove('open');
-        applyTheme(currentProfile.themeMaths || 'space');
-        renderHome(); showScreen('screenHome');
-      }, 600);
-    } else {
-      errEl.textContent = '⚠️ No internet — connect to sign in';
-      _verifyPad.shake();
-    }
+    errEl.textContent = '⚠️ No internet — connect to sign in';
+    _verifyPad.shake();
   }
 }
 function closeVerifyPin() {
@@ -723,22 +726,13 @@ function closeVerifyPin() {
 }
 
 // ── Switch profile overlay ───────────────────────────────────────
-async function switchProfile() {
+function switchProfile() {
   const profiles = getSavedProfiles();
   if (!profiles.length) { startNewProfile(); return; }
-  // Validate profiles against Firebase — remove any deleted by admin
-  const checks = await Promise.all(profiles.map(p => db.collection('users').doc(p.id).get().catch(()=>null)));
-  const valid = profiles.filter((p, i) => checks[i] && checks[i].exists);
-  if (valid.length !== profiles.length) {
-    localStorage.setItem('gsc_profiles', JSON.stringify(valid));
-  }
-  if (!valid.length) {
-    renderSavedProfilesOnWelcome(); // hides the Existing User button
-    return;
-  }
+  // Show picker immediately from local cache — no Firestore wait
   const list = document.getElementById('profilePickList');
   list.innerHTML = '';
-  valid.forEach((p, i) => {
+  profiles.forEach((p, i) => {
     const tm = THEMES[p.themeMaths] || THEMES.space;
     const card = document.createElement('div');
     card.className = 'profile-pick-card';
@@ -747,6 +741,15 @@ async function switchProfile() {
     list.appendChild(card);
   });
   document.getElementById('profilePickerOverlay').classList.add('open');
+  // Background: silently remove profiles deleted by admin
+  Promise.all(profiles.map(p => db.collection('users').doc(p.id).get().catch(()=>null)))
+    .then(checks => {
+      const valid = profiles.filter((p, i) => checks[i] && checks[i].exists);
+      if (valid.length !== profiles.length) {
+        localStorage.setItem('gsc_profiles', JSON.stringify(valid));
+        if (!valid.length) { closeProfilePicker(); renderSavedProfilesOnWelcome(); }
+      }
+    }).catch(()=>{});
 }
 function closeProfilePicker() { document.getElementById('profilePickerOverlay').classList.remove('open'); }
 function profilePickerClick(e) { if (e.target === document.getElementById('profilePickerOverlay')) closeProfilePicker(); }
