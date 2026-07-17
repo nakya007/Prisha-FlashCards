@@ -17,11 +17,14 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
 .signin-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:36px 28px;width:100%;max-width:380px;text-align:center;}
 .signin-logo{font-size:48px;margin-bottom:12px;}
 .signin-title{font-size:22px;font-weight:900;margin-bottom:4px;}
-.signin-sub{font-size:13px;opacity:0.45;margin-bottom:28px;}
-.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border-radius:14px;border:none;background:#fff;color:#222;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:box-shadow 0.15s,transform 0.12s;box-shadow:0 2px 16px rgba(0,0,0,0.35);}
-.btn-google:hover{transform:translateY(-2px);box-shadow:0 4px 22px rgba(0,0,0,0.45);}
-.btn-google svg{width:20px;height:20px;flex-shrink:0;}
-.signin-err{color:#ef9a9a;font-size:13px;margin-top:14px;min-height:18px;}
+.signin-sub{font-size:13px;opacity:0.45;margin-bottom:24px;}
+.signin-field{width:100%;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#fff;font-size:15px;font-family:'Nunito',sans-serif;margin-bottom:12px;box-sizing:border-box;outline:none;}
+.signin-field:focus{border-color:rgba(139,92,246,0.6);background:rgba(255,255,255,0.10);}
+.signin-field::placeholder{color:rgba(255,255,255,0.3);}
+.btn-signin{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px;transition:opacity 0.15s,transform 0.12s;}
+.btn-signin:hover{transform:translateY(-2px);opacity:0.92;}
+.btn-signin:disabled{opacity:0.5;cursor:default;transform:none;}
+.signin-err{color:#ef9a9a;font-size:13px;margin-top:12px;min-height:18px;}
 .back-home{margin-top:18px;color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;}
 .back-home:hover{color:rgba(255,255,255,0.55);}
 
@@ -147,10 +150,9 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
     <div class="signin-logo">🔐</div>
     <div class="signin-title">Admin Login</div>
     <div class="signin-sub">Grammar School Prep</div>
-    <button class="btn-google" onclick="adminSignIn()">
-      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Sign in with Google
-    </button>
+    <input class="signin-field" id="adminEmail" type="email" placeholder="Admin email" autocomplete="email" value="grammarschooladmin@gmail.com">
+    <input class="signin-field" id="adminPassword" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminSignIn()">
+    <button class="btn-signin" id="adminSignInBtn" onclick="adminSignIn()">Sign in</button>
     <div class="signin-err" id="signinErr"></div>
     <button class="back-home" onclick="window.location.href='index.html'">← Back to site</button>
   </div>
@@ -256,73 +258,39 @@ const THEME_COLORS = {
 
 const TOPIC_SUBJECT = {}; // Could be extended to tag topics by subject
 
-// ── Auth (Google Sign-In via Firebase) ──────────────────────────────
+// ── Auth (Email + Password — works on all browsers, no popups) ──────
 const auth = firebase.auth();
 
-// Detect iOS / Safari — popup is unreliable there; use redirect instead
-function _useRedirect() {
-  var ua = navigator.userAgent;
-  return /iPhone|iPad|iPod/i.test(ua) || (/Safari/i.test(ua) && !/Chrome|CriOS|FxiOS/i.test(ua));
-}
-
-// Handle redirect result on page load (fires after signInWithRedirect returns)
-firebase.auth().getRedirectResult().then(function(result) {
-  // onAuthStateChanged handles the session — nothing extra needed
-}).catch(function(err) {
-  if (err.code && err.code !== 'auth/no-auth-event') {
-    const errEl = document.getElementById('signinErr');
-    if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
-  }
-});
-
+// If already signed in from a previous session, go straight to dashboard
 firebase.auth().onAuthStateChanged(user => {
   if (user && user.email === ADMIN_EMAIL) {
     showDashboard();
-  } else if (user) {
-    // Signed in but wrong account
-    const errEl = document.getElementById('signinErr');
-    if (errEl) errEl.textContent = '❌ ' + user.email + ' is not authorised. Please use grammarschooladmin@gmail.com.';
-    auth.signOut();
   }
-  // user === null → stay on sign-in screen, do nothing
 });
 
 async function adminSignIn() {
+  const email = (document.getElementById('adminEmail').value || '').trim();
+  const password = document.getElementById('adminPassword').value;
   const errEl = document.getElementById('signinErr');
-  const btn = document.querySelector('.btn-google');
-  if (btn && btn.disabled) return;
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.55'; }
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
-
-  if (_useRedirect()) {
-    // iOS / Safari: redirect is reliable; popup is not
-    if (errEl) errEl.textContent = 'Redirecting to Google sign-in…';
-    try {
-      await auth.signInWithRedirect(provider);
-      // Page navigates away — onAuthStateChanged handles it on return
-    } catch(err) {
-      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
-      if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
-    }
-    return;
+  const btn = document.getElementById('adminSignInBtn');
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.'; return;
   }
-
-  // Desktop Chrome / Firefox: popup works fine
-  if (errEl) errEl.textContent = 'Opening sign-in popup…';
+  errEl.textContent = '';
+  btn.disabled = true; btn.textContent = 'Signing in…';
   try {
-    await auth.signInWithPopup(provider);
-    // onAuthStateChanged handles the rest
+    await auth.signInWithEmailAndPassword(email, password);
+    // onAuthStateChanged fires → showDashboard()
   } catch(err) {
-    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
-    if (err.code === 'auth/popup-blocked') {
-      if (errEl) errEl.textContent = '⚠️ Popup blocked — allow popups for this site, then try again.';
-    } else if (err.code === 'auth/popup-closed-by-user') {
-      if (errEl) errEl.textContent = 'Sign-in cancelled — tap to try again.';
+    btn.disabled = false; btn.textContent = 'Sign in';
+    if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      errEl.textContent = '❌ Wrong email or password.';
+    } else if (err.code === 'auth/too-many-requests') {
+      errEl.textContent = '⚠️ Too many attempts — wait a few minutes and try again.';
     } else if (err.code === 'auth/network-request-failed') {
-      if (errEl) errEl.textContent = '❌ No internet — check your connection and try again.';
+      errEl.textContent = '❌ No internet — check your connection.';
     } else {
-      if (errEl) errEl.textContent = '❌ Sign-in failed: ' + (err.message || err.code);
+      errEl.textContent = '❌ ' + (err.message || err.code);
     }
   }
 }
@@ -331,6 +299,10 @@ function signOut() {
   auth.signOut();
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('signinWrap').style.display = 'flex';
+  const btn = document.getElementById('adminSignInBtn');
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+  const errEl = document.getElementById('signinErr');
+  if (errEl) errEl.textContent = '';
 }
 
 function goToSite() {
