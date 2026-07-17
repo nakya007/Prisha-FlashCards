@@ -159,11 +159,11 @@ body.theme-neon #themeDecor{background-image:repeating-linear-gradient(0deg,tran
 /* ── Card ── */
 #cardWrapper{position:relative;cursor:pointer;margin-bottom:12px;}
 .card-rated-badge{position:absolute;top:12px;right:14px;font-size:22px;z-index:10;pointer-events:none;}
-.card-inner{position:relative;min-height:300px;}
+.card-inner{display:grid;grid-template-columns:1fr;min-height:300px;position:relative;}
 .card-inner.flipped .card-face-front{opacity:0;pointer-events:none;}
 .card-inner.flipped .card-face-back{opacity:1;pointer-events:auto;}
-.card-face-front,.card-face-back{border-radius:22px;padding:28px 24px;min-height:300px;display:flex;flex-direction:column;transition:opacity 0.32s ease;width:100%;border:1px solid var(--ta-border);box-shadow:0 8px 36px rgba(0,0,0,0.45),0 0 28px var(--ta-glow);position:relative;overflow:hidden;}
-.card-face-back{position:absolute;top:0;left:0;opacity:0;pointer-events:none;}
+.card-face-front,.card-face-back{grid-row:1;grid-column:1;border-radius:22px;padding:28px 24px;min-height:300px;display:flex;flex-direction:column;transition:opacity 0.32s ease;width:100%;border:1px solid var(--ta-border);box-shadow:0 8px 36px rgba(0,0,0,0.45),0 0 28px var(--ta-glow);position:relative;overflow:hidden;}
+.card-face-back{opacity:0;pointer-events:none;}
 .card-face-front::after,.card-face-back::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 20%,rgba(255,255,255,0.18) 0%,transparent 60%);pointer-events:none;}
 .card-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:0.6;margin-bottom:5px;}
 .card-session{font-size:10px;opacity:0.4;margin-bottom:10px;display:none;}
@@ -548,7 +548,7 @@ function _syncToFirestore(){
       masteredTopics:lsGet(_uk('gsc_mastered_topics'),[]),
       lastActive:firebase.firestore.FieldValue.serverTimestamp()
     }).catch(function(){});
-  },2000);
+  },5000);
 }
 
 /* ── Sound ── */
@@ -1392,15 +1392,6 @@ function goBackToTopics(){window.scrollTo(0,0);
   refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
 }
 
-function syncCardHeight(){
-  var front=document.getElementById('cardFront');
-  var back=document.getElementById('cardBack');
-  var inner=document.getElementById('cardInner');
-  if(!front||!back||!inner)return;
-  inner.style.minHeight='';
-  var h=Math.max(front.offsetHeight,back.offsetHeight);
-  if(h>0)inner.style.minHeight=h+'px';
-}
 
 function renderCard(){
   if(!filtered.length){document.getElementById("cardProgress").textContent="No cards";return;}
@@ -1422,7 +1413,6 @@ function renderCard(){
   updateRatedBadge();hideRatingBtns();
   trackCardSeen(card.topic,card.q);updateSessionBar();
   if(isQuizMode)setTimeout(renderQuiz,0);
-  setTimeout(syncCardHeight,0);
 }
 
 function flipCard(){
