@@ -574,7 +574,20 @@ function renderSavedProfilesOnWelcome() {
 // Called after PIN verified — actually loads the profile
 async function _loadProfile(id, snapOverride, backgroundSync) {
   try {
-    const snap = snapOverride || await db.collection('users').doc(id).get();
+    // Background sync always reads from server (bypasses Firestore persistence cache)
+    // so admin resets are detected even when the local cache is stale
+    let snap;
+    if (snapOverride) {
+      snap = snapOverride;
+    } else if (backgroundSync) {
+      try {
+        snap = await db.collection('users').doc(id).get({source:'server'});
+      } catch(e) {
+        snap = await db.collection('users').doc(id).get(); // offline fallback to cache
+      }
+    } else {
+      snap = await db.collection('users').doc(id).get();
+    }
     if (snap.exists) {
       currentProfile = { id, ...snap.data() };
       saveProfileEntry(id, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
