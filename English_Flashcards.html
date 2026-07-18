@@ -884,10 +884,11 @@ function answerQuiz(chosen,correct,container,card){
   });
   var isCorrect=chosen===correct;
   if(isCorrect){
-    playGot();sessionQuizCorrect++;
+    playGot();sessionQuizCorrect++;sessionXP+=5;sessionCards++;
+    addXP(5);showXPFloat(5);
     var tqc=lsGet(_uk('gsc_quiz_correct'),0)+1;lsSet(_uk('gsc_quiz_correct'),tqc);
     if(tqc>=10)checkBadgeTier('quiz','b');if(tqc>=50)checkBadgeTier('quiz','s');if(tqc>=100)checkBadgeTier('quiz','g');
-    if(card)saveRating(card.topic,card.q,'got');
+    // Do NOT saveRating as 'got' — mastered status requires parent verification only
   }else{
     playHard();
     if(card){saveRating(card.topic,card.q,'hard');_quizWrongCards.push(card);}
