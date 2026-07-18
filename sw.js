@@ -1,11 +1,15 @@
-const CACHE = 'gsp-v2';
+const CACHE = 'gsp-v3';
 const ASSETS = [
   '/11-Plus-Exam-Flash-Cards/',
   '/11-Plus-Exam-Flash-Cards/index.html',
   '/11-Plus-Exam-Flash-Cards/Maths_Flashcards.html',
   '/11-Plus-Exam-Flash-Cards/English_Flashcards.html',
   '/11-Plus-Exam-Flash-Cards/icon-192.png',
-  '/11-Plus-Exam-Flash-Cards/icon-512.png'
+  '/11-Plus-Exam-Flash-Cards/icon-512.png',
+  // Firebase SDK — must be cached for the app to work offline
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
 ];
 
 self.addEventListener('install', e => {
