@@ -583,6 +583,18 @@ async function _loadProfile(id, snapOverride, backgroundSync) {
 
       // ── Merge Firestore → localStorage (take the higher value so no data is lost) ──
       const fsData = snap.data();
+
+      // Admin reset detection: if Firestore has a newer resetVersion than this device saw,
+      // wipe localStorage first so the zeroed Firestore values win instead of being overwritten
+      const fsResetVersion = fsData.resetVersion || 0;
+      const lsResetVersion = parseInt(localStorage.getItem('gsc_reset_version_'+id)||'0');
+      if (fsResetVersion > lsResetVersion) {
+        localStorage.setItem('gsc_reset_version_'+id, String(fsResetVersion));
+        ['gsc_xp','gsc_xp_maths','gsc_xp_english','gsc_streak','gsc_ratings',
+         'gsc_badges','gsc_quiz_correct','gsc_ace_topics','gsc_mastered_topics']
+          .forEach(k => localStorage.removeItem(k+'_'+id));
+      }
+
       const lsXp = parseInt(localStorage.getItem('gsc_xp_'+id)||'0')||0;
       const fsXp = fsData.xp || 0;
       const mergedXp = Math.max(lsXp, fsXp);
