@@ -478,7 +478,12 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 var _cachedUid=localStorage.getItem('gsc_userId')||'shared';
 function _uk(b){return b+'_'+_cachedUid;}
 var _el={};function _gel(id){if(!(id in _el))_el[id]=document.getElementById(id);return _el[id];}
-function _goHome(){document.body.style.transition='opacity 0.15s ease';document.body.style.opacity='0';setTimeout(function(){window.location.href='index.html';},160);}
+async function _goHome(){
+  document.body.style.transition='opacity 0.2s ease';document.body.style.opacity='0';
+  // Await Firestore flush (up to 1.2s) before navigating — ensures ratings reach server
+  await Promise.race([_flushToFirestore()||Promise.resolve(),new Promise(function(r){setTimeout(r,1200);})]);
+  window.location.href='index.html';
+}
 
 /* ── Firestore sync (keeps admin dashboard up to date) ── */
 var _syncTimer=null;
@@ -489,7 +494,7 @@ function _flushToFirestore(){
   var xp=lsGet(_uk('gsc_xp'),0);
   var streak=lsGet(_uk('gsc_streak'),{day:'',count:0});
   var ratings=lsGet(_uk('gsc_ratings'),{});
-  window.db.collection('users').doc(uid).update({
+  return window.db.collection('users').doc(uid).update({
     xp:xp,
     xpEnglish:lsGet(_uk('gsc_xp_english'),0),
     streak:streak.count||0,
@@ -504,7 +509,7 @@ function _flushToFirestore(){
 function _syncToFirestore(){
   if(_isAdminPreview||!_cachedUid||_cachedUid==='shared'||typeof window.db==='undefined')return;
   clearTimeout(_syncTimer);
-  _syncTimer=setTimeout(_flushToFirestore,5000);
+  _syncTimer=setTimeout(_flushToFirestore,2000);
 }
 /* Flush immediately when page hides (tab switch, home button, navigation) — fixes cross-device sync */
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')_flushToFirestore();});
