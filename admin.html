@@ -392,6 +392,28 @@ async function resetPin(id, name) {
   }
 }
 
+async function resetStudentProgress(id, name) {
+  if (!confirm(`Reset ALL progress for ${name}?\n\nThis will clear:\n• XP and level\n• All card ratings\n• Streak\n• Badges\n• Quiz score\n\nTheir login PIN and parent code will be kept.\nThis cannot be undone.`)) return;
+  if (!confirm(`Are you sure? This permanently clears ${name}'s progress.`)) return;
+  try {
+    await db.collection('users').doc(id).update({
+      xp: 0,
+      xpMaths: 0,
+      xpEnglish: 0,
+      streak: 0,
+      ratings: {},
+      badges: [],
+      quizCorrect: 0,
+      aceTopics: [],
+      masteredTopics: []
+    });
+    alert(`✅ ${name}'s progress has been reset.`);
+    loadStudents();
+  } catch(e) {
+    alert('Error resetting progress: ' + e.message);
+  }
+}
+
 async function deleteStudent(id, name) {
   if (!confirm(`Delete ${name}'s profile and ALL their progress? This cannot be undone.`)) return;
   // Show loading state on the card
@@ -527,6 +549,7 @@ function buildStudentCard(s) {
       <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Report</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;" onclick='showHabitReport("${s.id}","${escHtml(s.name||'Student')}")'>📅 Habits</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:${s.suspended?'rgba(74,222,128,0.12)':'rgba(251,191,36,0.12)'};border:1px solid ${s.suspended?'rgba(74,222,128,0.3)':'rgba(251,191,36,0.3)'};color:${s.suspended?'#86efac':'#fbbf24'};" onclick='suspendStudent("${s.id}","${escHtml(s.name||'Student')}",${!!s.suspended})'>${s.suspended?'✅ Unsuspend':'⚠️ Suspend'}</button>
+      <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.35);color:#fdba74;" onclick='resetStudentProgress("${s.id}","${escHtml(s.name||'Student')}",true)'>🔄 Reset</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;" onclick='deleteStudent("${s.id}","${escHtml(s.name||'this student')}")'>🗑️</button>
     </div>
   `;
