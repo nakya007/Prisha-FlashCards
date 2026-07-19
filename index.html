@@ -768,7 +768,7 @@ function switchProfile() {
     const tm = THEMES[p.themeMaths] || THEMES.space;
     const card = document.createElement('div');
     card.className = 'profile-pick-card';
-    card.innerHTML = '<div class="profile-pick-avatar">' + tm.emoji + '</div><div><div class="profile-pick-name">Profile ' + (i + 1) + '</div><div class="profile-pick-sub">Tap to sign in with PIN</div></div>';
+    card.innerHTML = '<div class="profile-pick-avatar">' + tm.emoji + '</div><div><div class="profile-pick-name">' + escHtml(p.name||('Profile '+(i+1))) + '</div><div class="profile-pick-sub">Tap to sign in with PIN</div></div>';
     card.onclick = () => selectProfile(p.id, p.name);
     list.appendChild(card);
   });
@@ -1018,24 +1018,11 @@ async function init() {
         renderHome(); showScreen('screenHome');
       }
       // ── Background sync: refresh from Firestore without blocking UI ────
-      db.collection('users').doc(userId).get().then(snap => {
+      db.collection('users').doc(userId).get().then(async snap => {
         if (!snap.exists) { if (!cached) { _goWelcome(); } return; }
-        currentProfile = { id: userId, ...snap.data() };
-        saveProfileEntry(userId, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
-        applyTheme(currentProfile.themeMaths || 'space');
-        renderHome(); // silently refresh stats/XP/badges shown on home
+        // Route through _loadProfile so resetVersion detection, merge, and PIN cache all run
+        await _loadProfile(userId, snap, true);
         if (!cached) { clearTimeout(escape); showScreen('screenHome'); }
-        db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
-        // Inline challenge sync — reuse the snap we already fetched (avoids a second Firestore read)
-        try {
-          const d = snap.data();
-          if (d.challenges) {
-            const local = JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
-            Object.keys(d.challenges).forEach(k => { if (!local[k]) local[k]={}; Object.assign(local[k], d.challenges[k]); });
-            localStorage.setItem('gsc_challenges', JSON.stringify(local));
-            renderChallengePanel(getTodayChallenges());
-          }
-        } catch(e) {}
       }).catch(e => {
         console.warn('Firebase session resume failed', e);
         if (!cached) { clearTimeout(escape); _goWelcome(); }
@@ -1228,7 +1215,7 @@ async function saveThemeChange() {
 }
 
 // Daily Challenges
-function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function _dateKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
 function getTodayChallenges(){
   try { return JSON.parse(localStorage.getItem('gsc_challenges')||'{}')[_dateKey()]||{}; } catch(e){ return {}; }
